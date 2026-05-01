@@ -14,7 +14,9 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:datastore"))
     implementation(project(":core:designsystem"))
+    implementation(project(":core:model"))
     implementation(project(":feature:account"))
     implementation(project(":feature:focus"))
     implementation(project(":feature:insights"))
@@ -24,6 +26,7 @@ dependencies {
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.navigation.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.material3)

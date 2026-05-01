@@ -282,33 +282,33 @@ Purpose: build the visual language once, then reuse it across features. The app 
 
 ### Visual Direction
 
-- [ ] Light mode: soft white/off-white background, black primary text, muted gray rings/cards/dividers.
-- [ ] Dark mode: off-black background, elevated charcoal surfaces, white primary text, muted gray rings/cards/dividers.
-- [ ] Progress accent: subtle purple/blue as shown in mockups.
-- [ ] Error/interruption: restrained red.
-- [ ] Success/clean: restrained green.
-- [ ] Toggles: blue accent as shown in Settings mockup.
-- [ ] Avoid loud gradients, neon glow, cartoon imagery, and playful gamification.
-- [ ] Use large numeric timer typography.
-- [ ] Use compact, readable labels and system-like spacing.
+- [x] Light mode: soft white/off-white background, black primary text, muted gray rings/cards/dividers.
+- [x] Dark mode: off-black background, elevated charcoal surfaces, white primary text, muted gray rings/cards/dividers.
+- [x] Progress accent: subtle purple/blue as shown in mockups.
+- [x] Error/interruption: restrained red.
+- [x] Success/clean: restrained green.
+- [x] Toggles: blue accent as shown in Settings mockup.
+- [x] Avoid loud gradients, neon glow, cartoon imagery, and playful gamification.
+- [x] Use large numeric timer typography.
+- [x] Use compact, readable labels and system-like spacing.
 
 ### Component Checklist
 
-- [ ] App theme with Light, Dark, and System modes.
-- [ ] Theme mode persistence via DataStore.
-- [ ] App scaffold with bottom navigation.
-- [ ] Top app bar/title treatment.
-- [ ] Circular timer/progress component.
-- [ ] Primary button matching mockup proportions.
-- [ ] Icon button style for minimal controls.
-- [ ] Card/surface component with soft radius and thin border.
-- [ ] Settings row component.
-- [ ] Toggle row component.
-- [ ] Metric row/card component.
+- [x] App theme with Light, Dark, and System modes.
+- [x] Theme mode persistence via DataStore.
+- [x] App scaffold with bottom navigation.
+- [x] Top app bar/title treatment.
+- [x] Circular timer/progress component.
+- [x] Primary button matching mockup proportions.
+- [x] Icon button style for minimal controls.
+- [x] Card/surface component with soft radius and thin border.
+- [x] Settings row component.
+- [x] Toggle row component.
+- [x] Metric row/card component.
 - [ ] Session history row/card component.
 - [ ] Empty state component.
-- [ ] Inline error component.
-- [ ] Pro badge.
+- [x] Inline error component.
+- [x] Pro badge.
 - [ ] Paywall teaser/gated component.
 - [ ] Bottom sheet component for duration selection.
 
@@ -322,17 +322,17 @@ Purpose: build the visual language once, then reuse it across features. The app 
 
 ### Acceptance Criteria
 
-- [ ] Focus home closely matches the light and dark mockups.
-- [ ] Insights screens use the same surface, chart, typography, and spacing language.
-- [ ] Settings screen follows the mockup structure and density.
-- [ ] No screen feels like stock Material defaults.
-- [ ] Text does not overflow on small Android devices.
+- [x] Focus home closely matches the light and dark mockups.
+- [x] Insights screens use the same surface, chart, typography, and spacing language.
+- [x] Settings screen follows the mockup structure and density.
+- [x] No screen feels like stock Material defaults.
+- [x] Text does not overflow on small Android devices.
 
 ### Documentation Updates
 
-- [ ] Document color tokens and semantic roles.
-- [ ] Document typography decisions.
-- [ ] Document any intentional differences from the mockups.
+- [x] Document color tokens and semantic roles.
+- [x] Document typography decisions.
+- [x] Document any intentional differences from the mockups.
 
 ## 7. Phase 3 - Local Persistence
 
@@ -1107,9 +1107,9 @@ Purpose: make V1 stable enough for real users. The app's credibility depends on 
 
 This is the recommended sequence to reduce rework and surface high-risk areas early.
 
-- [ ] Phase 0: Repository and tooling foundation.
-- [ ] Phase 1: Multi-module architecture.
-- [ ] Phase 2: Design system shell.
+- [x] Phase 0: Repository and tooling foundation.
+- [x] Phase 1: Multi-module architecture.
+- [x] Phase 2: Design system shell.
 - [ ] Phase 3: Local persistence.
 - [ ] Phase 4: Session domain engine.
 - [ ] Phase 5: Sensor engine.
@@ -1157,6 +1157,15 @@ Use this section during development iterations. Each meaningful implementation p
 - Why: Establish a buildable Android Studio project with stable module boundaries and automated verification before product implementation starts.
 - Tests run: `./gradlew projects`, `./gradlew tasks`, `./gradlew :app:assembleDebug`, and `./scripts/check.sh`.
 - Next steps: Begin Phase 1 planning after clarification questions, focusing on multi-module architecture dependency rules and navigation shell details.
+
+### 2026-05-01 - Phase 2 Design System And Mockup Mapping
+
+- Changed: Added app-specific light/dark theme tokens, theme-mode persistence, reusable design-system primitives, static mockup-mapped Focus/Insights/Settings screens, Compose UI tests, Paparazzi screenshot baselines, and expanded local verification.
+- Files modified: `app/`, `core/model/`, `core/datastore/`, `core/designsystem/`, `feature/focus/`, `feature/insights/`, `feature/settings/`, `gradle/libs.versions.toml`, `build.gradle.kts`, `build-logic/`, `scripts/check.sh`, `README.md`, `docs/design-system.md`, `docs/module-dependency-rules.md`, and `phase-2-design-system-mockup-plan.md`.
+- Functions/classes/components touched: `MainActivity`, `PhoneDownApp`, `PhoneDownTheme`, `PhoneDownDesign`, `ThemeMode`, `ThemeModePreference`, `FocusScreen`, `InsightsScreen`, `SettingsScreen`, `PhoneDownButton`, `PhoneDownCard`, `PhoneDownProgressRing`, `PhoneDownThemeControl`, and related test classes.
+- Why: Replace placeholder UI with a realistic V1 visual foundation while keeping real timer, analytics, account, billing, backup, and broader settings behavior deferred to their planned phases.
+- Tests run: `./gradlew ktlintCheck`, `./gradlew detekt`, `./gradlew lintDebug testDebugUnitTest`, `./gradlew :app:assembleDebug`, `./gradlew :feature:focus:verifyPaparazziDebug :feature:insights:verifyPaparazziDebug :feature:settings:verifyPaparazziDebug`, and `./gradlew :feature:focus:assembleDebugAndroidTest :feature:insights:assembleDebugAndroidTest :feature:settings:assembleDebugAndroidTest`.
+- Next steps: Start Phase 3 planning after clarification questions, focused on Room schema, DataStore settings scope, onboarding completion storage, and persistence test strategy.
 
 ## 22. Open Items To Revisit During Build
 

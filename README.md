@@ -30,6 +30,20 @@ Run the local check script before considering an implementation pass complete:
 
 The check script runs Kotlin formatting checks, static analysis, Android lint, unit tests, and a debug build.
 
+Phase 2 also adds Paparazzi screenshot verification and Compose UI-test APK compilation to the local check script. To run those checks directly:
+
+```bash
+./gradlew :feature:focus:verifyPaparazziDebug :feature:insights:verifyPaparazziDebug :feature:settings:verifyPaparazziDebug
+./gradlew :feature:focus:assembleDebugAndroidTest :feature:insights:assembleDebugAndroidTest :feature:settings:assembleDebugAndroidTest
+```
+
+Connected UI tests require an attached Android device or emulator:
+
+```bash
+adb devices
+./gradlew :feature:focus:connectedDebugAndroidTest :feature:insights:connectedDebugAndroidTest :feature:settings:connectedDebugAndroidTest
+```
+
 ## Project Structure
 
 - `:app` owns application startup, Hilt entry points, and Compose Navigation.

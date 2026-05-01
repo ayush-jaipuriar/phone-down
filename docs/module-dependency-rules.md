@@ -80,7 +80,8 @@ It should stay small. If a helper grows product-specific behavior, move it into 
 
 The design system module owns shared Compose theme and reusable UI primitives.
 
-It may depend on Compose and Material 3. It must not depend on feature modules or product domain use cases.
+It may depend on Compose, Material 3, and `:core:model` for cross-app UI enums such as `ThemeMode`.
+It must not depend on feature modules or product domain use cases.
 
 ### Android Implementation Core Modules
 
@@ -137,3 +138,10 @@ Once the architecture stabilizes, the project can add automated checks such as a
 - Placeholder screens live in their owning feature modules.
 - Hilt is wired at the application and activity level only.
 - Real repository/use-case bindings are intentionally deferred until those implementations exist.
+
+## Current Phase 2 Notes
+
+- `:core:designsystem` now owns app-specific light/dark color tokens, typography, spacing, shapes, cards, buttons, timer ring, settings rows, theme selector, inline status, and Pro badge primitives.
+- `:core:model` owns `ThemeMode` and its pure dark-theme resolver.
+- `:core:datastore` owns the narrow theme-mode DataStore preference. Broader settings persistence remains deferred to Phase 3.
+- Focus, Insights, and Settings feature modules use `:core:designsystem` and `:core:model` directly for static mockup-mapped UI and test tags.
