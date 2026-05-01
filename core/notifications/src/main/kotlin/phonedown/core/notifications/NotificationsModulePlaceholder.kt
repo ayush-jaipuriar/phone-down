@@ -1,0 +1,3 @@
+package phonedown.core.notifications
+
+object NotificationsModulePlaceholder

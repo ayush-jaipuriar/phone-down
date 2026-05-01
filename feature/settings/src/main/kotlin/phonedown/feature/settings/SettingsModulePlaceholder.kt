@@ -1,0 +1,3 @@
+package phonedown.feature.settings
+
+object SettingsModulePlaceholder

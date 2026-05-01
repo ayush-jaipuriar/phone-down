@@ -1,0 +1,3 @@
+package phonedown.feature.onboarding
+
+object OnboardingModulePlaceholder
