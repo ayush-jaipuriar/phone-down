@@ -2,7 +2,7 @@
 
 Phone Down is a native Android focus timer where focus sessions only progress while the phone is placed face down and stable.
 
-The product requirements and architecture live in [architecture.md](architecture.md). The full V1 roadmap lives in [v1-implementation-plan.md](v1-implementation-plan.md).
+The product requirements and architecture live in [architecture.md](architecture.md). The full V1 roadmap lives in [v1-implementation-plan.md](v1-implementation-plan.md), and module boundary rules live in [docs/module-dependency-rules.md](docs/module-dependency-rules.md).
 
 ## Local Requirements
 
@@ -29,6 +29,14 @@ Run the local check script before considering an implementation pass complete:
 ```
 
 The check script runs Kotlin formatting checks, static analysis, Android lint, unit tests, and a debug build.
+
+## Project Structure
+
+- `:app` owns application startup, Hilt entry points, and Compose Navigation.
+- `:feature:*` modules own screen composables and feature UI surfaces.
+- `:domain:*` modules own testable product rules without Android UI dependencies.
+- `:core:*` modules own shared models, design system code, platform integrations, and infrastructure.
+- `build-logic` contains Gradle convention plugins used to keep module build files small and consistent.
 
 ## Secrets Safety
 

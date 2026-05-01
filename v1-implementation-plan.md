@@ -48,10 +48,10 @@ Implement the app using this module structure unless Gradle constraints require 
 ### App And Core Modules
 
 - [ ] `:app`
-  - [ ] Application class.
-  - [ ] MainActivity.
-  - [ ] Compose navigation host.
-  - [ ] App-level dependency injection wiring.
+  - [x] Application class.
+  - [x] MainActivity.
+  - [x] Compose navigation host.
+  - [x] App-level dependency injection wiring.
   - [ ] App theme entry point.
   - [ ] Foreground service registration.
 - [ ] `:core:common`
@@ -148,10 +148,12 @@ Implement the app using this module structure unless Gradle constraints require 
   - [ ] Best weekday calculation.
   - [ ] Completion, clean, and interruption trend calculations.
 - [ ] `:feature:onboarding`
+  - [x] Placeholder route/screen.
   - [ ] 3-card onboarding flow.
   - [ ] Completion persistence.
   - [ ] Permission education copy.
 - [ ] `:feature:focus`
+  - [x] Placeholder route/screen.
   - [ ] Focus home screen.
   - [ ] Duration selector.
   - [ ] Waiting state.
@@ -161,6 +163,7 @@ Implement the app using this module structure unless Gradle constraints require 
   - [ ] Completed state.
   - [ ] Early end confirmation.
 - [ ] `:feature:insights`
+  - [x] Placeholder route/screen.
   - [ ] Today summary.
   - [ ] Focus quality card.
   - [ ] Last 7 days chart.
@@ -169,6 +172,7 @@ Implement the app using this module structure unless Gradle constraints require 
   - [ ] Pro advanced insights.
   - [ ] Paywall entry points.
 - [ ] `:feature:settings`
+  - [x] Placeholder route/screen.
   - [ ] Timer settings.
   - [ ] Theme setting.
   - [ ] Sound/haptic toggles.
@@ -177,12 +181,14 @@ Implement the app using this module structure unless Gradle constraints require 
   - [ ] Privacy section.
   - [ ] About section.
 - [ ] `:feature:account`
+  - [x] Placeholder route/screen.
   - [ ] Google account state.
   - [ ] Sign-in flow.
   - [ ] Sign-out flow.
   - [ ] Backup status UI.
   - [ ] Restore flow UI.
 - [ ] `:feature:pro`
+  - [x] Placeholder route/screen.
   - [ ] Paywall.
   - [ ] Product list.
   - [ ] Purchase flow.
@@ -228,36 +234,47 @@ Purpose: establish boundaries before business logic lands. The session engine, s
 
 ### Checklist
 
-- [ ] Create all planned Gradle modules.
-- [ ] Define dependency direction rules.
-- [ ] Keep domain modules free of Android UI dependencies.
-- [ ] Keep core model module dependency-light.
-- [ ] Configure Hilt across app and Android modules.
-- [ ] Configure test dependencies per module.
-- [ ] Add sample module-level tests to verify test wiring.
-- [ ] Add navigation shell with 3 tabs: Focus, Insights, Settings.
-- [ ] Add route placeholders for onboarding, account, pro, and backup flows.
+- [x] Create all planned Gradle modules.
+- [x] Define dependency direction rules.
+- [x] Keep domain modules free of Android UI dependencies.
+- [x] Keep core model module dependency-light.
+- [x] Configure Hilt across app and Android modules.
+- [x] Configure test dependencies per module.
+- [x] Add sample module-level tests to verify test wiring.
+- [x] Add navigation shell with 3 tabs: Focus, Insights, Settings.
+- [x] Add route placeholders for onboarding, account, and pro flows.
 
 ### Dependency Rules
 
-- [ ] Feature modules may depend on domain modules and design system.
-- [ ] Domain modules may depend on core model and common abstractions.
-- [ ] Domain modules should not depend on Compose.
-- [ ] Database/datastore implementations should be behind repositories.
-- [ ] Sensor implementation should be behind interfaces.
-- [ ] Billing/auth/backup should be isolated from the core timer.
+- [x] Feature modules may depend on domain modules and design system.
+- [x] Domain modules may depend on core model and common abstractions.
+- [x] Domain modules should not depend on Compose.
+- [x] Database/datastore implementations should be behind repositories.
+- [x] Sensor implementation should be behind interfaces.
+- [x] Billing/auth/backup should be isolated from the core timer.
 
 ### Acceptance Criteria
 
-- [ ] App compiles with empty feature screens.
-- [ ] Navigation shell can switch between Focus, Insights, and Settings.
-- [ ] Domain tests can run without Android device/emulator.
-- [ ] Module dependencies do not create circular references.
+- [x] App compiles with empty feature screens.
+- [x] Navigation shell can switch between Focus, Insights, and Settings.
+- [x] Domain tests can run without Android device/emulator.
+- [x] Module dependencies do not create circular references.
 
 ### Documentation Updates
 
-- [ ] Add module responsibility notes to the implementation plan or a dedicated architecture note.
-- [ ] Document any intentional deviation from the module list in `architecture.md`.
+- [x] Add module responsibility notes to the implementation plan or a dedicated architecture note.
+- [x] Document any intentional deviation from the module list in `architecture.md`.
+
+### Phase 1 Progress Log
+
+- [x] Completed on May 1, 2026.
+- [x] Added `build-logic` convention plugins and migrated app, core, domain, and feature modules to shared Gradle conventions.
+- [x] Added Hilt foundation with `PhoneDownApplication`, manifest registration, and `MainActivity` entry-point annotation.
+- [x] Added Compose Navigation shell with onboarding as initial route, Focus/Insights/Settings bottom tabs, and Account/Pro placeholder routes.
+- [x] Added placeholder screen composables in each feature module.
+- [x] Added `docs/module-dependency-rules.md` for module boundaries and navigation ownership.
+- [x] Verified with `./gradlew projects`, `./gradlew tasks`, and `./scripts/check.sh`.
+- [ ] Manual emulator smoke testing was not run during this architecture phase.
 
 ## 6. Phase 2 - Design System And Mockup Mapping
 

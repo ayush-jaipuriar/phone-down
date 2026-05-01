@@ -1,7 +1,3 @@
 plugins {
-    alias(libs.plugins.kotlin.jvm)
-}
-
-kotlin {
-    jvmToolchain(17)
+    id("phonedown.kotlin.library")
 }
