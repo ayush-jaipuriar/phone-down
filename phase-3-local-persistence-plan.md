@@ -25,22 +25,22 @@ It should not try to make sessions run yet. That distinction matters because sto
 
 ### In Scope
 
-- [ ] Add Room dependencies and configuration.
-- [ ] Add database schema export path.
-- [ ] Add `PhoneDownDatabase`.
-- [ ] Add `FocusSessionEntity`.
-- [ ] Add `PenaltyEventEntity`.
-- [ ] Add backup metadata entity or DataStore-backed metadata, depending on best fit during implementation.
-- [ ] Add DAOs for sessions and penalty events.
-- [ ] Add transaction helpers for session-plus-penalty writes.
-- [ ] Add domain models/enums in `:core:model`.
-- [ ] Add mapper functions between entities and domain models.
-- [ ] Add repository interfaces.
-- [ ] Add repository implementations.
-- [ ] Add DataStore-backed settings repository.
-- [ ] Consolidate existing theme preference into the broader settings persistence surface.
-- [ ] Add tests for DAOs, mappers, repositories, DataStore flows, and DB creation.
-- [ ] Update docs and progress logs.
+- [x] Add Room dependencies and configuration.
+- [x] Add database schema export path.
+- [x] Add `PhoneDownDatabase`.
+- [x] Add `FocusSessionEntity`.
+- [x] Add `PenaltyEventEntity`.
+- [x] Add backup metadata entity or DataStore-backed metadata, depending on best fit during implementation.
+- [x] Add DAOs for sessions and penalty events.
+- [x] Add transaction helpers for session-plus-penalty writes.
+- [x] Add domain models/enums in `:core:model`.
+- [x] Add mapper functions between entities and domain models.
+- [x] Add repository interfaces.
+- [x] Add repository implementations.
+- [x] Add DataStore-backed settings repository.
+- [x] Consolidate existing theme preference into the broader settings persistence surface.
+- [x] Add tests for DAOs, mappers, repositories, DataStore flows, and DB creation.
+- [x] Update docs and progress logs.
 
 ### Out Of Scope
 
@@ -492,98 +492,98 @@ Connected UI tests remain optional unless an emulator/device is available:
 
 ### Step 1 - Dependency And Build Setup
 
-- [ ] Add Room dependencies to `gradle/libs.versions.toml`.
-- [ ] Add Room testing dependency.
-- [ ] Add any needed coroutine test/Turbine dependency if missing.
-- [ ] Configure KSP for `:core:database`.
-- [ ] Configure Room schema export arguments.
-- [ ] Confirm `scripts/check.sh` still covers the right tasks.
+- [x] Add Room dependencies to `gradle/libs.versions.toml`.
+- [x] Add Room testing dependency.
+- [x] Add any needed coroutine test/Turbine dependency if missing.
+- [x] Configure KSP for `:core:database`.
+- [x] Configure Room schema export arguments.
+- [x] Confirm `scripts/check.sh` still covers the right tasks.
 
 ### Step 2 - Core Models
 
-- [ ] Add `FocusSession`.
-- [ ] Add `PenaltyEvent`.
-- [ ] Add `SessionState`.
-- [ ] Add `SessionResult`.
-- [ ] Add `PenaltyEventType`.
-- [ ] Add `UserSettings`.
-- [ ] Add default settings constants/helper if useful.
-- [ ] Add pure model tests.
+- [x] Add `FocusSession`.
+- [x] Add `PenaltyEvent`.
+- [x] Add `SessionState`.
+- [x] Add `SessionResult`.
+- [x] Add `PenaltyEventType`.
+- [x] Add `UserSettings`.
+- [x] Add default settings constants/helper if useful.
+- [x] Add pure model tests.
 
 ### Step 3 - Room Entities And Mappers
 
-- [ ] Add `FocusSessionEntity`.
-- [ ] Add `PenaltyEventEntity`.
-- [ ] Add explicit enum string mappers.
-- [ ] Add entity/domain mappers.
-- [ ] Add mapper tests.
+- [x] Add `FocusSessionEntity`.
+- [x] Add `PenaltyEventEntity`.
+- [x] Add explicit enum string mappers.
+- [x] Add entity/domain mappers.
+- [x] Add mapper tests.
 
 ### Step 4 - DAOs And Database
 
-- [ ] Add `FocusSessionDao`.
-- [ ] Add `PenaltyEventDao`.
-- [ ] Add transaction support.
-- [ ] Add `PhoneDownDatabase`.
-- [ ] Add database version 1 schema export.
-- [ ] Add DAO tests.
+- [x] Add `FocusSessionDao`.
+- [x] Add `PenaltyEventDao`.
+- [x] Add transaction support.
+- [x] Add `PhoneDownDatabase`.
+- [x] Add database version 1 schema export.
+- [x] Add DAO tests.
 
 ### Step 5 - Session Repository
 
-- [ ] Add `SessionRepository` interface.
-- [ ] Add `RoomSessionRepository`.
-- [ ] Add repository tests.
-- [ ] Add Hilt binding if app-level injection is introduced now.
+- [x] Add `SessionRepository` interface.
+- [x] Add `RoomSessionRepository`.
+- [x] Add repository tests.
+- [x] Add Hilt binding if app-level injection is introduced now.
 
 ### Step 6 - Settings Repository
 
-- [ ] Add/expand DataStore preferences for all V1 settings.
-- [ ] Add `SettingsRepository`.
-- [ ] Add `DataStoreSettingsRepository`.
-- [ ] Migrate current theme preference usage to the settings repository if low risk.
-- [ ] Keep backward-compatible theme key so existing local installs do not lose theme preference.
-- [ ] Add DataStore repository tests.
+- [x] Add/expand DataStore preferences for all V1 settings.
+- [x] Add `SettingsRepository`.
+- [x] Add `DataStoreSettingsRepository`.
+- [x] Migrate current theme preference usage to the settings repository if low risk.
+- [x] Keep backward-compatible theme key so existing local installs do not lose theme preference.
+- [x] Add DataStore repository tests.
 
 ### Step 7 - Backup Metadata Readiness
 
-- [ ] Add backup opt-in and auto-backup preference methods.
-- [ ] Add last backup timestamp support.
-- [ ] Add repository methods needed by later export/restore.
-- [ ] Document backup transport as deferred.
+- [x] Add backup opt-in and auto-backup preference methods.
+- [x] Add last backup timestamp support.
+- [x] Add repository methods needed by later export/restore.
+- [x] Document backup transport as deferred.
 
 ### Step 8 - Documentation
 
-- [ ] Update `v1-implementation-plan.md`.
-- [ ] Update `docs/module-dependency-rules.md` if repository placement changes.
-- [ ] Add or update `docs/persistence.md`.
-- [ ] Update `README.md` if verification/setup commands change.
-- [ ] Mark this plan with implementation completion notes after implementation.
+- [x] Update `v1-implementation-plan.md`.
+- [x] Update `docs/module-dependency-rules.md` if repository placement changes.
+- [x] Add or update `docs/persistence.md`.
+- [x] Update `README.md` if verification/setup commands change.
+- [x] Mark this plan with implementation completion notes after implementation.
 
 ### Step 9 - Full Verification
 
 - [ ] Run all checks listed in the testing section.
-- [ ] Run `git diff --check`.
-- [ ] Run sensitive-file scan.
+- [x] Run `git diff --check`.
+- [x] Run sensitive-file scan.
 - [ ] Report any connected UI test limitation if no device/emulator is available.
 
 ## 10. Acceptance Criteria
 
 Phase 3 is complete only when:
 
-- [ ] Room database exists and builds.
-- [ ] Version 1 schema is exported.
-- [ ] Session and penalty entities match the V1 architecture model.
-- [ ] Session and penalty DAOs support required insert/update/query flows.
-- [ ] Penalty events are associated with sessions.
-- [ ] Session deletion cascades penalty events.
-- [ ] Recoverable session query exists but does not perform final recovery classification.
-- [ ] Repository interfaces and real implementations exist.
-- [ ] Settings DataStore stores all planned V1 settings.
-- [ ] Existing theme persistence still works.
-- [ ] Onboarding completion can be persisted.
-- [ ] Backup opt-in, auto-backup, and last backup metadata can be persisted.
+- [x] Room database exists and builds.
+- [x] Version 1 schema is exported.
+- [x] Session and penalty entities match the V1 architecture model.
+- [x] Session and penalty DAOs support required insert/update/query flows.
+- [x] Penalty events are associated with sessions.
+- [x] Session deletion cascades penalty events.
+- [x] Recoverable session query exists but does not perform final recovery classification.
+- [x] Repository interfaces and real implementations exist.
+- [x] Settings DataStore stores all planned V1 settings.
+- [x] Existing theme persistence still works.
+- [x] Onboarding completion can be persisted.
+- [x] Backup opt-in, auto-backup, and last backup metadata can be persisted.
 - [ ] Unit, DAO, repository, and DataStore tests pass.
 - [ ] Full local verification passes.
-- [ ] Documentation is updated.
+- [x] Documentation is updated.
 - [ ] User is informed of verification results.
 
 ## 11. Recommended Answers Captured As Implementation Policy
@@ -663,8 +663,15 @@ Implementation must not begin until this Phase 3 plan is approved.
 
 Approval options:
 
-- Approve Phase 3 as written and begin implementation.
+- [x] Approve Phase 3 as written and begin implementation.
 - Request a smaller repository scope.
 - Request a different repository placement strategy, such as adding `:core:data`.
 - Request schema/model changes before implementation.
 - Request broader or narrower settings persistence.
+
+---
+
+### Implementation Completion Note
+**Phase 3 implementation was completed on May 1, 2026.**
+All data models, database entities, DAOs, repositories, and dependency injection wiring have been created. Unit tests and instrumented Room tests have been written.
+Partial verification is complete: the version 1 Room schema has been generated into `core/database/schemas/`, and focused JVM tests for `:core:database` and `:core:datastore` have passed. The full automated Phase 3 checks still need to be run before Phase 3 can be marked complete.

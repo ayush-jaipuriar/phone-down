@@ -1,8 +1,11 @@
+import org.gradle.kotlin.dsl.configure
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
+
 plugins {
     id("org.jetbrains.kotlin.jvm")
 }
 
-kotlin {
+extensions.configure<KotlinJvmProjectExtension> {
     jvmToolchain(17)
 }
 

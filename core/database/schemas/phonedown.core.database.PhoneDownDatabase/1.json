@@ -1,0 +1,302 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "bf50d8e5e24650626f5cc357fffe2bfa",
+    "entities": [
+      {
+        "tableName": "focus_sessions",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `planned_duration_seconds` INTEGER NOT NULL, `required_duration_seconds` INTEGER NOT NULL, `valid_focus_seconds` INTEGER NOT NULL, `actual_elapsed_seconds` INTEGER NOT NULL, `penalty_seconds` INTEGER NOT NULL, `interruption_count` INTEGER NOT NULL, `minor_interruption_count` INTEGER NOT NULL, `penalty_interruption_count` INTEGER NOT NULL, `started_at_epoch_millis` INTEGER NOT NULL, `ended_at_epoch_millis` INTEGER, `start_elapsed_realtime` INTEGER NOT NULL, `end_elapsed_realtime` INTEGER, `state` TEXT NOT NULL, `result` TEXT, `clean` INTEGER NOT NULL, `broken` INTEGER NOT NULL, `call_interrupted` INTEGER NOT NULL, `created_at_epoch_millis` INTEGER NOT NULL, `updated_at_epoch_millis` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "plannedDurationSeconds",
+            "columnName": "planned_duration_seconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "requiredDurationSeconds",
+            "columnName": "required_duration_seconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "validFocusSeconds",
+            "columnName": "valid_focus_seconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "actualElapsedSeconds",
+            "columnName": "actual_elapsed_seconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "penaltySeconds",
+            "columnName": "penalty_seconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "interruptionCount",
+            "columnName": "interruption_count",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "minorInterruptionCount",
+            "columnName": "minor_interruption_count",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "penaltyInterruptionCount",
+            "columnName": "penalty_interruption_count",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startedAtEpochMillis",
+            "columnName": "started_at_epoch_millis",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "endedAtEpochMillis",
+            "columnName": "ended_at_epoch_millis",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "startElapsedRealtime",
+            "columnName": "start_elapsed_realtime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "endElapsedRealtime",
+            "columnName": "end_elapsed_realtime",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "state",
+            "columnName": "state",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "result",
+            "columnName": "result",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "clean",
+            "columnName": "clean",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "broken",
+            "columnName": "broken",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "callInterrupted",
+            "columnName": "call_interrupted",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAtEpochMillis",
+            "columnName": "created_at_epoch_millis",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAtEpochMillis",
+            "columnName": "updated_at_epoch_millis",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_focus_sessions_started_at_epoch_millis",
+            "unique": false,
+            "columnNames": [
+              "started_at_epoch_millis"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_focus_sessions_started_at_epoch_millis` ON `${TABLE_NAME}` (`started_at_epoch_millis`)"
+          },
+          {
+            "name": "index_focus_sessions_ended_at_epoch_millis",
+            "unique": false,
+            "columnNames": [
+              "ended_at_epoch_millis"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_focus_sessions_ended_at_epoch_millis` ON `${TABLE_NAME}` (`ended_at_epoch_millis`)"
+          },
+          {
+            "name": "index_focus_sessions_state",
+            "unique": false,
+            "columnNames": [
+              "state"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_focus_sessions_state` ON `${TABLE_NAME}` (`state`)"
+          },
+          {
+            "name": "index_focus_sessions_result",
+            "unique": false,
+            "columnNames": [
+              "result"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_focus_sessions_result` ON `${TABLE_NAME}` (`result`)"
+          },
+          {
+            "name": "index_focus_sessions_clean",
+            "unique": false,
+            "columnNames": [
+              "clean"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_focus_sessions_clean` ON `${TABLE_NAME}` (`clean`)"
+          },
+          {
+            "name": "index_focus_sessions_broken",
+            "unique": false,
+            "columnNames": [
+              "broken"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_focus_sessions_broken` ON `${TABLE_NAME}` (`broken`)"
+          },
+          {
+            "name": "index_focus_sessions_updated_at_epoch_millis",
+            "unique": false,
+            "columnNames": [
+              "updated_at_epoch_millis"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_focus_sessions_updated_at_epoch_millis` ON `${TABLE_NAME}` (`updated_at_epoch_millis`)"
+          }
+        ]
+      },
+      {
+        "tableName": "penalty_events",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `session_id` TEXT NOT NULL, `type` TEXT NOT NULL, `started_at_epoch_millis` INTEGER NOT NULL, `ended_at_epoch_millis` INTEGER, `duration_seconds` INTEGER NOT NULL, `penalty_seconds` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`session_id`) REFERENCES `focus_sessions`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sessionId",
+            "columnName": "session_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startedAtEpochMillis",
+            "columnName": "started_at_epoch_millis",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "endedAtEpochMillis",
+            "columnName": "ended_at_epoch_millis",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "durationSeconds",
+            "columnName": "duration_seconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "penaltySeconds",
+            "columnName": "penalty_seconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_penalty_events_session_id",
+            "unique": false,
+            "columnNames": [
+              "session_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_penalty_events_session_id` ON `${TABLE_NAME}` (`session_id`)"
+          },
+          {
+            "name": "index_penalty_events_type",
+            "unique": false,
+            "columnNames": [
+              "type"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_penalty_events_type` ON `${TABLE_NAME}` (`type`)"
+          },
+          {
+            "name": "index_penalty_events_started_at_epoch_millis",
+            "unique": false,
+            "columnNames": [
+              "started_at_epoch_millis"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_penalty_events_started_at_epoch_millis` ON `${TABLE_NAME}` (`started_at_epoch_millis`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "focus_sessions",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "session_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'bf50d8e5e24650626f5cc357fffe2bfa')"
+    ]
+  }
+}

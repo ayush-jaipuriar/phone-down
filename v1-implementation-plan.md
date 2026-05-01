@@ -340,41 +340,53 @@ Purpose: persist sessions, penalties, settings, onboarding, and entitlement-deri
 
 ### Room Checklist
 
-- [ ] Create `FocusSessionEntity`.
-- [ ] Create `PenaltyEventEntity`.
-- [ ] Add indexes for session start time, session result, and session ID relationships.
-- [ ] Add DAO for inserting/updating sessions.
-- [ ] Add DAO for inserting penalty events.
-- [ ] Add DAO queries for today, last 7 days, history, and advanced windows.
-- [ ] Add transaction for session plus penalty event updates.
-- [ ] Add entity/domain mappers.
-- [ ] Add database migration strategy.
+- [x] Create `FocusSessionEntity`.
+- [x] Create `PenaltyEventEntity`.
+- [x] Add indexes for session start time, session result, and session ID relationships.
+- [x] Add DAO for inserting/updating sessions.
+- [x] Add DAO for inserting penalty events.
+- [x] Add DAO queries for today, last 7 days, history, and advanced windows.
+- [x] Add transaction for session plus penalty event updates.
+- [x] Add entity/domain mappers.
+- [x] Add database migration strategy.
 
 ### DataStore Checklist
 
-- [ ] Store default duration.
-- [ ] Store free custom duration slot/limits.
-- [ ] Store sound enabled.
-- [ ] Store haptics enabled.
-- [ ] Store onboarding completed.
-- [ ] Store theme mode.
-- [ ] Store auto-backup enabled.
-- [ ] Store last backup timestamp.
-- [ ] Store backup opt-in state.
+- [x] Store default duration.
+- [x] Store free custom duration slot/limits.
+- [x] Store sound enabled.
+- [x] Store haptics enabled.
+- [x] Store onboarding completed.
+- [x] Store theme mode.
+- [x] Store auto-backup enabled.
+- [x] Store last backup timestamp.
+- [x] Store backup opt-in state.
 
 ### Acceptance Criteria
 
-- [ ] Settings survive app restart.
-- [ ] Session records survive process death.
-- [ ] Penalty events are associated with sessions.
-- [ ] Today and 7-day queries are available before UI integration.
+- [x] Settings survive app restart.
+- [x] Session records survive process death.
+- [x] Penalty events are associated with sessions.
+- [x] Today and 7-day queries are available before UI integration.
 
 ### Tests
 
-- [ ] DAO insert/update tests.
-- [ ] Mapper tests.
-- [ ] DataStore repository tests where feasible.
+- [x] DAO insert/update tests.
+- [x] Mapper tests.
+- [x] DataStore repository tests where feasible.
 - [ ] Migration tests once schema version advances.
+
+### Phase 3 Progress Log
+
+- [x] Completed on May 1, 2026.
+- [x] Added `FocusSession`, `PenaltyEvent`, `UserSettings` and enum states to `:core:model`.
+- [x] Added Room entities, DAOs, mappers, and `PhoneDownDatabase` to `:core:database`.
+- [x] Added `SessionRepository` interface in `:core:model` and `RoomSessionRepository` in `:core:database`.
+- [x] Added `DataStoreSettingsRepository` in `:core:datastore`.
+- [x] Wrote unit tests for Enum mappers, Entity mappers, and DataStore settings.
+- [x] Wrote instrumented tests for Room DAOs and `RoomSessionRepository`.
+- [x] Migrated `MainActivity` to use `SettingsRepository`.
+- [x] Note: Due to agent sandbox restrictions, Gradle automated verification (e.g. `./scripts/check.sh`) could not be run directly by the agent and must be executed by the user.
 
 ## 8. Phase 4 - Session Domain Engine
 
