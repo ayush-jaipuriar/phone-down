@@ -1,0 +1,184 @@
+package phonedown.domain.session
+
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Test
+import phonedown.core.common.Clock
+import phonedown.core.common.IdGenerator
+import phonedown.core.model.PenaltyEventType
+import phonedown.core.model.SessionResult
+import phonedown.core.model.SessionState
+
+class SessionEngineTest {
+    private val clock = FakeClock()
+    private val idGenerator = FakeIdGenerator()
+    private val engine = SessionEngine(clock = clock, idGenerator = idGenerator)
+
+    @Test
+    fun startSessionEntersWaitingState() {
+        val runtime = engine.startSession(plannedDurationSeconds = 1_500L)
+
+        assertEquals(SessionState.WaitingForPhoneDown, runtime.session.state)
+        assertEquals(1_500L, runtime.session.plannedDurationSeconds)
+        assertEquals(1_500L, runtime.session.requiredDurationSeconds)
+        assertTrue(runtime.session.clean)
+    }
+
+    @Test
+    fun validForThreeSecondsEntersActive() {
+        var runtime = engine.startSession(plannedDurationSeconds = 600L)
+
+        runtime = engine.processInput(runtime, SessionInput.PhoneBecameValid).runtime
+        assertEquals(SessionState.Arming, runtime.session.state)
+
+        clock.advanceBy(3_000L)
+        runtime = engine.processInput(runtime, SessionInput.Tick).runtime
+
+        assertEquals(SessionState.Active, runtime.session.state)
+    }
+
+    @Test
+    fun invalidDuringArmingResetsToWaiting() {
+        var runtime = engine.startSession(plannedDurationSeconds = 600L)
+
+        runtime = engine.processInput(runtime, SessionInput.PhoneBecameValid).runtime
+        runtime = engine.processInput(runtime, SessionInput.PhoneBecameInvalid).runtime
+
+        assertEquals(SessionState.WaitingForPhoneDown, runtime.session.state)
+        assertFalse(runtime.phoneIsValid)
+    }
+
+    @Test
+    fun minorPickupWithinGraceRecordsMinorInterruptionAndResumesArming() {
+        var runtime = engine.startSession(plannedDurationSeconds = 600L)
+        runtime = engine.processInput(runtime, SessionInput.PhoneBecameValid).runtime
+        clock.advanceBy(3_000L)
+        runtime = engine.processInput(runtime, SessionInput.Tick).runtime
+
+        runtime = engine.processInput(runtime, SessionInput.PhoneBecameInvalid).runtime
+        clock.advanceBy(4_000L)
+        val transition = engine.processInput(runtime, SessionInput.PhoneBecameValid)
+
+        assertEquals(SessionState.Arming, transition.session.state)
+        assertFalse(transition.session.clean)
+        assertEquals(1, transition.session.interruptionCount)
+        assertEquals(1, transition.session.minorInterruptionCount)
+        assertEquals(1, transition.penaltyEvents.size)
+        assertEquals(PenaltyEventType.MinorPickup, transition.penaltyEvents.first().type)
+    }
+
+    @Test
+    fun invalidPastGraceAddsPenaltyAndLongInvalidMarksBroken() {
+        var runtime = engine.startSession(plannedDurationSeconds = 600L)
+        runtime = engine.processInput(runtime, SessionInput.PhoneBecameValid).runtime
+        clock.advanceBy(3_000L)
+        runtime = engine.processInput(runtime, SessionInput.Tick).runtime
+        runtime = engine.processInput(runtime, SessionInput.PhoneBecameInvalid).runtime
+
+        clock.advanceBy(6_000L)
+        val penaltyTransition = engine.processInput(runtime, SessionInput.Tick)
+        runtime = penaltyTransition.runtime
+
+        assertEquals(60L, runtime.session.penaltySeconds)
+        assertEquals(660L, runtime.session.requiredDurationSeconds)
+        assertEquals(1, runtime.session.penaltyInterruptionCount)
+        assertEquals(PenaltyEventType.PenaltyPickup, penaltyTransition.penaltyEvents.single().type)
+
+        clock.advanceBy(55_000L)
+        val brokenTransition = engine.processInput(runtime, SessionInput.Tick)
+
+        assertTrue(brokenTransition.session.broken)
+        assertEquals(SessionState.Broken, brokenTransition.session.state)
+        assertEquals(PenaltyEventType.LongPickup, brokenTransition.penaltyEvents.single().type)
+    }
+
+    @Test
+    fun thirdPenaltyMarksSessionBroken() {
+        var runtime = engine.startSession(plannedDurationSeconds = 600L)
+        runtime = engine.processInput(runtime, SessionInput.PhoneBecameValid).runtime
+        clock.advanceBy(3_000L)
+        runtime = engine.processInput(runtime, SessionInput.Tick).runtime
+
+        repeat(3) {
+            runtime = engine.processInput(runtime, SessionInput.PhoneBecameInvalid).runtime
+            clock.advanceBy(6_000L)
+            runtime = engine.processInput(runtime, SessionInput.Tick).runtime
+            runtime = engine.processInput(runtime, SessionInput.PhoneBecameValid).runtime
+            clock.advanceBy(3_000L)
+            runtime = engine.processInput(runtime, SessionInput.Tick).runtime
+        }
+
+        assertTrue(runtime.session.broken)
+        assertEquals(SessionState.Active, runtime.session.state)
+        assertEquals(3, runtime.session.penaltyInterruptionCount)
+    }
+
+    @Test
+    fun manualEndUsesEarlyEndThresholds() {
+        assertEquals(
+            SessionResult.Invalidated,
+            manualEndResultAfterValidFocusSeconds(validFocusSeconds = 200L),
+        )
+        assertEquals(
+            SessionResult.Partial,
+            manualEndResultAfterValidFocusSeconds(validFocusSeconds = 790L),
+        )
+        assertEquals(
+            SessionResult.StrongPartial,
+            manualEndResultAfterValidFocusSeconds(validFocusSeconds = 990L),
+        )
+    }
+
+    @Test
+    fun callPauseRemovesCleanStatusAndRecordsEventOnEnd() {
+        var runtime = engine.startSession(plannedDurationSeconds = 600L)
+        runtime = engine.processInput(runtime, SessionInput.PhoneBecameValid).runtime
+        clock.advanceBy(3_000L)
+        runtime = engine.processInput(runtime, SessionInput.Tick).runtime
+
+        runtime = engine.processInput(runtime, SessionInput.CallStarted).runtime
+        assertEquals(SessionState.PausedByCall, runtime.session.state)
+        assertFalse(runtime.session.clean)
+
+        clock.advanceBy(10_000L)
+        val transition = engine.processInput(runtime, SessionInput.CallEnded)
+
+        assertEquals(SessionState.WaitingForPhoneDown, transition.session.state)
+        assertEquals(PenaltyEventType.CallPause, transition.penaltyEvents.single().type)
+    }
+
+    private fun manualEndResultAfterValidFocusSeconds(validFocusSeconds: Long): SessionResult {
+        var runtime = engine.startSession(plannedDurationSeconds = 1_000L)
+        runtime = engine.processInput(runtime, SessionInput.PhoneBecameValid).runtime
+        clock.advanceBy(3_000L)
+        runtime = engine.processInput(runtime, SessionInput.Tick).runtime
+        clock.advanceBy(validFocusSeconds * 1_000L)
+        runtime = engine.processInput(runtime, SessionInput.Tick).runtime
+        return engine.processInput(runtime, SessionInput.ManualEndRequested).session.result!!
+    }
+}
+
+private class FakeClock : Clock {
+    private var wallTimeMillis = 1_000_000L
+    private var elapsedTimeMillis = 10_000L
+
+    override fun currentTimeMillis(): Long = wallTimeMillis
+
+    override fun elapsedRealtimeMillis(): Long = elapsedTimeMillis
+
+    fun advanceBy(durationMillis: Long) {
+        wallTimeMillis += durationMillis
+        elapsedTimeMillis += durationMillis
+    }
+}
+
+private class FakeIdGenerator : IdGenerator {
+    private var nextId = 0
+
+    override fun newId(): String {
+        val id = "id-$nextId"
+        nextId += 1
+        return id
+    }
+}

@@ -145,3 +145,10 @@ Once the architecture stabilizes, the project can add automated checks such as a
 - `:core:model` owns `ThemeMode` and its pure dark-theme resolver.
 - `:core:datastore` owns the narrow theme-mode DataStore preference. Broader settings persistence remains deferred to Phase 3.
 - Focus, Insights, and Settings feature modules use `:core:designsystem` and `:core:model` directly for static mockup-mapped UI and test tags.
+
+## Current Phase 4 Notes
+
+- `:core:common` now owns pure `Clock` and `IdGenerator` abstractions used by domain logic for deterministic tests and platform-independent runtime behavior.
+- `:domain:session` owns the session state machine, interruption rules, early-end classification, and conservative persistence recovery classification.
+- `:domain:session` depends only on `:core:common` and `:core:model`, including the `SessionRepository` contract from `:core:model`.
+- Repository orchestration for session and penalty-event writes lives in `:domain:session` use cases rather than in UI or service layers.

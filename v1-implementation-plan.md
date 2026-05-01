@@ -1123,7 +1123,7 @@ This is the recommended sequence to reduce rework and surface high-risk areas ea
 - [x] Phase 1: Multi-module architecture.
 - [x] Phase 2: Design system shell.
 - [ ] Phase 3: Local persistence.
-- [ ] Phase 4: Session domain engine.
+- [x] Phase 4: Session domain engine.
 - [ ] Phase 5: Sensor engine.
 - [ ] Phase 6: Foreground service.
 - [ ] Phase 7: Focus feature.
@@ -1178,6 +1178,15 @@ Use this section during development iterations. Each meaningful implementation p
 - Why: Replace placeholder UI with a realistic V1 visual foundation while keeping real timer, analytics, account, billing, backup, and broader settings behavior deferred to their planned phases.
 - Tests run: `./gradlew ktlintCheck`, `./gradlew detekt`, `./gradlew lintDebug testDebugUnitTest`, `./gradlew :app:assembleDebug`, `./gradlew :feature:focus:verifyPaparazziDebug :feature:insights:verifyPaparazziDebug :feature:settings:verifyPaparazziDebug`, and `./gradlew :feature:focus:assembleDebugAndroidTest :feature:insights:assembleDebugAndroidTest :feature:settings:assembleDebugAndroidTest`.
 - Next steps: Start Phase 3 planning after clarification questions, focused on Room schema, DataStore settings scope, onboarding completion storage, and persistence test strategy.
+
+### 2026-05-01 - Phase 4 Session Domain Engine
+
+- Changed: Added deterministic clock and ID abstractions, replaced the `:domain:session` placeholder with a pure Kotlin session engine, session inputs/runtime/transition models, repository-coordinating use cases, and a conservative recovery classifier for persisted sessions.
+- Files modified: `core/common/`, `domain/session/`, `phase-4-session-engine-plan.md`, `docs/module-dependency-rules.md`, and `v1-implementation-plan.md`.
+- Functions/classes/components touched: `Clock`, `IdGenerator`, `SessionEngine`, `SessionInput`, `SessionRuntime`, `SessionTransition`, `SessionRuleConfig`, `SessionRecoveryClassifier`, `StartSessionUseCase`, `ProcessSessionInputUseCase`, `EndSessionUseCase`, `RecoverSessionsUseCase`, and the new `:domain:session` unit tests.
+- Why: Move the timer, interruption, completion, and recovery rules into a testable domain layer before any Android sensor, service, or UI wiring begins.
+- Tests run: `git diff --check`, `ANDROID_HOME="$HOME/Library/Android/sdk" ./gradlew --no-configuration-cache :domain:session:test`, and `ANDROID_HOME="$HOME/Library/Android/sdk" ./gradlew --no-configuration-cache :core:common:test :core:model:test :domain:session:test`.
+- Next steps: Start Phase 5 sensor-engine planning, then connect real face-down validity signals into the Phase 4 engine.
 
 ## 22. Open Items To Revisit During Build
 
