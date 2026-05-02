@@ -102,21 +102,21 @@ Why:
 
 ## 4. In Scope
 
-- [ ] Build the real Focus tab UI in the app module.
-- [ ] Replace the placeholder Focus home with a production-ready layout.
-- [ ] Add a real duration selector bottom sheet.
-- [ ] Show preset durations and custom duration entry.
-- [ ] Persist and display selected/default duration appropriately.
-- [ ] Integrate real runtime/session state into the Focus surface.
-- [ ] Show all major session states through one animated Focus experience.
-- [ ] Add timer ring rendering and state-aware animation.
-- [ ] Add progress/feedback copy for waiting, arming, active, interrupted, paused, completed, broken/invalid, and ended-early outcomes.
-- [ ] Add confirmation UI for ending in-progress sessions from the Focus screen.
-- [ ] Add `sensor unavailable` blocked-state UX.
-- [ ] Show real repository-backed “Today” summary stats on the home state.
-- [ ] Keep Insights and Settings as placeholder routes, but ensure the bottom navigation and settings affordance feel consistent with the mockups.
-- [ ] Add screenshot/UI tests for key Focus states.
-- [ ] Update docs after implementation and verification.
+- [x] Build the real Focus tab UI in the app module.
+- [x] Replace the placeholder Focus home with a production-ready layout.
+- [x] Add a real duration selector bottom sheet.
+- [x] Show preset durations and custom duration entry.
+- [x] Persist and display selected/default duration appropriately.
+- [x] Integrate real runtime/session state into the Focus surface.
+- [x] Show all major session states through one animated Focus experience.
+- [x] Add timer ring rendering and state-aware animation.
+- [x] Add progress/feedback copy for waiting, arming, active, interrupted, paused, completed, broken/invalid, and ended-early outcomes.
+- [x] Add confirmation UI for ending in-progress sessions from the Focus screen.
+- [x] Add `sensor unavailable` blocked-state UX.
+- [x] Show real repository-backed “Today” summary stats on the home state.
+- [x] Keep Insights and Settings as placeholder routes, but ensure the bottom navigation and settings affordance feel consistent with the mockups.
+- [x] Add screenshot/UI tests for key Focus states.
+- [x] Update docs after implementation and verification.
 
 ## 5. Out Of Scope
 
@@ -550,18 +550,18 @@ Mitigation:
 
 Phase 7 is complete only when:
 
-- [ ] The Focus tab is no longer a placeholder and matches the mockups closely in both themes.
-- [ ] The Focus home state feels minimal, clear, and premium.
-- [ ] The duration selector works with presets and custom entry within the current product constraints.
-- [ ] Live session states are rendered honestly from runtime/domain state.
-- [ ] Waiting, arming, active, paused, completed, and invalid/broken outcomes all have coherent UI states.
-- [ ] The timer ring and animated transitions feel polished without harming clarity.
-- [ ] Ending a session behaves safely and predictably.
-- [ ] Sensor unavailable state blocks misleading use and provides retry guidance.
-- [ ] The Today summary uses real data and supports the home screen without turning it into Insights.
-- [ ] Automated verification passes for the implemented Focus layer.
-- [ ] Manual theme/state validation is completed.
-- [ ] Documentation is updated with real implementation and verification status.
+- [x] The Focus tab is no longer a placeholder and matches the mockups closely in both themes.
+- [x] The Focus home state feels minimal, clear, and premium.
+- [x] The duration selector works with presets and custom entry within the current product constraints.
+- [x] Live session states are rendered honestly from runtime/domain state.
+- [x] Waiting, arming, active, paused, completed, and invalid/broken outcomes all have coherent UI states.
+- [x] The timer ring and animated transitions feel polished without harming clarity.
+- [x] Ending a session behaves safely and predictably.
+- [x] Sensor unavailable state blocks misleading use and provides retry guidance.
+- [x] The Today summary uses real data and supports the home screen without turning it into Insights.
+- [x] Automated verification passes for the implemented Focus layer.
+- [x] Manual theme/state validation is completed.
+- [x] Documentation is updated with real implementation and verification status.
 
 ## 22. Recommended Implementation Order
 
@@ -577,6 +577,14 @@ Phase 7 is complete only when:
 10. Polish timer ring and animated transitions across all key states.
 11. Add UI tests, screenshot tests, and verification.
 12. Update docs with the actual implementation result.
+
+### 2026-05-02 Follow-up Review Fixes
+
+- Added real custom-duration entry in the Focus duration sheet instead of presets only.
+- Corrected `PausedByCall` copy so it is distinct from phone pickup interruptions.
+- Replaced the sensor-unavailable `Retry` no-op with a real service-level sensor retry path.
+- Fixed the selected-duration start race by passing the chosen duration through `MainActivity` and `FocusSessionService` instead of relying on an async settings write before service startup.
+- Re-recorded Paparazzi snapshots and re-ran targeted verification after the fixes.
 
 ## 23. Approval Gate
 

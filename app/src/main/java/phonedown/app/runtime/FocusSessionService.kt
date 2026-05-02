@@ -100,8 +100,16 @@ class FocusSessionService : Service() {
 
                 FocusSessionServiceContract.ACTION_START -> {
                     serviceScope.launch {
-                        runtimeCoordinator.ensureSessionStarted()
-                        startRuntimeLoops()
+                        runtimeCoordinator.ensureSessionStarted(intent.requestedDurationSeconds())
+                        startRuntimeLoops(forceRestartSensors = true)
+                    }
+                    START_STICKY
+                }
+
+                FocusSessionServiceContract.ACTION_RETRY_SENSORS -> {
+                    serviceScope.launch {
+                        runtimeCoordinator.ensureSessionStarted(intent.requestedDurationSeconds())
+                        startRuntimeLoops(forceRestartSensors = true)
                     }
                     START_STICKY
                 }
@@ -133,7 +141,12 @@ class FocusSessionService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
-    private fun startRuntimeLoops() {
+    private fun startRuntimeLoops(forceRestartSensors: Boolean = false) {
+        if (forceRestartSensors && sensorJob != null) {
+            focusValidityMonitor.stop()
+            sensorJob?.cancel()
+            sensorJob = null
+        }
         if (sensorJob == null) {
             focusValidityMonitor.start()
             sensorJob =
@@ -218,10 +231,30 @@ class FocusSessionService : Service() {
     }
 
     companion object {
-        fun start(context: Context) {
+        fun start(
+            context: Context,
+            plannedDurationSeconds: Long? = null,
+        ) {
             val intent =
                 Intent(context, FocusSessionService::class.java).apply {
                     action = FocusSessionServiceContract.ACTION_START
+                    plannedDurationSeconds?.let {
+                        putExtra(FocusSessionServiceContract.EXTRA_PLANNED_DURATION_SECONDS, it)
+                    }
+                }
+            ContextCompat.startForegroundService(context, intent)
+        }
+
+        fun retrySensors(
+            context: Context,
+            plannedDurationSeconds: Long? = null,
+        ) {
+            val intent =
+                Intent(context, FocusSessionService::class.java).apply {
+                    action = FocusSessionServiceContract.ACTION_RETRY_SENSORS
+                    plannedDurationSeconds?.let {
+                        putExtra(FocusSessionServiceContract.EXTRA_PLANNED_DURATION_SECONDS, it)
+                    }
                 }
             ContextCompat.startForegroundService(context, intent)
         }
@@ -240,5 +273,13 @@ class FocusSessionService : Service() {
         } else {
             startForeground(notificationId, notification)
         }
+    }
+
+    private fun Intent?.requestedDurationSeconds(): Long? {
+        val currentIntent = this ?: return null
+        if (!currentIntent.hasExtra(FocusSessionServiceContract.EXTRA_PLANNED_DURATION_SECONDS)) {
+            return null
+        }
+        return currentIntent.getLongExtra(FocusSessionServiceContract.EXTRA_PLANNED_DURATION_SECONDS, 0L)
     }
 }

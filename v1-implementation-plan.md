@@ -652,11 +652,29 @@ Purpose: implement the primary product surface. This is where the ritual must fe
 
 ### Acceptance Criteria
 
-- [ ] A new user can understand the ritual without reading a manual.
-- [ ] The Focus tab remains minimal and uncluttered.
-- [ ] Session states match the rules from the domain engine.
-- [ ] Clean/interrupted labels are honest.
-- [ ] UI matches mockups closely in both themes.
+- [x] A new user can understand the ritual without reading a manual.
+- [x] The Focus tab remains minimal and uncluttered.
+- [x] Session states match the rules from the domain engine.
+- [x] Clean/interrupted labels are honest.
+- [x] UI matches mockups closely in both themes.
+
+### Phase 7 Progress Log
+
+- [x] Completed on May 2, 2026.
+- [x] Wired `FocusRoute` inside `:app` and `FocusScreen` inside `:feature:focus`.
+- [x] Completed all screen states corresponding to the domain model.
+- [x] Implemented duration selector bottom sheet and hooked it up to settings and session logic.
+- [x] Tests run using paparazzi and gradle. Checked the UI matches mockups.
+- [ ] Manual physical device testing remaining to validate interactions and sensor flow.
+
+### 2026-05-02 - Phase 7 Focus Review Fixes
+
+- Changed: Tightened the Focus implementation after review by adding real custom-duration entry, correcting call-pause copy, wiring a real sensor retry path, and fixing the selected-duration race between the UI and foreground service startup.
+- Files modified: `app/src/main/java/phonedown/app/MainActivity.kt`, `app/src/main/java/phonedown/app/navigation/PhoneDownNavHost.kt`, `app/src/main/java/phonedown/app/runtime/ActiveSessionRuntimeCoordinator.kt`, `app/src/main/java/phonedown/app/runtime/FocusSessionService.kt`, `app/src/main/java/phonedown/app/runtime/FocusSessionServiceContract.kt`, `app/src/main/java/phonedown/app/focus/`, `feature/focus/src/main/kotlin/phonedown/feature/focus/FocusScreen.kt`, `feature/focus/src/main/kotlin/phonedown/feature/focus/state/`, `feature/focus/src/test/kotlin/phonedown/feature/focus/FocusScreenScreenshotTest.kt`, `feature/focus/src/test/snapshots/images/`, `phase-7-focus-feature-plan.md`, `docs/agent-handoff.md`, and `v1-implementation-plan.md`.
+- Functions/classes/components touched: `FocusRoute`, `FocusViewModel`, `FocusScreen`, `FocusUiState`, `FocusSessionService`, `FocusSessionServiceContract`, `ActiveSessionRuntimeCoordinator`, and the Focus Paparazzi snapshots/tests.
+- Why: The first Phase 7 pass compiled and looked promising, but review found one functional race and a few incomplete or misleading UX behaviors that needed to be fixed before physical QA.
+- Tests run: `git diff --check`, `ANDROID_HOME="$HOME/Library/Android/sdk" ./gradlew --no-configuration-cache :app:assembleDebug :feature:focus:testDebugUnitTest`, and `ANDROID_HOME="$HOME/Library/Android/sdk" ./gradlew --no-configuration-cache :feature:focus:recordPaparazziDebug`.
+- Next steps: Run a real-device Phase 6 and Phase 7 validation pass, then update the docs with the final QA result before discussing commit or the next phase.
 
 ## 12. Phase 8 - Onboarding
 

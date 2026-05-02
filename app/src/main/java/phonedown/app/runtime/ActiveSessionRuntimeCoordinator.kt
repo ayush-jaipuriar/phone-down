@@ -44,13 +44,13 @@ class ActiveSessionRuntimeCoordinator
         private var lastPhysicalValid = false
         private var lastPersistedElapsedSeconds = 0L
 
-        suspend fun ensureSessionStarted(): RuntimeStepResult {
+        suspend fun ensureSessionStarted(plannedDurationSeconds: Long? = null): RuntimeStepResult {
             val existing = currentRuntime
             if (existing != null && existing.session.result == null) {
                 return RuntimeStepResult(state = _state.value)
             }
             val settings = settingsRepository.settings.first()
-            val runtime = startSessionUseCase(settings.defaultDurationSeconds)
+            val runtime = startSessionUseCase(plannedDurationSeconds ?: settings.defaultDurationSeconds)
             currentRuntime = runtime
             lastPersistedElapsedSeconds = runtime.session.actualElapsedSeconds
             latestValidity = null

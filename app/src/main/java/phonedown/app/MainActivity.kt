@@ -33,10 +33,12 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var runtimeCoordinator: ActiveSessionRuntimeCoordinator
 
+    private var pendingStartDurationSeconds: Long? = null
+
     private val notificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             if (granted) {
-                FocusSessionService.start(this)
+                FocusSessionService.start(this, pendingStartDurationSeconds)
             }
         }
 
@@ -81,20 +83,28 @@ class MainActivity : ComponentActivity() {
                         settingsRepository.setThemeMode(mode)
                     }
                 },
-                onStartFocusClick = {
-                    startFocusSession()
+                onStartFocusClick = { durationSeconds ->
+                    startFocusSession(durationSeconds)
+                },
+                onRetrySensorsClick = { durationSeconds ->
+                    retrySensors(durationSeconds)
                 },
             )
         }
     }
 
-    private fun startFocusSession() {
+    private fun startFocusSession(durationSeconds: Long) {
+        pendingStartDurationSeconds = durationSeconds
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
         ) {
             notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             return
         }
-        FocusSessionService.start(this)
+        FocusSessionService.start(this, durationSeconds)
+    }
+
+    private fun retrySensors(durationSeconds: Long) {
+        FocusSessionService.retrySensors(this, durationSeconds)
     }
 }

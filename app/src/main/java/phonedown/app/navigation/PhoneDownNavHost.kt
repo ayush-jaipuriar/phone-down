@@ -26,7 +26,7 @@ import phonedown.core.designsystem.PhoneDownDesign
 import phonedown.core.designsystem.PhoneDownTheme
 import phonedown.core.model.ThemeMode
 import phonedown.feature.account.AccountScreen
-import phonedown.feature.focus.FocusScreen
+import phonedown.app.focus.FocusRoute
 import phonedown.feature.insights.InsightsScreen
 import phonedown.feature.onboarding.OnboardingScreen
 import phonedown.feature.pro.ProScreen
@@ -38,7 +38,8 @@ fun PhoneDownApp(
     themeMode: ThemeMode = ThemeMode.System,
     initialRoute: PhoneDownRoute = PhoneDownRoute.Onboarding,
     onThemeModeSelected: suspend (ThemeMode) -> Unit = {},
-    onStartFocusClick: () -> Unit = {},
+    onStartFocusClick: (Long) -> Unit = {},
+    onRetrySensorsClick: (Long) -> Unit = {},
 ) {
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -76,6 +77,7 @@ fun PhoneDownApp(
                     }
                 },
                 onStartFocusClick = onStartFocusClick,
+                onRetrySensorsClick = onRetrySensorsClick,
                 modifier = Modifier.padding(innerPadding),
             )
         }
@@ -89,7 +91,8 @@ private fun PhoneDownNavHost(
     initialRoute: PhoneDownRoute,
     themeMode: ThemeMode,
     onThemeModeSelected: (ThemeMode) -> Unit,
-    onStartFocusClick: () -> Unit,
+    onStartFocusClick: (Long) -> Unit,
+    onRetrySensorsClick: (Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     NavHost(
@@ -109,7 +112,10 @@ private fun PhoneDownNavHost(
             )
         }
         composable(PhoneDownRoute.Focus.path) {
-            FocusScreen(onStartFocusClick = onStartFocusClick)
+            FocusRoute(
+                onStartFocusClick = onStartFocusClick,
+                onRetrySensorsClick = onRetrySensorsClick,
+            )
         }
         composable(PhoneDownRoute.Insights.path) {
             InsightsScreen()
