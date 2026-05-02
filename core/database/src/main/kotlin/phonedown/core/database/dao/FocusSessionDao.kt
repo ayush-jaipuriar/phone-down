@@ -1,3 +1,5 @@
+@file:Suppress("MaxLineLength")
+
 package phonedown.core.database.dao
 
 import androidx.room.Dao
@@ -21,17 +23,24 @@ interface FocusSessionDao {
     @Query("SELECT * FROM focus_sessions ORDER BY started_at_epoch_millis DESC LIMIT :limit")
     fun observeLatestSessions(limit: Int): Flow<List<FocusSessionEntity>>
 
-    @Query("SELECT * FROM focus_sessions WHERE started_at_epoch_millis >= :startEpochMillis AND started_at_epoch_millis <= :endEpochMillis ORDER BY started_at_epoch_millis DESC")
-    fun observeSessionsInWindow(startEpochMillis: Long, endEpochMillis: Long): Flow<List<FocusSessionEntity>>
+    @Query(
+        "SELECT * FROM focus_sessions WHERE started_at_epoch_millis >= :startEpochMillis AND started_at_epoch_millis <= :endEpochMillis ORDER BY started_at_epoch_millis DESC",
+    )
+    fun observeSessionsInWindow(
+        startEpochMillis: Long,
+        endEpochMillis: Long,
+    ): Flow<List<FocusSessionEntity>>
 
     @Query("SELECT * FROM focus_sessions WHERE updated_at_epoch_millis >= :updatedAtEpochMillis")
     suspend fun getSessionsUpdatedSince(updatedAtEpochMillis: Long): List<FocusSessionEntity>
 
-    // Gets candidates for process-death recovery. State strings must match the SessionState enum names.
-    @Query("""
+    // Gets candidates for process-death recovery. State strings must match the stable storage strings.
+    @Query(
+        """
         SELECT * FROM focus_sessions 
-        WHERE state IN ('Created', 'WaitingForPhoneDown', 'Arming', 'Active', 'PausedByPickup', 'PausedByCall')
-    """)
+        WHERE state IN ('created', 'waiting_for_phone_down', 'arming', 'active', 'paused_by_pickup', 'paused_by_call')
+    """,
+    )
     suspend fun getRecoverableSessions(): List<FocusSessionEntity>
 
     @Query("DELETE FROM focus_sessions WHERE id = :id")

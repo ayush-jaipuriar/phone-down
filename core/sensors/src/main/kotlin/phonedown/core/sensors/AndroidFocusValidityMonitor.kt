@@ -1,3 +1,5 @@
+@file:Suppress("MagicNumber")
+
 package phonedown.core.sensors
 
 import android.content.Context
@@ -18,21 +20,24 @@ class AndroidFocusValidityMonitor(
         context.getSystemService(Context.SENSOR_SERVICE) as SensorManager,
     private val config: FocusSensorConfig = FocusSensorConfig(),
     private val debugDiagnosticsEnabled: Boolean = false,
-) : FocusValidityMonitor, SensorEventListener {
-    private val evaluator = FocusValidityEvaluator(
-        config = config,
-        debugDiagnosticsEnabled = debugDiagnosticsEnabled,
-    )
-    private val _validity = MutableStateFlow(
-        FocusValidityResult(
-            isValid = false,
-            reason = FocusValidityReason.SensorsUnavailable,
-            stabilityState = FocusStabilityState.Unavailable,
-            orientationConfidence = null,
-            movementScore = null,
-            diagnostics = null,
-        ),
-    )
+) : FocusValidityMonitor,
+    SensorEventListener {
+    private val evaluator =
+        FocusValidityEvaluator(
+            config = config,
+            debugDiagnosticsEnabled = debugDiagnosticsEnabled,
+        )
+    private val _validity =
+        MutableStateFlow(
+            FocusValidityResult(
+                isValid = false,
+                reason = FocusValidityReason.SensorsUnavailable,
+                stabilityState = FocusStabilityState.Unavailable,
+                orientationConfidence = null,
+                movementScore = null,
+                diagnostics = null,
+            ),
+        )
     override val validity: StateFlow<FocusValidityResult> = _validity.asStateFlow()
 
     private val accelerometer: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
@@ -80,7 +85,10 @@ class AndroidFocusValidityMonitor(
         }
     }
 
-    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) = Unit
+    override fun onAccuracyChanged(
+        sensor: Sensor?,
+        accuracy: Int,
+    ) = Unit
 
     private fun handleAccelerometer(event: SensorEvent) {
         val values = event.values
@@ -90,19 +98,21 @@ class AndroidFocusValidityMonitor(
             linearAcceleration[index] = values[index] - gravity[index]
         }
 
-        val snapshot = FocusSensorSnapshot(
-            elapsedRealtimeMillis = event.timestamp / 1_000_000L,
-            gravityX = gravity[0],
-            gravityY = gravity[1],
-            gravityZ = gravity[2],
-            linearMotionMagnitude = magnitude(
-                linearAcceleration[0],
-                linearAcceleration[1],
-                linearAcceleration[2],
-            ),
-            tiltDegrees = latestTiltDegrees ?: tiltFromGravity(gravity[2]),
-            activeSensors = activeSensors.toSet(),
-        )
+        val snapshot =
+            FocusSensorSnapshot(
+                elapsedRealtimeMillis = event.timestamp / 1_000_000L,
+                gravityX = gravity[0],
+                gravityY = gravity[1],
+                gravityZ = gravity[2],
+                linearMotionMagnitude =
+                    magnitude(
+                        linearAcceleration[0],
+                        linearAcceleration[1],
+                        linearAcceleration[2],
+                    ),
+                tiltDegrees = latestTiltDegrees ?: tiltFromGravity(gravity[2]),
+                activeSensors = activeSensors.toSet(),
+            )
         _validity.value = evaluator.evaluate(snapshot)
     }
 
@@ -117,19 +127,22 @@ class AndroidFocusValidityMonitor(
     }
 
     private fun publishUnavailable() {
-        _validity.value = FocusValidityResult(
-            isValid = false,
-            reason = FocusValidityReason.SensorsUnavailable,
-            stabilityState = FocusStabilityState.Unavailable,
-            orientationConfidence = null,
-            movementScore = null,
-            diagnostics = null,
-        )
+        _validity.value =
+            FocusValidityResult(
+                isValid = false,
+                reason = FocusValidityReason.SensorsUnavailable,
+                stabilityState = FocusStabilityState.Unavailable,
+                orientationConfidence = null,
+                movementScore = null,
+                diagnostics = null,
+            )
     }
 
-    private fun magnitude(x: Float, y: Float, z: Float): Float {
-        return sqrt(x * x + y * y + z * z)
-    }
+    private fun magnitude(
+        x: Float,
+        y: Float,
+        z: Float,
+    ): Float = sqrt(x * x + y * y + z * z)
 
     private fun tiltFromGravity(z: Float): Float {
         val normalized = (z / SensorManager.GRAVITY_EARTH).coerceIn(-1f, 1f)

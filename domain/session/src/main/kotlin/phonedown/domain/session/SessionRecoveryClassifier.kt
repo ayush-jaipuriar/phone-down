@@ -1,3 +1,5 @@
+@file:Suppress("MagicNumber")
+
 package phonedown.domain.session
 
 import phonedown.core.common.Clock
@@ -20,26 +22,28 @@ class SessionRecoveryClassifier(
             SessionState.Arming,
             SessionState.PausedByPickup,
             SessionState.PausedByCall,
-            -> session.copy(
-                state = SessionState.Abandoned,
-                result = SessionResult.Abandoned,
-                clean = false,
-                endedAtEpochMillis = nowWall,
-                endElapsedRealtime = nowElapsed,
-                actualElapsedSeconds = actualElapsedSeconds,
-                updatedAtEpochMillis = nowWall,
-            )
+            ->
+                session.copy(
+                    state = SessionState.Abandoned,
+                    result = SessionResult.Abandoned,
+                    clean = false,
+                    endedAtEpochMillis = nowWall,
+                    endElapsedRealtime = nowElapsed,
+                    actualElapsedSeconds = actualElapsedSeconds,
+                    updatedAtEpochMillis = nowWall,
+                )
 
-            SessionState.Active -> session.copy(
-                state = SessionState.Broken,
-                result = SessionResult.Broken,
-                clean = false,
-                broken = true,
-                endedAtEpochMillis = nowWall,
-                endElapsedRealtime = nowElapsed,
-                actualElapsedSeconds = actualElapsedSeconds,
-                updatedAtEpochMillis = nowWall,
-            )
+            SessionState.Active ->
+                session.copy(
+                    state = SessionState.Broken,
+                    result = SessionResult.Broken,
+                    clean = false,
+                    broken = true,
+                    endedAtEpochMillis = nowWall,
+                    endElapsedRealtime = nowElapsed,
+                    actualElapsedSeconds = actualElapsedSeconds,
+                    updatedAtEpochMillis = nowWall,
+                )
 
             SessionState.Completed,
             SessionState.EndedEarly,

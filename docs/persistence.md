@@ -36,8 +36,15 @@ A single DataStore file (named `phone_down_theme_mode` for backward compatibilit
 
 ## Process-Death Recovery Strategy
 
-The persistence layer does **not** classify whether a paused or interrupted session is broken or abandoned. It simply persists the state of the session at any given time. 
-The DAO exposes a `getRecoverableSessions()` query which returns candidates based on their state (e.g. `Active`, `PausedByPickup`). The domain layer (Session Engine / Foreground Service, to be built in later phases) is responsible for taking these candidates, analyzing the current `elapsedRealtime`, and classifying them as resumed, abandoned, or broken.
+The persistence layer does **not** decide recovery outcomes by itself. It persists session state and exposes `getRecoverableSessions()` for unfinished candidates such as `WaitingForPhoneDown`, `Arming`, `Active`, and paused states.
+
+Phase 6 now operationalizes that recovery path conservatively:
+
+- app launch recovery skips classification if a live in-memory runtime already exists
+- unexpected foreground-service restarts classify dangling persisted sessions rather than silently creating a new one
+- boot recovery classifies unfinished sessions rather than reviving them as if nothing happened
+
+The current recovery posture is intentionally honesty-first, not resume-first. Unfinished sessions are classified as `Broken` or `Abandoned` according to the Phase 4 recovery rules instead of being optimistically resumed after process death or reboot.
 
 ## Backup Readiness
 

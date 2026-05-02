@@ -1,3 +1,5 @@
+@file:Suppress("MagicNumber")
+
 package phonedown.core.sensors
 
 data class FocusSensorConfig(

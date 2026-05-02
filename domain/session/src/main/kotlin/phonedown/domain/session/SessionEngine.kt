@@ -1,3 +1,12 @@
+@file:Suppress(
+    "LargeClass",
+    "TooManyFunctions",
+    "LongMethod",
+    "LongParameterList",
+    "ReturnCount",
+    "MagicNumber",
+)
+
 package phonedown.domain.session
 
 import phonedown.core.common.Clock
@@ -16,28 +25,29 @@ class SessionEngine(
     fun startSession(plannedDurationSeconds: Long): SessionRuntime {
         val nowWall = clock.currentTimeMillis()
         val nowElapsed = clock.elapsedRealtimeMillis()
-        val session = FocusSession(
-            id = idGenerator.newId(),
-            plannedDurationSeconds = plannedDurationSeconds,
-            requiredDurationSeconds = plannedDurationSeconds,
-            validFocusSeconds = 0L,
-            actualElapsedSeconds = 0L,
-            penaltySeconds = 0L,
-            interruptionCount = 0,
-            minorInterruptionCount = 0,
-            penaltyInterruptionCount = 0,
-            startedAtEpochMillis = nowWall,
-            endedAtEpochMillis = null,
-            startElapsedRealtime = nowElapsed,
-            endElapsedRealtime = null,
-            state = SessionState.WaitingForPhoneDown,
-            result = null,
-            clean = true,
-            broken = false,
-            callInterrupted = false,
-            createdAtEpochMillis = nowWall,
-            updatedAtEpochMillis = nowWall,
-        )
+        val session =
+            FocusSession(
+                id = idGenerator.newId(),
+                plannedDurationSeconds = plannedDurationSeconds,
+                requiredDurationSeconds = plannedDurationSeconds,
+                validFocusSeconds = 0L,
+                actualElapsedSeconds = 0L,
+                penaltySeconds = 0L,
+                interruptionCount = 0,
+                minorInterruptionCount = 0,
+                penaltyInterruptionCount = 0,
+                startedAtEpochMillis = nowWall,
+                endedAtEpochMillis = null,
+                startElapsedRealtime = nowElapsed,
+                endElapsedRealtime = null,
+                state = SessionState.WaitingForPhoneDown,
+                result = null,
+                clean = true,
+                broken = false,
+                callInterrupted = false,
+                createdAtEpochMillis = nowWall,
+                updatedAtEpochMillis = nowWall,
+            )
         return SessionRuntime(session = session)
     }
 
@@ -65,17 +75,20 @@ class SessionEngine(
         val session = runtime.session
 
         return when (session.state) {
-            SessionState.WaitingForPhoneDown -> SessionTransition(
-                runtime = runtime.copy(
-                    session = session.withTimestamps(
-                        nowWall = nowWall,
-                        nowElapsed = nowElapsed,
-                        state = SessionState.Arming,
-                    ),
-                    phoneIsValid = true,
-                    armingStartedAtElapsedMillis = nowElapsed,
-                ),
-            )
+            SessionState.WaitingForPhoneDown ->
+                SessionTransition(
+                    runtime =
+                        runtime.copy(
+                            session =
+                                session.withTimestamps(
+                                    nowWall = nowWall,
+                                    nowElapsed = nowElapsed,
+                                    state = SessionState.Arming,
+                                ),
+                            phoneIsValid = true,
+                            armingStartedAtElapsedMillis = nowElapsed,
+                        ),
+                )
 
             SessionState.Arming -> SessionTransition(runtime.copy(phoneIsValid = true))
 
@@ -92,34 +105,39 @@ class SessionEngine(
         val nowElapsed = clock.elapsedRealtimeMillis()
 
         return when (runtime.session.state) {
-            SessionState.Arming -> SessionTransition(
-                runtime = runtime.copy(
-                    session = runtime.session.withTimestamps(
-                        nowWall = nowWall,
-                        nowElapsed = nowElapsed,
-                        state = SessionState.WaitingForPhoneDown,
-                    ),
-                    phoneIsValid = false,
-                    armingStartedAtElapsedMillis = null,
-                ),
-            )
+            SessionState.Arming ->
+                SessionTransition(
+                    runtime =
+                        runtime.copy(
+                            session =
+                                runtime.session.withTimestamps(
+                                    nowWall = nowWall,
+                                    nowElapsed = nowElapsed,
+                                    state = SessionState.WaitingForPhoneDown,
+                                ),
+                            phoneIsValid = false,
+                            armingStartedAtElapsedMillis = null,
+                        ),
+                )
 
             SessionState.Active -> {
                 val activeRuntime = applyActiveProgress(runtime, nowWall, nowElapsed)
                 SessionTransition(
-                    runtime = activeRuntime.copy(
-                        session = activeRuntime.session.withTimestamps(
-                            nowWall = nowWall,
-                            nowElapsed = nowElapsed,
-                            state = SessionState.PausedByPickup,
+                    runtime =
+                        activeRuntime.copy(
+                            session =
+                                activeRuntime.session.withTimestamps(
+                                    nowWall = nowWall,
+                                    nowElapsed = nowElapsed,
+                                    state = SessionState.PausedByPickup,
+                                ),
+                            phoneIsValid = false,
+                            activeStartedAtElapsedMillis = null,
+                            activeBaseFocusSeconds = activeRuntime.session.validFocusSeconds,
+                            interruptionStartedAtElapsedMillis = nowElapsed,
+                            penaltyAppliedForCurrentInterruption = false,
+                            longInterruptionRecorded = false,
                         ),
-                        phoneIsValid = false,
-                        activeStartedAtElapsedMillis = null,
-                        activeBaseFocusSeconds = activeRuntime.session.validFocusSeconds,
-                        interruptionStartedAtElapsedMillis = nowElapsed,
-                        penaltyAppliedForCurrentInterruption = false,
-                        longInterruptionRecorded = false,
-                    ),
                 )
             }
 
@@ -138,25 +156,29 @@ class SessionEngine(
                     nowElapsed - armingStartedAt >= ruleConfig.armingDurationMillis
                 ) {
                     SessionTransition(
-                        runtime = runtime.copy(
-                            session = runtime.session.withTimestamps(
-                                nowWall = nowWall,
-                                nowElapsed = nowElapsed,
-                                state = SessionState.Active,
+                        runtime =
+                            runtime.copy(
+                                session =
+                                    runtime.session.withTimestamps(
+                                        nowWall = nowWall,
+                                        nowElapsed = nowElapsed,
+                                        state = SessionState.Active,
+                                    ),
+                                activeStartedAtElapsedMillis = nowElapsed,
+                                activeBaseFocusSeconds = runtime.session.validFocusSeconds,
+                                armingStartedAtElapsedMillis = null,
                             ),
-                            activeStartedAtElapsedMillis = nowElapsed,
-                            activeBaseFocusSeconds = runtime.session.validFocusSeconds,
-                            armingStartedAtElapsedMillis = null,
-                        ),
                     )
                 } else {
                     SessionTransition(
-                        runtime = runtime.copy(
-                            session = runtime.session.withTimestamps(
-                                nowWall = nowWall,
-                                nowElapsed = nowElapsed,
+                        runtime =
+                            runtime.copy(
+                                session =
+                                    runtime.session.withTimestamps(
+                                        nowWall = nowWall,
+                                        nowElapsed = nowElapsed,
+                                    ),
                             ),
-                        ),
                     )
                 }
             }
@@ -174,23 +196,29 @@ class SessionEngine(
             SessionState.Broken,
             -> processPickupInterruptionTick(runtime, nowWall, nowElapsed)
 
-            SessionState.PausedByCall -> SessionTransition(
-                runtime = runtime.copy(
-                    session = runtime.session.withTimestamps(
-                        nowWall = nowWall,
-                        nowElapsed = nowElapsed,
-                    ),
-                ),
-            )
+            SessionState.PausedByCall ->
+                SessionTransition(
+                    runtime =
+                        runtime.copy(
+                            session =
+                                runtime.session.withTimestamps(
+                                    nowWall = nowWall,
+                                    nowElapsed = nowElapsed,
+                                ),
+                        ),
+                )
 
-            else -> SessionTransition(
-                runtime = runtime.copy(
-                    session = runtime.session.withTimestamps(
-                        nowWall = nowWall,
-                        nowElapsed = nowElapsed,
-                    ),
-                ),
-            )
+            else ->
+                SessionTransition(
+                    runtime =
+                        runtime.copy(
+                            session =
+                                runtime.session.withTimestamps(
+                                    nowWall = nowWall,
+                                    nowElapsed = nowElapsed,
+                                ),
+                        ),
+                )
         }
     }
 
@@ -202,39 +230,44 @@ class SessionEngine(
             SessionState.Active -> {
                 val activeRuntime = applyActiveProgress(runtime, nowWall, nowElapsed)
                 SessionTransition(
-                    runtime = activeRuntime.copy(
-                        session = activeRuntime.session.withTimestamps(
-                            nowWall = nowWall,
-                            nowElapsed = nowElapsed,
-                            state = SessionState.PausedByCall,
-                            clean = false,
-                            callInterrupted = true,
+                    runtime =
+                        activeRuntime.copy(
+                            session =
+                                activeRuntime.session.withTimestamps(
+                                    nowWall = nowWall,
+                                    nowElapsed = nowElapsed,
+                                    state = SessionState.PausedByCall,
+                                    clean = false,
+                                    callInterrupted = true,
+                                ),
+                            phoneIsValid = false,
+                            activeStartedAtElapsedMillis = null,
+                            activeBaseFocusSeconds = activeRuntime.session.validFocusSeconds,
+                            callStartedAtElapsedMillis = nowElapsed,
+                            armingStartedAtElapsedMillis = null,
                         ),
-                        phoneIsValid = false,
-                        activeStartedAtElapsedMillis = null,
-                        activeBaseFocusSeconds = activeRuntime.session.validFocusSeconds,
-                        callStartedAtElapsedMillis = nowElapsed,
-                        armingStartedAtElapsedMillis = null,
-                    ),
                 )
             }
 
             SessionState.WaitingForPhoneDown,
             SessionState.Arming,
-            -> SessionTransition(
-                runtime = runtime.copy(
-                    session = runtime.session.withTimestamps(
-                        nowWall = nowWall,
-                        nowElapsed = nowElapsed,
-                        state = SessionState.PausedByCall,
-                        clean = false,
-                        callInterrupted = true,
-                    ),
-                    phoneIsValid = false,
-                    armingStartedAtElapsedMillis = null,
-                    callStartedAtElapsedMillis = nowElapsed,
-                ),
-            )
+            ->
+                SessionTransition(
+                    runtime =
+                        runtime.copy(
+                            session =
+                                runtime.session.withTimestamps(
+                                    nowWall = nowWall,
+                                    nowElapsed = nowElapsed,
+                                    state = SessionState.PausedByCall,
+                                    clean = false,
+                                    callInterrupted = true,
+                                ),
+                            phoneIsValid = false,
+                            armingStartedAtElapsedMillis = null,
+                            callStartedAtElapsedMillis = nowElapsed,
+                        ),
+                )
 
             else -> SessionTransition(runtime)
         }
@@ -249,23 +282,26 @@ class SessionEngine(
         }
 
         val callStartedAt = runtime.callStartedAtElapsedMillis ?: nowElapsed
-        val event = buildPenaltyEvent(
-            sessionId = runtime.session.id,
-            type = PenaltyEventType.CallPause,
-            startedAtElapsedMillis = callStartedAt,
-            endedAtElapsedMillis = nowElapsed,
-        )
+        val event =
+            buildPenaltyEvent(
+                sessionId = runtime.session.id,
+                type = PenaltyEventType.CallPause,
+                startedAtElapsedMillis = callStartedAt,
+                endedAtElapsedMillis = nowElapsed,
+            )
 
         return SessionTransition(
-            runtime = runtime.copy(
-                session = runtime.session.withTimestamps(
-                    nowWall = nowWall,
-                    nowElapsed = nowElapsed,
-                    state = SessionState.WaitingForPhoneDown,
+            runtime =
+                runtime.copy(
+                    session =
+                        runtime.session.withTimestamps(
+                            nowWall = nowWall,
+                            nowElapsed = nowElapsed,
+                            state = SessionState.WaitingForPhoneDown,
+                        ),
+                    phoneIsValid = false,
+                    callStartedAtElapsedMillis = null,
                 ),
-                phoneIsValid = false,
-                callStartedAtElapsedMillis = null,
-            ),
             penaltyEvents = listOf(event),
         )
     }
@@ -284,60 +320,68 @@ class SessionEngine(
             !workingRuntime.penaltyAppliedForCurrentInterruption
         ) {
             val interruptionStartedAt = workingRuntime.interruptionStartedAtElapsedMillis ?: nowElapsed
-            val minorEvent = buildPenaltyEvent(
-                sessionId = workingRuntime.session.id,
-                type = PenaltyEventType.MinorPickup,
-                startedAtElapsedMillis = interruptionStartedAt,
-                endedAtElapsedMillis = nowElapsed,
-            )
+            val minorEvent =
+                buildPenaltyEvent(
+                    sessionId = workingRuntime.session.id,
+                    type = PenaltyEventType.MinorPickup,
+                    startedAtElapsedMillis = interruptionStartedAt,
+                    endedAtElapsedMillis = nowElapsed,
+                )
             events += minorEvent
-            workingRuntime = workingRuntime.copy(
-                session = workingRuntime.session.withTimestamps(
-                    nowWall = nowWall,
-                    nowElapsed = nowElapsed,
-                    clean = false,
-                    interruptionCount = workingRuntime.session.interruptionCount + 1,
-                    minorInterruptionCount = workingRuntime.session.minorInterruptionCount + 1,
-                ),
-            )
+            workingRuntime =
+                workingRuntime.copy(
+                    session =
+                        workingRuntime.session.withTimestamps(
+                            nowWall = nowWall,
+                            nowElapsed = nowElapsed,
+                            clean = false,
+                            interruptionCount = workingRuntime.session.interruptionCount + 1,
+                            minorInterruptionCount = workingRuntime.session.minorInterruptionCount + 1,
+                        ),
+                )
         }
 
         if (workingRuntime.session.state == SessionState.PausedByCall) {
             val callStartedAt = workingRuntime.callStartedAtElapsedMillis ?: nowElapsed
-            events += buildPenaltyEvent(
-                sessionId = workingRuntime.session.id,
-                type = PenaltyEventType.CallPause,
-                startedAtElapsedMillis = callStartedAt,
-                endedAtElapsedMillis = nowElapsed,
-            )
+            events +=
+                buildPenaltyEvent(
+                    sessionId = workingRuntime.session.id,
+                    type = PenaltyEventType.CallPause,
+                    startedAtElapsedMillis = callStartedAt,
+                    endedAtElapsedMillis = nowElapsed,
+                )
         }
 
-        events += buildPenaltyEvent(
-            sessionId = workingRuntime.session.id,
-            type = PenaltyEventType.ManualEnd,
-            startedAtElapsedMillis = nowElapsed,
-            endedAtElapsedMillis = nowElapsed,
-        )
+        events +=
+            buildPenaltyEvent(
+                sessionId = workingRuntime.session.id,
+                type = PenaltyEventType.ManualEnd,
+                startedAtElapsedMillis = nowElapsed,
+                endedAtElapsedMillis = nowElapsed,
+            )
 
-        val finalizedSession = classifyManualEnd(
-            session = workingRuntime.session.withTimestamps(
+        val finalizedSession =
+            classifyManualEnd(
+                session =
+                    workingRuntime.session.withTimestamps(
+                        nowWall = nowWall,
+                        nowElapsed = nowElapsed,
+                        clean = false,
+                    ),
                 nowWall = nowWall,
                 nowElapsed = nowElapsed,
-                clean = false,
-            ),
-            nowWall = nowWall,
-            nowElapsed = nowElapsed,
-        )
+            )
 
         return SessionTransition(
-            runtime = workingRuntime.copy(
-                session = finalizedSession,
-                phoneIsValid = false,
-                armingStartedAtElapsedMillis = null,
-                activeStartedAtElapsedMillis = null,
-                interruptionStartedAtElapsedMillis = null,
-                callStartedAtElapsedMillis = null,
-            ),
+            runtime =
+                workingRuntime.copy(
+                    session = finalizedSession,
+                    phoneIsValid = false,
+                    armingStartedAtElapsedMillis = null,
+                    activeStartedAtElapsedMillis = null,
+                    interruptionStartedAtElapsedMillis = null,
+                    callStartedAtElapsedMillis = null,
+                ),
             penaltyEvents = events,
         )
     }
@@ -352,40 +396,45 @@ class SessionEngine(
         var session = runtime.session
 
         if (!runtime.penaltyAppliedForCurrentInterruption) {
-            events += buildPenaltyEvent(
-                sessionId = session.id,
-                type = PenaltyEventType.MinorPickup,
-                startedAtElapsedMillis = interruptionStartedAt,
-                endedAtElapsedMillis = nowElapsed,
-            )
-            session = session.withTimestamps(
-                nowWall = nowWall,
-                nowElapsed = nowElapsed,
-                clean = false,
-                interruptionCount = session.interruptionCount + 1,
-                minorInterruptionCount = session.minorInterruptionCount + 1,
-            )
+            events +=
+                buildPenaltyEvent(
+                    sessionId = session.id,
+                    type = PenaltyEventType.MinorPickup,
+                    startedAtElapsedMillis = interruptionStartedAt,
+                    endedAtElapsedMillis = nowElapsed,
+                )
+            session =
+                session.withTimestamps(
+                    nowWall = nowWall,
+                    nowElapsed = nowElapsed,
+                    clean = false,
+                    interruptionCount = session.interruptionCount + 1,
+                    minorInterruptionCount = session.minorInterruptionCount + 1,
+                )
         } else {
-            session = session.withTimestamps(
-                nowWall = nowWall,
-                nowElapsed = nowElapsed,
-            )
+            session =
+                session.withTimestamps(
+                    nowWall = nowWall,
+                    nowElapsed = nowElapsed,
+                )
         }
 
         return SessionTransition(
-            runtime = runtime.copy(
-                session = session.copy(
-                    state = SessionState.Arming,
-                    updatedAtEpochMillis = nowWall,
+            runtime =
+                runtime.copy(
+                    session =
+                        session.copy(
+                            state = SessionState.Arming,
+                            updatedAtEpochMillis = nowWall,
+                        ),
+                    phoneIsValid = true,
+                    armingStartedAtElapsedMillis = nowElapsed,
+                    activeStartedAtElapsedMillis = null,
+                    activeBaseFocusSeconds = session.validFocusSeconds,
+                    interruptionStartedAtElapsedMillis = null,
+                    penaltyAppliedForCurrentInterruption = false,
+                    longInterruptionRecorded = false,
                 ),
-                phoneIsValid = true,
-                armingStartedAtElapsedMillis = nowElapsed,
-                activeStartedAtElapsedMillis = null,
-                activeBaseFocusSeconds = session.validFocusSeconds,
-                interruptionStartedAtElapsedMillis = null,
-                penaltyAppliedForCurrentInterruption = false,
-                longInterruptionRecorded = false,
-            ),
             penaltyEvents = events,
         )
     }
@@ -395,15 +444,18 @@ class SessionEngine(
         nowWall: Long,
         nowElapsed: Long,
     ): SessionTransition {
-        val interruptionStartedAt = runtime.interruptionStartedAtElapsedMillis
-            ?: return SessionTransition(
-                runtime = runtime.copy(
-                    session = runtime.session.withTimestamps(
-                        nowWall = nowWall,
-                        nowElapsed = nowElapsed,
-                    ),
-                ),
-            )
+        val interruptionStartedAt =
+            runtime.interruptionStartedAtElapsedMillis
+                ?: return SessionTransition(
+                    runtime =
+                        runtime.copy(
+                            session =
+                                runtime.session.withTimestamps(
+                                    nowWall = nowWall,
+                                    nowElapsed = nowElapsed,
+                                ),
+                        ),
+                )
         val interruptionDuration = nowElapsed - interruptionStartedAt
         val events = mutableListOf<PenaltyEvent>()
         var session = runtime.session.withTimestamps(nowWall = nowWall, nowElapsed = nowElapsed)
@@ -413,59 +465,65 @@ class SessionEngine(
         if (!penaltyApplied &&
             interruptionDuration > ruleConfig.interruptionGracePeriodMillis
         ) {
-            val penaltyEvent = buildPenaltyEvent(
-                sessionId = session.id,
-                type = PenaltyEventType.PenaltyPickup,
-                startedAtElapsedMillis = interruptionStartedAt,
-                endedAtElapsedMillis = nowElapsed,
-                penaltySeconds = ruleConfig.penaltySecondsIncrement,
-            )
+            val penaltyEvent =
+                buildPenaltyEvent(
+                    sessionId = session.id,
+                    type = PenaltyEventType.PenaltyPickup,
+                    startedAtElapsedMillis = interruptionStartedAt,
+                    endedAtElapsedMillis = nowElapsed,
+                    penaltySeconds = ruleConfig.penaltySecondsIncrement,
+                )
             events += penaltyEvent
             penaltyApplied = true
-            session = session.withTimestamps(
-                nowWall = nowWall,
-                nowElapsed = nowElapsed,
-                clean = false,
-                penaltySeconds = session.penaltySeconds + ruleConfig.penaltySecondsIncrement,
-                requiredDurationSeconds = session.requiredDurationSeconds + ruleConfig.penaltySecondsIncrement,
-                interruptionCount = session.interruptionCount + 1,
-                penaltyInterruptionCount = session.penaltyInterruptionCount + 1,
-            )
+            session =
+                session.withTimestamps(
+                    nowWall = nowWall,
+                    nowElapsed = nowElapsed,
+                    clean = false,
+                    penaltySeconds = session.penaltySeconds + ruleConfig.penaltySecondsIncrement,
+                    requiredDurationSeconds = session.requiredDurationSeconds + ruleConfig.penaltySecondsIncrement,
+                    interruptionCount = session.interruptionCount + 1,
+                    penaltyInterruptionCount = session.penaltyInterruptionCount + 1,
+                )
 
             if (session.penaltyInterruptionCount >= ruleConfig.brokenPenaltyInterruptions) {
-                session = session.copy(
-                    state = SessionState.Broken,
-                    broken = true,
-                    clean = false,
-                    updatedAtEpochMillis = nowWall,
-                )
+                session =
+                    session.copy(
+                        state = SessionState.Broken,
+                        broken = true,
+                        clean = false,
+                        updatedAtEpochMillis = nowWall,
+                    )
             }
         }
 
         if (!longEventRecorded &&
             interruptionDuration > ruleConfig.brokenInterruptionDurationMillis
         ) {
-            events += buildPenaltyEvent(
-                sessionId = session.id,
-                type = PenaltyEventType.LongPickup,
-                startedAtElapsedMillis = interruptionStartedAt,
-                endedAtElapsedMillis = nowElapsed,
-            )
+            events +=
+                buildPenaltyEvent(
+                    sessionId = session.id,
+                    type = PenaltyEventType.LongPickup,
+                    startedAtElapsedMillis = interruptionStartedAt,
+                    endedAtElapsedMillis = nowElapsed,
+                )
             longEventRecorded = true
-            session = session.copy(
-                state = SessionState.Broken,
-                broken = true,
-                clean = false,
-                updatedAtEpochMillis = nowWall,
-            )
+            session =
+                session.copy(
+                    state = SessionState.Broken,
+                    broken = true,
+                    clean = false,
+                    updatedAtEpochMillis = nowWall,
+                )
         }
 
         return SessionTransition(
-            runtime = runtime.copy(
-                session = session,
-                penaltyAppliedForCurrentInterruption = penaltyApplied,
-                longInterruptionRecorded = longEventRecorded,
-            ),
+            runtime =
+                runtime.copy(
+                    session = session,
+                    penaltyAppliedForCurrentInterruption = penaltyApplied,
+                    longInterruptionRecorded = longEventRecorded,
+                ),
             penaltyEvents = events,
         )
     }
@@ -486,11 +544,12 @@ class SessionEngine(
         val updatedFocusSeconds = runtime.activeBaseFocusSeconds + additionalFocusSeconds
 
         return runtime.copy(
-            session = runtime.session.withTimestamps(
-                nowWall = nowWall,
-                nowElapsed = nowElapsed,
-                validFocusSeconds = updatedFocusSeconds,
-            ),
+            session =
+                runtime.session.withTimestamps(
+                    nowWall = nowWall,
+                    nowElapsed = nowElapsed,
+                    validFocusSeconds = updatedFocusSeconds,
+                ),
         )
     }
 
@@ -502,35 +561,38 @@ class SessionEngine(
         val session = runtime.session
         if (session.broken) {
             return runtime.copy(
-                session = session.withTimestamps(
-                    nowWall = nowWall,
-                    nowElapsed = nowElapsed,
-                    state = SessionState.Broken,
-                    result = SessionResult.Broken,
-                    clean = false,
-                    endedAtEpochMillis = nowWall,
-                    endElapsedRealtime = nowElapsed,
-                ),
+                session =
+                    session.withTimestamps(
+                        nowWall = nowWall,
+                        nowElapsed = nowElapsed,
+                        state = SessionState.Broken,
+                        result = SessionResult.Broken,
+                        clean = false,
+                        endedAtEpochMillis = nowWall,
+                        endElapsedRealtime = nowElapsed,
+                    ),
                 activeStartedAtElapsedMillis = null,
                 armingStartedAtElapsedMillis = null,
             )
         }
 
-        val result = if (session.clean) {
-            SessionResult.CleanCompleted
-        } else {
-            SessionResult.CompletedWithInterruption
-        }
+        val result =
+            if (session.clean) {
+                SessionResult.CleanCompleted
+            } else {
+                SessionResult.CompletedWithInterruption
+            }
 
         return runtime.copy(
-            session = session.withTimestamps(
-                nowWall = nowWall,
-                nowElapsed = nowElapsed,
-                state = SessionState.Completed,
-                result = result,
-                endedAtEpochMillis = nowWall,
-                endElapsedRealtime = nowElapsed,
-            ),
+            session =
+                session.withTimestamps(
+                    nowWall = nowWall,
+                    nowElapsed = nowElapsed,
+                    state = SessionState.Completed,
+                    result = result,
+                    endedAtEpochMillis = nowWall,
+                    endElapsedRealtime = nowElapsed,
+                ),
             activeStartedAtElapsedMillis = null,
             armingStartedAtElapsedMillis = null,
         )
@@ -583,35 +645,38 @@ class SessionEngine(
             }
 
         return when {
-            completedPercent <= 20.0 -> session.withTimestamps(
-                nowWall = nowWall,
-                nowElapsed = nowElapsed,
-                state = SessionState.Invalidated,
-                result = SessionResult.Invalidated,
-                endedAtEpochMillis = nowWall,
-                endElapsedRealtime = nowElapsed,
-                clean = false,
-            )
+            completedPercent <= 20.0 ->
+                session.withTimestamps(
+                    nowWall = nowWall,
+                    nowElapsed = nowElapsed,
+                    state = SessionState.Invalidated,
+                    result = SessionResult.Invalidated,
+                    endedAtEpochMillis = nowWall,
+                    endElapsedRealtime = nowElapsed,
+                    clean = false,
+                )
 
-            completedPercent < 80.0 -> session.withTimestamps(
-                nowWall = nowWall,
-                nowElapsed = nowElapsed,
-                state = SessionState.EndedEarly,
-                result = SessionResult.Partial,
-                endedAtEpochMillis = nowWall,
-                endElapsedRealtime = nowElapsed,
-                clean = false,
-            )
+            completedPercent < 80.0 ->
+                session.withTimestamps(
+                    nowWall = nowWall,
+                    nowElapsed = nowElapsed,
+                    state = SessionState.EndedEarly,
+                    result = SessionResult.Partial,
+                    endedAtEpochMillis = nowWall,
+                    endElapsedRealtime = nowElapsed,
+                    clean = false,
+                )
 
-            else -> session.withTimestamps(
-                nowWall = nowWall,
-                nowElapsed = nowElapsed,
-                state = SessionState.EndedEarly,
-                result = SessionResult.StrongPartial,
-                endedAtEpochMillis = nowWall,
-                endElapsedRealtime = nowElapsed,
-                clean = false,
-            )
+            else ->
+                session.withTimestamps(
+                    nowWall = nowWall,
+                    nowElapsed = nowElapsed,
+                    state = SessionState.EndedEarly,
+                    result = SessionResult.StrongPartial,
+                    endedAtEpochMillis = nowWall,
+                    endElapsedRealtime = nowElapsed,
+                    clean = false,
+                )
         }
     }
 
@@ -651,8 +716,8 @@ class SessionEngine(
         callInterrupted: Boolean = this.callInterrupted,
         endedAtEpochMillis: Long? = this.endedAtEpochMillis,
         endElapsedRealtime: Long? = this.endElapsedRealtime,
-    ): FocusSession {
-        return copy(
+    ): FocusSession =
+        copy(
             validFocusSeconds = validFocusSeconds,
             actualElapsedSeconds = ((nowElapsed - startElapsedRealtime).coerceAtLeast(0L) / 1_000L),
             penaltySeconds = penaltySeconds,
@@ -669,5 +734,4 @@ class SessionEngine(
             endElapsedRealtime = endElapsedRealtime,
             updatedAtEpochMillis = nowWall,
         )
-    }
 }

@@ -1,3 +1,5 @@
+@file:Suppress("MaxLineLength")
+
 package phonedown.core.database.dao
 
 import androidx.room.Dao
@@ -22,7 +24,10 @@ interface PenaltyEventDao {
     suspend fun getPenaltyEventsForSession(sessionId: String): List<PenaltyEventEntity>
 
     @Query("SELECT * FROM penalty_events WHERE started_at_epoch_millis >= :startEpochMillis AND started_at_epoch_millis <= :endEpochMillis")
-    suspend fun getPenaltyEventsUpdatedWindow(startEpochMillis: Long, endEpochMillis: Long): List<PenaltyEventEntity>
+    suspend fun getPenaltyEventsUpdatedWindow(
+        startEpochMillis: Long,
+        endEpochMillis: Long,
+    ): List<PenaltyEventEntity>
 
     @Query("DELETE FROM penalty_events WHERE session_id = :sessionId")
     suspend fun deletePenaltyEventsForSession(sessionId: String)

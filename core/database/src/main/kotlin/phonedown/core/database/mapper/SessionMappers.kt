@@ -5,8 +5,8 @@ import phonedown.core.database.entity.PenaltyEventEntity
 import phonedown.core.model.FocusSession
 import phonedown.core.model.PenaltyEvent
 
-fun FocusSessionEntity.toDomainModel(): FocusSession {
-    return FocusSession(
+fun FocusSessionEntity.toDomainModel(): FocusSession =
+    FocusSession(
         id = id,
         plannedDurationSeconds = plannedDurationSeconds,
         requiredDurationSeconds = requiredDurationSeconds,
@@ -28,10 +28,9 @@ fun FocusSessionEntity.toDomainModel(): FocusSession {
         createdAtEpochMillis = createdAtEpochMillis,
         updatedAtEpochMillis = updatedAtEpochMillis,
     )
-}
 
-fun FocusSession.toEntity(): FocusSessionEntity {
-    return FocusSessionEntity(
+fun FocusSession.toEntity(): FocusSessionEntity =
+    FocusSessionEntity(
         id = id,
         plannedDurationSeconds = plannedDurationSeconds,
         requiredDurationSeconds = requiredDurationSeconds,
@@ -53,10 +52,9 @@ fun FocusSession.toEntity(): FocusSessionEntity {
         createdAtEpochMillis = createdAtEpochMillis,
         updatedAtEpochMillis = updatedAtEpochMillis,
     )
-}
 
-fun PenaltyEventEntity.toDomainModel(): PenaltyEvent {
-    return PenaltyEvent(
+fun PenaltyEventEntity.toDomainModel(): PenaltyEvent =
+    PenaltyEvent(
         id = id,
         sessionId = sessionId,
         type = type.toPenaltyEventType(),
@@ -65,10 +63,9 @@ fun PenaltyEventEntity.toDomainModel(): PenaltyEvent {
         durationSeconds = durationSeconds,
         penaltySeconds = penaltySeconds,
     )
-}
 
-fun PenaltyEvent.toEntity(): PenaltyEventEntity {
-    return PenaltyEventEntity(
+fun PenaltyEvent.toEntity(): PenaltyEventEntity =
+    PenaltyEventEntity(
         id = id,
         sessionId = sessionId,
         type = type.toStorageString(),
@@ -77,4 +74,3 @@ fun PenaltyEvent.toEntity(): PenaltyEventEntity {
         durationSeconds = durationSeconds,
         penaltySeconds = penaltySeconds,
     )
-}

@@ -1,3 +1,5 @@
+@file:Suppress("MaxLineLength")
+
 package phonedown.core.datastore.repository
 
 import androidx.datastore.core.DataStore
@@ -13,87 +15,89 @@ import phonedown.core.model.UserSettings
 import phonedown.core.model.repository.SettingsRepository
 import javax.inject.Inject
 
-class DataStoreSettingsRepository @Inject constructor(
-    private val dataStore: DataStore<Preferences>,
-) : SettingsRepository {
+class DataStoreSettingsRepository
+    @Inject
+    constructor(
+        private val dataStore: DataStore<Preferences>,
+    ) : SettingsRepository {
+        override val settings: Flow<UserSettings> =
+            dataStore.data.map { prefs ->
+                UserSettings(
+                    defaultDurationSeconds =
+                        prefs[DEFAULT_DURATION_SECONDS_KEY]
+                            ?: UserSettings.DEFAULT_DURATION_SECONDS,
+                    soundEnabled = prefs[SOUND_ENABLED_KEY] ?: true,
+                    hapticsEnabled = prefs[HAPTICS_ENABLED_KEY] ?: true,
+                    themeMode = prefs[THEME_MODE_KEY]?.toThemeMode() ?: ThemeMode.System,
+                    onboardingCompleted = prefs[ONBOARDING_COMPLETED_KEY] ?: false,
+                    backupOptIn = prefs[BACKUP_OPT_IN_KEY] ?: false,
+                    autoBackupEnabled = prefs[AUTO_BACKUP_ENABLED_KEY] ?: false,
+                    lastBackupEpochMillis = prefs[LAST_BACKUP_EPOCH_MILLIS_KEY],
+                    freeCustomDurationSeconds = prefs[FREE_CUSTOM_DURATION_SECONDS_KEY],
+                )
+            }
 
-    override val settings: Flow<UserSettings> = dataStore.data.map { prefs ->
-        UserSettings(
-            defaultDurationSeconds = prefs[DEFAULT_DURATION_SECONDS_KEY]
-                ?: UserSettings.DEFAULT_DURATION_SECONDS,
-            soundEnabled = prefs[SOUND_ENABLED_KEY] ?: true,
-            hapticsEnabled = prefs[HAPTICS_ENABLED_KEY] ?: true,
-            themeMode = prefs[THEME_MODE_KEY]?.toThemeMode() ?: ThemeMode.System,
-            onboardingCompleted = prefs[ONBOARDING_COMPLETED_KEY] ?: false,
-            backupOptIn = prefs[BACKUP_OPT_IN_KEY] ?: false,
-            autoBackupEnabled = prefs[AUTO_BACKUP_ENABLED_KEY] ?: false,
-            lastBackupEpochMillis = prefs[LAST_BACKUP_EPOCH_MILLIS_KEY],
-            freeCustomDurationSeconds = prefs[FREE_CUSTOM_DURATION_SECONDS_KEY],
-        )
-    }
+        override suspend fun setDefaultDurationSeconds(seconds: Long) {
+            dataStore.edit { it[DEFAULT_DURATION_SECONDS_KEY] = seconds }
+        }
 
-    override suspend fun setDefaultDurationSeconds(seconds: Long) {
-        dataStore.edit { it[DEFAULT_DURATION_SECONDS_KEY] = seconds }
-    }
+        override suspend fun setSoundEnabled(enabled: Boolean) {
+            dataStore.edit { it[SOUND_ENABLED_KEY] = enabled }
+        }
 
-    override suspend fun setSoundEnabled(enabled: Boolean) {
-        dataStore.edit { it[SOUND_ENABLED_KEY] = enabled }
-    }
+        override suspend fun setHapticsEnabled(enabled: Boolean) {
+            dataStore.edit { it[HAPTICS_ENABLED_KEY] = enabled }
+        }
 
-    override suspend fun setHapticsEnabled(enabled: Boolean) {
-        dataStore.edit { it[HAPTICS_ENABLED_KEY] = enabled }
-    }
+        override suspend fun setThemeMode(themeMode: ThemeMode) {
+            dataStore.edit { it[THEME_MODE_KEY] = themeMode.name }
+        }
 
-    override suspend fun setThemeMode(themeMode: ThemeMode) {
-        dataStore.edit { it[THEME_MODE_KEY] = themeMode.name }
-    }
+        override suspend fun setOnboardingCompleted(completed: Boolean) {
+            dataStore.edit { it[ONBOARDING_COMPLETED_KEY] = completed }
+        }
 
-    override suspend fun setOnboardingCompleted(completed: Boolean) {
-        dataStore.edit { it[ONBOARDING_COMPLETED_KEY] = completed }
-    }
+        override suspend fun setBackupOptIn(enabled: Boolean) {
+            dataStore.edit { it[BACKUP_OPT_IN_KEY] = enabled }
+        }
 
-    override suspend fun setBackupOptIn(enabled: Boolean) {
-        dataStore.edit { it[BACKUP_OPT_IN_KEY] = enabled }
-    }
+        override suspend fun setAutoBackupEnabled(enabled: Boolean) {
+            dataStore.edit { it[AUTO_BACKUP_ENABLED_KEY] = enabled }
+        }
 
-    override suspend fun setAutoBackupEnabled(enabled: Boolean) {
-        dataStore.edit { it[AUTO_BACKUP_ENABLED_KEY] = enabled }
-    }
-
-    override suspend fun setLastBackupEpochMillis(epochMillis: Long?) {
-        dataStore.edit { prefs ->
-            if (epochMillis == null) {
-                prefs.remove(LAST_BACKUP_EPOCH_MILLIS_KEY)
-            } else {
-                prefs[LAST_BACKUP_EPOCH_MILLIS_KEY] = epochMillis
+        override suspend fun setLastBackupEpochMillis(epochMillis: Long?) {
+            dataStore.edit { prefs ->
+                if (epochMillis == null) {
+                    prefs.remove(LAST_BACKUP_EPOCH_MILLIS_KEY)
+                } else {
+                    prefs[LAST_BACKUP_EPOCH_MILLIS_KEY] = epochMillis
+                }
             }
         }
-    }
 
-    override suspend fun setFreeCustomDurationSeconds(seconds: Long?) {
-        dataStore.edit { prefs ->
-            if (seconds == null) {
-                prefs.remove(FREE_CUSTOM_DURATION_SECONDS_KEY)
-            } else {
-                prefs[FREE_CUSTOM_DURATION_SECONDS_KEY] = seconds
+        override suspend fun setFreeCustomDurationSeconds(seconds: Long?) {
+            dataStore.edit { prefs ->
+                if (seconds == null) {
+                    prefs.remove(FREE_CUSTOM_DURATION_SECONDS_KEY)
+                } else {
+                    prefs[FREE_CUSTOM_DURATION_SECONDS_KEY] = seconds
+                }
             }
         }
-    }
 
-    private fun String.toThemeMode(): ThemeMode {
-        return ThemeMode.entries.firstOrNull { it.name == this } ?: ThemeMode.System
-    }
+        private fun String.toThemeMode(): ThemeMode = ThemeMode.entries.firstOrNull { it.name == this } ?: ThemeMode.System
 
-    companion object {
-        val DEFAULT_DURATION_SECONDS_KEY = longPreferencesKey("default_duration_seconds")
-        val SOUND_ENABLED_KEY = booleanPreferencesKey("sound_enabled")
-        val HAPTICS_ENABLED_KEY = booleanPreferencesKey("haptics_enabled")
-        // Kept backward compatible with previous ThemeModeDataStore
-        val THEME_MODE_KEY = stringPreferencesKey("theme_mode")
-        val ONBOARDING_COMPLETED_KEY = booleanPreferencesKey("onboarding_completed")
-        val BACKUP_OPT_IN_KEY = booleanPreferencesKey("backup_opt_in")
-        val AUTO_BACKUP_ENABLED_KEY = booleanPreferencesKey("auto_backup_enabled")
-        val LAST_BACKUP_EPOCH_MILLIS_KEY = longPreferencesKey("last_backup_epoch_millis")
-        val FREE_CUSTOM_DURATION_SECONDS_KEY = longPreferencesKey("free_custom_duration_seconds")
+        companion object {
+            val DEFAULT_DURATION_SECONDS_KEY = longPreferencesKey("default_duration_seconds")
+            val SOUND_ENABLED_KEY = booleanPreferencesKey("sound_enabled")
+            val HAPTICS_ENABLED_KEY = booleanPreferencesKey("haptics_enabled")
+
+            // Kept backward compatible with previous ThemeModeDataStore
+            val THEME_MODE_KEY = stringPreferencesKey("theme_mode")
+            val ONBOARDING_COMPLETED_KEY = booleanPreferencesKey("onboarding_completed")
+            val BACKUP_OPT_IN_KEY = booleanPreferencesKey("backup_opt_in")
+            val AUTO_BACKUP_ENABLED_KEY = booleanPreferencesKey("auto_backup_enabled")
+            val LAST_BACKUP_EPOCH_MILLIS_KEY = longPreferencesKey("last_backup_epoch_millis")
+            val FREE_CUSTOM_DURATION_SECONDS_KEY = longPreferencesKey("free_custom_duration_seconds")
+        }
     }
-}

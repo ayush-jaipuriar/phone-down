@@ -28,10 +28,12 @@ class FocusSessionDaoTest {
     @Before
     fun setup() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        database = Room.inMemoryDatabaseBuilder(
-            context,
-            PhoneDownDatabase::class.java
-        ).build()
+        database =
+            Room
+                .inMemoryDatabaseBuilder(
+                    context,
+                    PhoneDownDatabase::class.java,
+                ).build()
         sessionDao = database.focusSessionDao()
         penaltyDao = database.penaltyEventDao()
     }
@@ -44,7 +46,7 @@ class FocusSessionDaoTest {
     private fun createSessionEntity(
         id: String = "session-1",
         startedAt: Long = 1000L,
-        state: String = SessionState.Active.toStorageString()
+        state: String = SessionState.Active.toStorageString(),
     ) = FocusSessionEntity(
         id = id,
         plannedDurationSeconds = 1500,
@@ -65,12 +67,12 @@ class FocusSessionDaoTest {
         broken = false,
         callInterrupted = false,
         createdAtEpochMillis = 900L,
-        updatedAtEpochMillis = 1000L
+        updatedAtEpochMillis = 1000L,
     )
 
     private fun createPenaltyEntity(
         id: String = "penalty-1",
-        sessionId: String = "session-1"
+        sessionId: String = "session-1",
     ) = PenaltyEventEntity(
         id = id,
         sessionId = sessionId,
@@ -78,58 +80,69 @@ class FocusSessionDaoTest {
         startedAtEpochMillis = 1100L,
         endedAtEpochMillis = 1105L,
         durationSeconds = 5,
-        penaltySeconds = 0
+        penaltySeconds = 0,
     )
 
     @Test
-    fun upsertAndGetSession() = runTest {
-        val entity = createSessionEntity()
-        sessionDao.upsertSession(entity)
+    fun upsertAndGetSession() =
+        runTest {
+            val entity = createSessionEntity()
+            sessionDao.upsertSession(entity)
 
-        val retrieved = sessionDao.getSession("session-1").first()
-        assertEquals(entity, retrieved)
-    }
-
-    @Test
-    fun deleteSessionCascadesToPenaltyEvents() = runTest {
-        val session = createSessionEntity()
-        sessionDao.upsertSession(session)
-
-        val penalty = createPenaltyEntity()
-        penaltyDao.insertPenaltyEvent(penalty)
-
-        val eventsBefore = penaltyDao.getPenaltyEventsForSession("session-1")
-        assertEquals(1, eventsBefore.size)
-
-        sessionDao.deleteSession("session-1")
-
-        val eventsAfter = penaltyDao.getPenaltyEventsForSession("session-1")
-        assertTrue(eventsAfter.isEmpty())
-    }
+            val retrieved = sessionDao.getSession("session-1").first()
+            assertEquals(entity, retrieved)
+        }
 
     @Test
-    fun getRecoverableSessionsFiltersCorrectly() = runTest {
-        val active = createSessionEntity(id = "active", state = SessionState.Active.toStorageString())
-        val completed = createSessionEntity(id = "completed", state = SessionState.Completed.toStorageString())
-        val broken = createSessionEntity(id = "broken", state = SessionState.Broken.toStorageString())
+    fun deleteSessionCascadesToPenaltyEvents() =
+        runTest {
+            val session = createSessionEntity()
+            sessionDao.upsertSession(session)
 
-        sessionDao.upsertSession(active)
-        sessionDao.upsertSession(completed)
-        sessionDao.upsertSession(broken)
+            val penalty = createPenaltyEntity()
+            penaltyDao.insertPenaltyEvent(penalty)
 
-        val recoverable = sessionDao.getRecoverableSessions()
-        assertEquals(1, recoverable.size)
-        assertEquals("active", recoverable[0].id)
-    }
+            val eventsBefore = penaltyDao.getPenaltyEventsForSession("session-1")
+            assertEquals(1, eventsBefore.size)
+
+            sessionDao.deleteSession("session-1")
+
+            val eventsAfter = penaltyDao.getPenaltyEventsForSession("session-1")
+            assertTrue(eventsAfter.isEmpty())
+        }
 
     @Test
-    fun observeLatestSessionsReturnsOrdered() = runTest {
-        sessionDao.upsertSession(createSessionEntity(id = "older", startedAt = 1000L))
-        sessionDao.upsertSession(createSessionEntity(id = "newer", startedAt = 2000L))
+    fun getRecoverableSessionsFiltersCorrectly() =
+        runTest {
+            val active = createSessionEntity(id = "active", state = SessionState.Active.toStorageString())
+            val waiting =
+                createSessionEntity(
+                    id = "waiting",
+                    state = SessionState.WaitingForPhoneDown.toStorageString(),
+                )
+            val completed = createSessionEntity(id = "completed", state = SessionState.Completed.toStorageString())
+            val broken = createSessionEntity(id = "broken", state = SessionState.Broken.toStorageString())
 
-        val latest = sessionDao.observeLatestSessions(2).first()
-        assertEquals(2, latest.size)
-        assertEquals("newer", latest[0].id)
-        assertEquals("older", latest[1].id)
-    }
+            sessionDao.upsertSession(active)
+            sessionDao.upsertSession(waiting)
+            sessionDao.upsertSession(completed)
+            sessionDao.upsertSession(broken)
+
+            val recoverable = sessionDao.getRecoverableSessions()
+            assertEquals(2, recoverable.size)
+            assertEquals("active", recoverable[0].id)
+            assertEquals("waiting", recoverable[1].id)
+        }
+
+    @Test
+    fun observeLatestSessionsReturnsOrdered() =
+        runTest {
+            sessionDao.upsertSession(createSessionEntity(id = "older", startedAt = 1000L))
+            sessionDao.upsertSession(createSessionEntity(id = "newer", startedAt = 2000L))
+
+            val latest = sessionDao.observeLatestSessions(2).first()
+            assertEquals(2, latest.size)
+            assertEquals("newer", latest[0].id)
+            assertEquals("older", latest[1].id)
+        }
 }

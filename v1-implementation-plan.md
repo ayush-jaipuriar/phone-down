@@ -543,42 +543,42 @@ Purpose: keep active sessions reliable when the user puts the phone down, the sc
 
 ### Foreground Service Checklist
 
-- [ ] Start service when a session is created or begins waiting.
-- [ ] Keep service alive during waiting, arming, active, and interrupted states.
-- [ ] Listen to sensor updates inside service or service-coordinated repository.
-- [ ] Persist state frequently enough to recover from process death.
-- [ ] Stop service after completion, invalidation, early end, or abandonment classification.
-- [ ] Trigger completion feedback.
-- [ ] Dim screen after valid face-down detection/arming where technically appropriate.
+- [x] Start service when a session is created or begins waiting.
+- [x] Keep service alive during waiting, arming, active, and interrupted states.
+- [x] Listen to sensor updates inside service or service-coordinated repository.
+- [x] Persist state frequently enough to recover from process death.
+- [x] Stop service after completion, invalidation, early end, or abandonment classification.
+- [x] Trigger completion feedback.
+- [x] Dim screen after valid face-down detection/arming where technically appropriate.
 
 ### Notification Checklist
 
-- [ ] Create notification channel.
-- [ ] Show persistent active notification.
-- [ ] Notification title: `Phone Down`.
+- [x] Create notification channel.
+- [x] Show persistent active notification.
+- [x] Notification title: `Phone Down`.
 - [ ] Notification body examples:
-  - [ ] `Waiting for phone down`.
-  - [ ] `Focus active - 18 min left`.
-  - [ ] `Focus paused - return phone down`.
-- [ ] Include `End Session` action.
-- [ ] Do not include Pause/Add Time notification actions in V1.
-- [ ] Route notification taps back into active session UI.
+  - [x] `Waiting for phone down`.
+  - [x] `Focus active - 18 min left`.
+  - [x] `Focus paused - return phone down`.
+- [x] Include `End Session` action.
+- [x] Do not include Pause/Add Time notification actions in V1.
+- [x] Route notification taps back into active session UI.
 
 ### Recovery Checklist
 
-- [ ] Detect active session on app launch.
-- [ ] Recover waiting/active/interrupted session when possible.
-- [ ] Classify unrecoverable active sessions as abandoned or broken according to rules.
-- [ ] Handle device restart with boot awareness if implemented.
+- [x] Detect unfinished session candidates on app launch.
+- [x] Detect unfinished session candidates on unexpected service restart.
+- [x] Classify dangling active/waiting/interrupted sessions conservatively according to rules.
+- [x] Handle device restart with boot awareness if implemented.
 
 ### Tests
 
-- [ ] Service starts when session starts.
+- [x] Service starts when session starts.
 - [ ] Notification appears.
 - [ ] Timer continues with screen off.
 - [ ] Session persists after process recreation.
-- [ ] End Session action works.
-- [ ] App relaunch displays correct active/recovered state.
+- [x] End Session action works.
+- [x] App relaunch displays correct active/recovered state.
 
 ### Acceptance Criteria
 
@@ -1125,7 +1125,7 @@ This is the recommended sequence to reduce rework and surface high-risk areas ea
 - [ ] Phase 3: Local persistence.
 - [x] Phase 4: Session domain engine.
 - [ ] Phase 5: Sensor engine. Automated implementation complete; manual device validation still pending.
-- [ ] Phase 6: Foreground service.
+- [ ] Phase 6: Foreground service/runtime integration. Automated implementation complete; manual runtime/device validation still pending.
 - [ ] Phase 7: Focus feature.
 - [ ] Phase 8: Onboarding.
 - [ ] Phase 9: Insights.
@@ -1196,6 +1196,16 @@ Use this section during development iterations. Each meaningful implementation p
 - Why: Give the app a real sensor-backed source of truth for face-down validity before any service or UI wiring consumes it.
 - Tests run: `git diff --check` and `ANDROID_HOME="$HOME/Library/Android/sdk" ./gradlew --no-configuration-cache :core:sensors:testDebugUnitTest :core:sensors:assembleDebug`.
 - Next steps: Complete the manual device validation matrix, then start Phase 6 planning or wire the validity stream into the next runtime layer.
+
+### 2026-05-02 - Phase 6 Foreground Service And Runtime Integration
+
+- Changed: Replaced the runtime placeholders with a real foreground-service path that starts sessions from the Focus screen, collects semantic sensor validity, translates call/sensor changes into Phase 4 session inputs, updates a persistent notification, plays sound/haptic feedback, dims the activity window during the ritual, and classifies dangling sessions conservatively on app launch, unexpected service restart, and boot.
+- Files modified: `app/build.gradle.kts`, `app/src/main/AndroidManifest.xml`, `app/src/main/java/phonedown/app/MainActivity.kt`, `app/src/main/java/phonedown/app/navigation/PhoneDownNavHost.kt`, `app/src/main/java/phonedown/app/runtime/`, `core/notifications/`, `phase-6-foreground-service-plan.md`, `docs/module-dependency-rules.md`, `docs/persistence.md`, and `v1-implementation-plan.md`.
+- Functions/classes/components touched: `ActiveSessionRuntimeCoordinator`, `ActiveSessionRuntimeState`, `FocusSessionService`, `FocusSessionBootReceiver`, `FocusSessionServiceContract`, `AndroidCallInterruptionMonitor`, `AppRuntimeModule`, `FocusForegroundNotificationManager`, `FocusFeedbackPlayer`, `MainActivity`, `PhoneDownApp`, and `ActiveSessionRuntimeCoordinatorTest`.
+- Why: Phase 6 is where Phone Down stops being a set of isolated modules and starts behaving like a real background-capable focus ritual with honest recovery and interruption handling.
+- Tests run: `git diff --check`, `ANDROID_HOME="$HOME/Library/Android/sdk" ./gradlew --no-configuration-cache :app:testDebugUnitTest :app:assembleDebug`, `ANDROID_HOME="$HOME/Library/Android/sdk" ./gradlew --no-configuration-cache :domain:session:test :core:sensors:testDebugUnitTest :core:datastore:testDebugUnitTest :app:testDebugUnitTest :app:assembleDebug`, and `./scripts/check.sh`.
+- Manual validation findings: Follow-up emulator reruns fixed two genuine issues uncovered in the first pass: the recovery DAO now matches stable snake_case state storage, so app relaunch classifies a dangling `waiting_for_phone_down` session to `abandoned`, and Android 13+ now requests `POST_NOTIFICATIONS` before starting focus. On the fresh emulator pass, the service started after permission grant, the OS posted the foreground notification with an `End Session` action according to `dumpsys notification --noredact`, and the session persisted as `waiting_for_phone_down` before recovery. Remaining gaps are mostly emulator-surface limitations: notification-shade tapping stayed unreliable, injected sensor values still did not produce a trustworthy face-down progression, and dimming, feedback feel, and reboot recovery still need a real-device pass.
+- Next steps: Run a real-device Phase 6 validation pass for notification interaction, sensor-driven session progression, dimming feel, feedback behavior, and reboot recovery, then close Phase 6 without caveats or tune the runtime based on what that device pass reveals.
 
 ## 22. Open Items To Revisit During Build
 

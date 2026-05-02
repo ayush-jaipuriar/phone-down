@@ -20,7 +20,6 @@ import java.io.File
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class DataStoreSettingsRepositoryTest {
-
     private val testDispatcher = StandardTestDispatcher()
     private val testScope = TestScope(testDispatcher + Job())
     private lateinit var dataStore: DataStore<Preferences>
@@ -29,10 +28,11 @@ class DataStoreSettingsRepositoryTest {
 
     @Before
     fun setup() {
-        dataStore = PreferenceDataStoreFactory.create(
-            scope = testScope,
-            produceFile = { testFile }
-        )
+        dataStore =
+            PreferenceDataStoreFactory.create(
+                scope = testScope,
+                produceFile = { testFile },
+            )
         repository = DataStoreSettingsRepository(dataStore)
     }
 
@@ -43,33 +43,35 @@ class DataStoreSettingsRepositoryTest {
     }
 
     @Test
-    fun defaultSettingsAreEmitted() = testScope.runTest {
-        repository.settings.test {
-            assertEquals(UserSettings(), awaitItem())
-            cancelAndIgnoreRemainingEvents()
+    fun defaultSettingsAreEmitted() =
+        testScope.runTest {
+            repository.settings.test {
+                assertEquals(UserSettings(), awaitItem())
+                cancelAndIgnoreRemainingEvents()
+            }
         }
-    }
 
     @Test
-    fun updateSettingsEmitsNewValues() = testScope.runTest {
-        repository.settings.test {
-            // initial
-            awaitItem()
+    fun updateSettingsEmitsNewValues() =
+        testScope.runTest {
+            repository.settings.test {
+                // initial
+                awaitItem()
 
-            repository.setThemeMode(ThemeMode.Dark)
-            assertEquals(ThemeMode.Dark, awaitItem().themeMode)
+                repository.setThemeMode(ThemeMode.Dark)
+                assertEquals(ThemeMode.Dark, awaitItem().themeMode)
 
-            repository.setDefaultDurationSeconds(1000)
-            assertEquals(1000L, awaitItem().defaultDurationSeconds)
+                repository.setDefaultDurationSeconds(1000)
+                assertEquals(1000L, awaitItem().defaultDurationSeconds)
 
-            repository.setLastBackupEpochMillis(12345L)
-            assertEquals(12345L, awaitItem().lastBackupEpochMillis)
+                repository.setLastBackupEpochMillis(12345L)
+                assertEquals(12345L, awaitItem().lastBackupEpochMillis)
 
-            // Testing removing a nullable value
-            repository.setLastBackupEpochMillis(null)
-            assertEquals(null, awaitItem().lastBackupEpochMillis)
+                // Testing removing a nullable value
+                repository.setLastBackupEpochMillis(null)
+                assertEquals(null, awaitItem().lastBackupEpochMillis)
 
-            cancelAndIgnoreRemainingEvents()
+                cancelAndIgnoreRemainingEvents()
+            }
         }
-    }
 }

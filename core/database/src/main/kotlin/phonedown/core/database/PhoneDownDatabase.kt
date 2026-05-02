@@ -17,5 +17,6 @@ import phonedown.core.database.entity.PenaltyEventEntity
 )
 abstract class PhoneDownDatabase : RoomDatabase() {
     abstract fun focusSessionDao(): FocusSessionDao
+
     abstract fun penaltyEventDao(): PenaltyEventDao
 }

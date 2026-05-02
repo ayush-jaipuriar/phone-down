@@ -32,23 +32,17 @@ data class PenaltyEventEntity(
     @PrimaryKey
     @ColumnInfo(name = "id")
     val id: String,
-
     @ColumnInfo(name = "session_id")
     val sessionId: String,
-
     /** Stored as stable string; see [phonedown.core.database.converter.SessionConverters]. */
     @ColumnInfo(name = "type")
     val type: String,
-
     @ColumnInfo(name = "started_at_epoch_millis")
     val startedAtEpochMillis: Long,
-
     @ColumnInfo(name = "ended_at_epoch_millis")
     val endedAtEpochMillis: Long?,
-
     @ColumnInfo(name = "duration_seconds")
     val durationSeconds: Long,
-
     @ColumnInfo(name = "penalty_seconds")
     val penaltySeconds: Long,
 )

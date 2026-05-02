@@ -19,10 +19,11 @@ class ProcessSessionInputUseCase(
         val events = transition.penaltyEvents
         when (events.size) {
             0 -> sessionRepository.upsertSession(transition.session)
-            1 -> sessionRepository.upsertSessionWithPenaltyEvent(
-                transition.session,
-                events.first(),
-            )
+            1 ->
+                sessionRepository.upsertSessionWithPenaltyEvent(
+                    transition.session,
+                    events.first(),
+                )
             else -> {
                 sessionRepository.upsertSessionWithPenaltyEvent(
                     transition.session,

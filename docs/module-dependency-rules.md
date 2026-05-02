@@ -158,3 +158,10 @@ Once the architecture stabilizes, the project can add automated checks such as a
 - `:core:sensors` now owns Android `SensorManager` integration, semantic focus-validity results, pocket/movement rejection heuristics, and debug-only diagnostics data.
 - `:core:sensors` keeps Android APIs at the edge through `AndroidFocusValidityMonitor`, while `FocusValidityEvaluator` contains the threshold and classification logic in a unit-testable form.
 - Later layers should consume semantic validity output from `:core:sensors` and map it into `:domain:session` inputs rather than reading raw sensor events directly.
+
+## Current Phase 6 Notes
+
+- `:app` now owns the foreground-service runtime shell, runtime coordinator, boot receiver, activity dimming hook, and call-interruption monitor wiring.
+- `:app` is responsible for translating Android runtime signals such as semantic sensor validity, service restarts, and telephony call state into `:domain:session` inputs rather than embedding timer rules directly in the service.
+- `:core:notifications` now owns notification-channel creation, foreground-notification building, and concrete sound/haptic feedback execution.
+- `:domain:session` still owns the timing/interruption rules; `ActiveSessionRuntimeCoordinator` orchestrates persistence cadence and feedback derivation without replacing the domain state machine.

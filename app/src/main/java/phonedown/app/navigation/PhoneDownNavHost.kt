@@ -1,3 +1,5 @@
+@file:Suppress("LongParameterList")
+
 package phonedown.app.navigation
 
 import androidx.compose.foundation.layout.padding
@@ -34,7 +36,9 @@ import phonedown.feature.settings.SettingsScreen
 @Suppress("FunctionName")
 fun PhoneDownApp(
     themeMode: ThemeMode = ThemeMode.System,
+    initialRoute: PhoneDownRoute = PhoneDownRoute.Onboarding,
     onThemeModeSelected: suspend (ThemeMode) -> Unit = {},
+    onStartFocusClick: () -> Unit = {},
 ) {
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -64,12 +68,14 @@ fun PhoneDownApp(
         ) { innerPadding ->
             PhoneDownNavHost(
                 navController = navController,
+                initialRoute = initialRoute,
                 themeMode = themeMode,
                 onThemeModeSelected = { mode ->
                     coroutineScope.launch {
                         onThemeModeSelected(mode)
                     }
                 },
+                onStartFocusClick = onStartFocusClick,
                 modifier = Modifier.padding(innerPadding),
             )
         }
@@ -80,13 +86,15 @@ fun PhoneDownApp(
 @Suppress("FunctionName")
 private fun PhoneDownNavHost(
     navController: NavHostController,
+    initialRoute: PhoneDownRoute,
     themeMode: ThemeMode,
     onThemeModeSelected: (ThemeMode) -> Unit,
+    onStartFocusClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     NavHost(
         navController = navController,
-        startDestination = PhoneDownRoute.Onboarding.path,
+        startDestination = initialRoute.path,
         modifier = modifier,
     ) {
         composable(PhoneDownRoute.Onboarding.path) {
@@ -101,7 +109,7 @@ private fun PhoneDownNavHost(
             )
         }
         composable(PhoneDownRoute.Focus.path) {
-            FocusScreen()
+            FocusScreen(onStartFocusClick = onStartFocusClick)
         }
         composable(PhoneDownRoute.Insights.path) {
             InsightsScreen()

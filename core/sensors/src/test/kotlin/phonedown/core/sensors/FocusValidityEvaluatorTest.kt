@@ -1,3 +1,5 @@
+@file:Suppress("LongParameterList")
+
 package phonedown.core.sensors
 
 import org.junit.Assert.assertEquals
@@ -7,10 +9,11 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class FocusValidityEvaluatorTest {
-    private val config = FocusSensorConfig(
-        stableDurationMillis = 3_000L,
-        movementWindowMillis = 2_000L,
-    )
+    private val config =
+        FocusSensorConfig(
+            stableDurationMillis = 3_000L,
+            movementWindowMillis = 2_000L,
+        )
 
     @Test
     fun stableFaceDownBecomesValidAfterThreeSeconds() {
@@ -37,14 +40,15 @@ class FocusValidityEvaluatorTest {
     fun faceUpIsRejected() {
         val evaluator = FocusValidityEvaluator(config = config)
 
-        val result = evaluator.evaluate(
-            snapshot(
-                elapsedRealtimeMillis = 0L,
-                gravityZ = 9.7f,
-                tiltDegrees = 5f,
-                linearMotionMagnitude = 0.02f,
-            ),
-        )
+        val result =
+            evaluator.evaluate(
+                snapshot(
+                    elapsedRealtimeMillis = 0L,
+                    gravityZ = 9.7f,
+                    tiltDegrees = 5f,
+                    linearMotionMagnitude = 0.02f,
+                ),
+            )
 
         assertFalse(result.isValid)
         assertEquals(FocusValidityReason.FaceUp, result.reason)
@@ -54,15 +58,16 @@ class FocusValidityEvaluatorTest {
     fun verticalIsRejected() {
         val evaluator = FocusValidityEvaluator(config = config)
 
-        val result = evaluator.evaluate(
-            snapshot(
-                elapsedRealtimeMillis = 0L,
-                gravityX = 9.7f,
-                gravityZ = 0.2f,
-                tiltDegrees = 82f,
-                linearMotionMagnitude = 0.03f,
-            ),
-        )
+        val result =
+            evaluator.evaluate(
+                snapshot(
+                    elapsedRealtimeMillis = 0L,
+                    gravityX = 9.7f,
+                    gravityZ = 0.2f,
+                    tiltDegrees = 82f,
+                    linearMotionMagnitude = 0.03f,
+                ),
+            )
 
         assertFalse(result.isValid)
         assertEquals(FocusValidityReason.Vertical, result.reason)
@@ -72,12 +77,13 @@ class FocusValidityEvaluatorTest {
     fun strongMovementIsRejectedEvenWhenFaceDown() {
         val evaluator = FocusValidityEvaluator(config = config)
 
-        val result = evaluator.evaluate(
-            faceDownSnapshot(
-                elapsedRealtimeMillis = 0L,
-                linearMotionMagnitude = 1.6f,
-            ),
-        )
+        val result =
+            evaluator.evaluate(
+                faceDownSnapshot(
+                    elapsedRealtimeMillis = 0L,
+                    linearMotionMagnitude = 1.6f,
+                ),
+            )
 
         assertFalse(result.isValid)
         assertEquals(FocusValidityReason.Moving, result.reason)
@@ -96,12 +102,13 @@ class FocusValidityEvaluatorTest {
             )
         }
 
-        val result = evaluator.evaluate(
-            faceDownSnapshot(
-                elapsedRealtimeMillis = 2_000L,
-                linearMotionMagnitude = 0.82f,
-            ),
-        )
+        val result =
+            evaluator.evaluate(
+                faceDownSnapshot(
+                    elapsedRealtimeMillis = 2_000L,
+                    linearMotionMagnitude = 0.82f,
+                ),
+            )
 
         assertFalse(result.isValid)
         assertEquals(FocusValidityReason.Moving, result.reason)
@@ -111,16 +118,17 @@ class FocusValidityEvaluatorTest {
     fun pocketLikeCaseIsRejectedConservatively() {
         val evaluator = FocusValidityEvaluator(config = config)
 
-        val result = evaluator.evaluate(
-            snapshot(
-                elapsedRealtimeMillis = 0L,
-                gravityX = 3.0f,
-                gravityY = 0.0f,
-                gravityZ = -8.7f,
-                tiltDegrees = 38f,
-                linearMotionMagnitude = 0.6f,
-            ),
-        )
+        val result =
+            evaluator.evaluate(
+                snapshot(
+                    elapsedRealtimeMillis = 0L,
+                    gravityX = 3.0f,
+                    gravityY = 0.0f,
+                    gravityZ = -8.7f,
+                    tiltDegrees = 38f,
+                    linearMotionMagnitude = 0.6f,
+                ),
+            )
 
         assertFalse(result.isValid)
         assertEquals(FocusValidityReason.PocketLike, result.reason)
@@ -132,9 +140,10 @@ class FocusValidityEvaluatorTest {
 
         evaluator.evaluate(faceDownSnapshot(elapsedRealtimeMillis = 0L, linearMotionMagnitude = 0.05f))
         evaluator.evaluate(faceDownSnapshot(elapsedRealtimeMillis = 1_500L, linearMotionMagnitude = 0.08f))
-        val result = evaluator.evaluate(
-            faceDownSnapshot(elapsedRealtimeMillis = 3_100L, linearMotionMagnitude = 0.12f),
-        )
+        val result =
+            evaluator.evaluate(
+                faceDownSnapshot(elapsedRealtimeMillis = 3_100L, linearMotionMagnitude = 0.12f),
+            )
 
         assertTrue(result.isValid)
         assertEquals(FocusValidityReason.FaceDownStable, result.reason)
@@ -144,13 +153,14 @@ class FocusValidityEvaluatorTest {
     fun missingAccelerometerIsUnavailable() {
         val evaluator = FocusValidityEvaluator(config = config, debugDiagnosticsEnabled = true)
 
-        val result = evaluator.evaluate(
-            snapshot(
-                elapsedRealtimeMillis = 0L,
-                gravityZ = 0f,
-                activeSensors = emptySet(),
-            ),
-        )
+        val result =
+            evaluator.evaluate(
+                snapshot(
+                    elapsedRealtimeMillis = 0L,
+                    gravityZ = 0f,
+                    activeSensors = emptySet(),
+                ),
+            )
 
         assertFalse(result.isValid)
         assertEquals(FocusValidityReason.SensorsUnavailable, result.reason)
@@ -161,14 +171,13 @@ class FocusValidityEvaluatorTest {
     private fun faceDownSnapshot(
         elapsedRealtimeMillis: Long,
         linearMotionMagnitude: Float = 0.04f,
-    ): FocusSensorSnapshot {
-        return snapshot(
+    ): FocusSensorSnapshot =
+        snapshot(
             elapsedRealtimeMillis = elapsedRealtimeMillis,
             gravityZ = -9.6f,
             tiltDegrees = 6f,
             linearMotionMagnitude = linearMotionMagnitude,
         )
-    }
 
     private fun snapshot(
         elapsedRealtimeMillis: Long,
@@ -178,8 +187,8 @@ class FocusValidityEvaluatorTest {
         tiltDegrees: Float? = 6f,
         linearMotionMagnitude: Float = 0.04f,
         activeSensors: Set<SensorSource> = setOf(SensorSource.Accelerometer),
-    ): FocusSensorSnapshot {
-        return FocusSensorSnapshot(
+    ): FocusSensorSnapshot =
+        FocusSensorSnapshot(
             elapsedRealtimeMillis = elapsedRealtimeMillis,
             gravityX = gravityX,
             gravityY = gravityY,
@@ -188,5 +197,4 @@ class FocusValidityEvaluatorTest {
             tiltDegrees = tiltDegrees,
             activeSensors = activeSensors,
         )
-    }
 }

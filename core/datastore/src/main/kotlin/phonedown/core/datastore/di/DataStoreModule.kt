@@ -25,29 +25,25 @@ private const val DATASTORE_NAME = "phone_down_theme_mode" // Keeping old name f
 @Module
 @InstallIn(SingletonComponent::class)
 object DataStoreModule {
-
     @Provides
     @Singleton
     fun providesSettingsDataStore(
         @ApplicationContext context: Context,
-    ): DataStore<Preferences> {
-        return PreferenceDataStoreFactory.create(
-            corruptionHandler = ReplaceFileCorruptionHandler(
-                produceNewData = { emptyPreferences() }
-            ),
+    ): DataStore<Preferences> =
+        PreferenceDataStoreFactory.create(
+            corruptionHandler =
+                ReplaceFileCorruptionHandler(
+                    produceNewData = { emptyPreferences() },
+                ),
             scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
-            produceFile = { context.preferencesDataStoreFile(DATASTORE_NAME) }
+            produceFile = { context.preferencesDataStoreFile(DATASTORE_NAME) },
         )
-    }
 }
 
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class SettingsRepositoryModule {
-
     @Binds
     @Singleton
-    abstract fun bindsSettingsRepository(
-        dataStoreSettingsRepository: DataStoreSettingsRepository,
-    ): SettingsRepository
+    abstract fun bindsSettingsRepository(dataStoreSettingsRepository: DataStoreSettingsRepository): SettingsRepository
 }

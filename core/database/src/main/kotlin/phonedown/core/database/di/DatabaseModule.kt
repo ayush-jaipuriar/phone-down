@@ -18,35 +18,29 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
-
     @Provides
     @Singleton
     fun providesPhoneDownDatabase(
         @ApplicationContext context: Context,
-    ): PhoneDownDatabase = Room.databaseBuilder(
-        context,
-        PhoneDownDatabase::class.java,
-        "phone_down_database",
-    ).build()
+    ): PhoneDownDatabase =
+        Room
+            .databaseBuilder(
+                context,
+                PhoneDownDatabase::class.java,
+                "phone_down_database",
+            ).build()
 
     @Provides
-    fun providesFocusSessionDao(
-        database: PhoneDownDatabase,
-    ): FocusSessionDao = database.focusSessionDao()
+    fun providesFocusSessionDao(database: PhoneDownDatabase): FocusSessionDao = database.focusSessionDao()
 
     @Provides
-    fun providesPenaltyEventDao(
-        database: PhoneDownDatabase,
-    ): PenaltyEventDao = database.penaltyEventDao()
+    fun providesPenaltyEventDao(database: PhoneDownDatabase): PenaltyEventDao = database.penaltyEventDao()
 }
 
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
-
     @Binds
     @Singleton
-    abstract fun bindsSessionRepository(
-        roomSessionRepository: RoomSessionRepository,
-    ): SessionRepository
+    abstract fun bindsSessionRepository(roomSessionRepository: RoomSessionRepository): SessionRepository
 }

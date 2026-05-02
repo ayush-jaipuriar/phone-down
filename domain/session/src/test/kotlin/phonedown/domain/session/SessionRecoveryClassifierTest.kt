@@ -9,11 +9,12 @@ import phonedown.core.model.SessionResult
 import phonedown.core.model.SessionState
 
 class SessionRecoveryClassifierTest {
-    private val clock = object : Clock {
-        override fun currentTimeMillis(): Long = 50_000L
+    private val clock =
+        object : Clock {
+            override fun currentTimeMillis(): Long = 50_000L
 
-        override fun elapsedRealtimeMillis(): Long = 80_000L
-    }
+            override fun elapsedRealtimeMillis(): Long = 80_000L
+        }
 
     private val classifier = SessionRecoveryClassifier(clock)
 
@@ -42,8 +43,8 @@ class SessionRecoveryClassifierTest {
         assertEquals(SessionResult.Abandoned, recovered.result)
     }
 
-    private fun session(state: SessionState): FocusSession {
-        return FocusSession(
+    private fun session(state: SessionState): FocusSession =
+        FocusSession(
             id = "session-1",
             plannedDurationSeconds = 1_500L,
             requiredDurationSeconds = 1_500L,
@@ -65,5 +66,4 @@ class SessionRecoveryClassifierTest {
             createdAtEpochMillis = 10_000L,
             updatedAtEpochMillis = 10_000L,
         )
-    }
 }
