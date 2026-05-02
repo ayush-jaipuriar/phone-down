@@ -36,23 +36,23 @@ These decisions are locked in for this phase:
 
 ## 3. In Scope
 
-- [ ] Replace the `:core:sensors` placeholder with real Android sensor-engine code.
-- [ ] Define sensor-facing abstractions and validity result models.
-- [ ] Integrate Android `SensorManager`.
-- [ ] Use accelerometer gravity vector and/or rotation vector as primary orientation inputs.
-- [ ] Optionally use gyroscope only if implementation/testing shows it is needed.
-- [ ] Detect face-down horizontal placement.
-- [ ] Reject face-up and vertical orientation.
-- [ ] Evaluate movement stability over time, not just a single instant.
-- [ ] Reject in-hand / continuously moving states.
-- [ ] Add pocket-rejection heuristics.
-- [ ] Add best-effort walking / moving-vehicle rejection heuristics.
-- [ ] Expose a stream/callback surface consumable by later app layers.
-- [ ] Expose a debug-only diagnostics model for internal testing.
-- [ ] Add local unit tests for math/classification logic.
+- [x] Replace the `:core:sensors` placeholder with real Android sensor-engine code.
+- [x] Define sensor-facing abstractions and validity result models.
+- [x] Integrate Android `SensorManager`.
+- [x] Use accelerometer gravity vector and/or rotation vector as primary orientation inputs.
+- [x] Optionally use gyroscope only if implementation/testing shows it is needed.
+- [x] Detect face-down horizontal placement.
+- [x] Reject face-up and vertical orientation.
+- [x] Evaluate movement stability over time, not just a single instant.
+- [x] Reject in-hand / continuously moving states.
+- [x] Add pocket-rejection heuristics.
+- [x] Add best-effort walking / moving-vehicle rejection heuristics.
+- [x] Expose a stream/callback surface consumable by later app layers.
+- [x] Expose a debug-only diagnostics model for internal testing.
+- [x] Add local unit tests for math/classification logic.
 - [ ] Add integration-ish tests where practical for Android-facing glue.
-- [ ] Define manual device validation checklist and exit criteria.
-- [ ] Update project docs and progress logs after implementation.
+- [x] Define manual device validation checklist and exit criteria.
+- [x] Update project docs and progress logs after implementation.
 
 ## 4. Out Of Scope
 
@@ -502,10 +502,10 @@ Record:
 
 After implementation, run:
 
-- [ ] `git diff --check`
-- [ ] targeted `:core:sensors` unit tests
+- [x] `git diff --check`
+- [x] targeted `:core:sensors` unit tests
 - [ ] targeted `:core:sensors` Android/instrumentation tests if added
-- [ ] build/assemble tasks needed to prove Android sensor code compiles cleanly
+- [x] build/assemble tasks needed to prove Android sensor code compiles cleanly
 - [ ] broader app verification only if Phase 5 wiring reaches compile paths outside `:core:sensors`
 
 And complete:
@@ -518,17 +518,17 @@ If device coverage is incomplete, document that explicitly before calling the ph
 
 Phase 5 is complete only when:
 
-- [ ] `:core:sensors` contains a real Android-backed sensor engine, not a placeholder.
-- [ ] Face-down validity uses real Android sensor data.
-- [ ] The detector distinguishes valid, invalid, and unstable states semantically.
-- [ ] Conservative fallback behavior is implemented for ambiguous states.
-- [ ] Face-up, vertical, obvious movement, and unavailable-sensor cases are rejected correctly.
-- [ ] Pocket-like and walking-like states are treated as invalid on a best-effort basis.
-- [ ] Debug-only diagnostics are available for internal testing.
-- [ ] Automated tests cover the core classification rules.
-- [ ] Required manual device validation is completed or clearly documented as incomplete.
-- [ ] Documentation is updated with actual implementation and verification status.
-- [ ] The user approves this plan before implementation begins.
+- [x] `:core:sensors` contains a real Android-backed sensor engine, not a placeholder.
+- [x] Face-down validity uses real Android sensor data.
+- [x] The detector distinguishes valid, invalid, and unstable states semantically.
+- [x] Conservative fallback behavior is implemented for ambiguous states.
+- [x] Face-up, vertical, obvious movement, and unavailable-sensor cases are rejected correctly.
+- [x] Pocket-like and walking-like states are treated as invalid on a best-effort basis.
+- [x] Debug-only diagnostics are available for internal testing.
+- [x] Automated tests cover the core classification rules.
+- [x] Required manual device validation is completed or clearly documented as incomplete.
+- [x] Documentation is updated with actual implementation and verification status.
+- [x] The user approves this plan before implementation begins.
 
 ## 26. Recommended Implementation Order
 
@@ -552,3 +552,21 @@ Common next steps:
 - approve this Phase 5 plan and start implementation
 - request changes to the plan before implementation
 - narrow or expand the diagnostics or device-validation scope before implementation
+
+---
+
+### Implementation Completion Note
+**Phase 5 implementation was completed on May 2, 2026.**
+The `:core:sensors` module now contains a real Android-backed sensor monitor, a pure validity evaluator, semantic validity output models, and debug-only diagnostics data.
+
+Automated verification completed:
+
+- `git diff --check`
+- `ANDROID_HOME="$HOME/Library/Android/sdk" ./gradlew --no-configuration-cache :core:sensors:testDebugUnitTest :core:sensors:assembleDebug`
+
+Remaining required validation:
+
+- manual real-device validation matrix is still pending
+- no dedicated Android instrumentation test was added in this pass
+
+Because manual device validation is an explicit Phase 5 exit criterion, the implementation is in place but the phase should not be treated as fully validated until that device pass is completed.

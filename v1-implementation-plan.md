@@ -1124,7 +1124,7 @@ This is the recommended sequence to reduce rework and surface high-risk areas ea
 - [x] Phase 2: Design system shell.
 - [ ] Phase 3: Local persistence.
 - [x] Phase 4: Session domain engine.
-- [ ] Phase 5: Sensor engine.
+- [ ] Phase 5: Sensor engine. Automated implementation complete; manual device validation still pending.
 - [ ] Phase 6: Foreground service.
 - [ ] Phase 7: Focus feature.
 - [ ] Phase 8: Onboarding.
@@ -1188,6 +1188,15 @@ Use this section during development iterations. Each meaningful implementation p
 - Tests run: `git diff --check`, `ANDROID_HOME="$HOME/Library/Android/sdk" ./gradlew --no-configuration-cache :domain:session:test`, and `ANDROID_HOME="$HOME/Library/Android/sdk" ./gradlew --no-configuration-cache :core:common:test :core:model:test :domain:session:test`.
 - Next steps: Start Phase 5 sensor-engine planning, then connect real face-down validity signals into the Phase 4 engine.
 
+### 2026-05-02 - Phase 5 Sensor Engine
+
+- Changed: Replaced the `:core:sensors` placeholder with a real Android `SensorManager`-backed validity monitor, pure orientation/movement evaluator, semantic validity result models, and debug-only diagnostics support.
+- Files modified: `core/sensors/`, `phase-5-sensor-engine-plan.md`, `docs/module-dependency-rules.md`, and `v1-implementation-plan.md`.
+- Functions/classes/components touched: `AndroidFocusValidityMonitor`, `FocusValidityMonitor`, `FocusValidityEvaluator`, `FocusValidityResult`, `FocusValidityReason`, `FocusStabilityState`, `FocusSensorDiagnostics`, `FocusSensorSnapshot`, `FocusSensorConfig`, and `FocusValidityEvaluatorTest`.
+- Why: Give the app a real sensor-backed source of truth for face-down validity before any service or UI wiring consumes it.
+- Tests run: `git diff --check` and `ANDROID_HOME="$HOME/Library/Android/sdk" ./gradlew --no-configuration-cache :core:sensors:testDebugUnitTest :core:sensors:assembleDebug`.
+- Next steps: Complete the manual device validation matrix, then start Phase 6 planning or wire the validity stream into the next runtime layer.
+
 ## 22. Open Items To Revisit During Build
 
 These are not blockers because product direction has been clarified, but they should be revisited when implementation reveals real constraints.
@@ -1200,4 +1209,3 @@ These are not blockers because product direction has been clarified, but they sh
 - [ ] Exact Play Store privacy/data safety declarations.
 - [ ] Whether export ships as a visible V1 Pro feature or only as a foundation behind settings.
 - [ ] Whether app restart recovery should classify as broken or abandoned in each lifecycle edge case.
-- [ ] Whether debug-only sensor diagnostics should be included for internal testing builds.

@@ -152,3 +152,9 @@ Once the architecture stabilizes, the project can add automated checks such as a
 - `:domain:session` owns the session state machine, interruption rules, early-end classification, and conservative persistence recovery classification.
 - `:domain:session` depends only on `:core:common` and `:core:model`, including the `SessionRepository` contract from `:core:model`.
 - Repository orchestration for session and penalty-event writes lives in `:domain:session` use cases rather than in UI or service layers.
+
+## Current Phase 5 Notes
+
+- `:core:sensors` now owns Android `SensorManager` integration, semantic focus-validity results, pocket/movement rejection heuristics, and debug-only diagnostics data.
+- `:core:sensors` keeps Android APIs at the edge through `AndroidFocusValidityMonitor`, while `FocusValidityEvaluator` contains the threshold and classification logic in a unit-testable form.
+- Later layers should consume semantic validity output from `:core:sensors` and map it into `:domain:session` inputs rather than reading raw sensor events directly.
