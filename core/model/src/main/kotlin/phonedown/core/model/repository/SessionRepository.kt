@@ -30,4 +30,12 @@ interface SessionRepository {
     fun observePenaltyEvents(sessionId: String): Flow<List<PenaltyEvent>>
 
     suspend fun getPenaltyEvents(sessionId: String): List<PenaltyEvent>
+
+    suspend fun getAllSessions(): List<FocusSession>
+
+    suspend fun getAllPenaltyEvents(): List<PenaltyEvent>
+
+    suspend fun clearAllSessions()
+
+    suspend fun clearAllPenaltyEvents()
 }

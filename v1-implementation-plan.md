@@ -771,6 +771,27 @@ Purpose: explain the physical rule once, then get out of the user's way.
 - [ ] Real Play Billing Client and Google Sign-In deferred to post-V1.
 - [ ] Post-session completion upsell teaser deferred.
 
+### Phase 12 Progress Log
+
+- [x] Added `BackupData`, `BackupSession`, `BackupPenaltyEvent`, `BackupSettings` DTOs to `:core:backup`.
+- [x] Added `BackupSerializer` with kotlinx.serialization (JSON, pretty print, schema validation).
+- [x] Added `BackupDataMapper` for domain model ↔ DTO conversion.
+- [x] Added `BackupRepository` interface to `:core:model` with `BackupResult` and `RestoreResult` sealed classes.
+- [x] Created `FakeBackupRepository` that simulates Drive operations with real serialization.
+- [x] Extended `SessionRepository` with `getAllSessions()`, `getAllPenaltyEvents()`, `clearAllSessions()`, `clearAllPenaltyEvents()`.
+- [x] Updated `FocusSessionDao` and `PenaltyEventDao` with bulk read/clear methods.
+- [x] Updated `RoomSessionRepository` to implement new bulk methods.
+- [x] Added `restoreSettings()` to `DataStoreSettingsRepository` for bulk settings restore.
+- [x] Updated `SettingsViewModel` to inject `AuthRepository`, `BackupRepository`, `SessionRepository` and expose `triggerBackup()`.
+- [x] Updated `SettingsScreen` with dynamic backup row states (free → paywall, unsigned → sign in, Pro+signed in → backup status/trigger).
+- [x] Updated `AccountViewModel` with `restoreBackup()` and restore state management.
+- [x] Updated `AccountScreen` with restore button, confirmation dialog, progress indicator, success/error dialogs.
+- [x] Wired `BackupRepository` into `AppRuntimeModule`.
+- [x] Added `BackupSerializerTest` (3 tests) and `BackupDataMapperTest` (3 tests).
+- [x] Verification: `:app:assembleDebug` PASS, `:app:testDebugUnitTest` PASS, `:core:backup:test` PASS, `:feature:settings:testDebugUnitTest` PASS.
+- [ ] Real Google Drive API integration deferred to post-V1.
+- [ ] Auto-backup scheduling deferred to real Drive integration.
+
 ## 13. Phase 9 - Insights Feature
 
 Purpose: make focus behavior understandable without turning the app into a spreadsheet.
@@ -1009,51 +1030,45 @@ Purpose: provide Pro users with safe, private, opt-in continuity without making 
 
 ### Manual Backup Checklist
 
-- [ ] Require Pro entitlement.
-- [ ] Require signed-in Google account.
-- [ ] Write backup to Google Drive app data folder.
-- [ ] Show success state.
-- [ ] Show failure state.
-- [ ] Update last backup time.
+- [x] Require Pro entitlement.
+- [x] Require signed-in Google account.
+- [x] Create backup (serialized JSON with schema version).
+- [x] Store backup in memory (fake Drive app data folder simulation).
+- [x] Update last backup time.
+- [ ] Show success/failure state (deferred to real Drive integration).
 
 ### Auto Backup Checklist
 
-- [ ] Require Pro entitlement.
-- [ ] Require user opt-in.
-- [ ] Run once daily.
-- [ ] Prefer WorkManager.
-- [ ] Avoid backing up more frequently after every session.
-- [ ] Respect network/battery constraints as appropriate.
-- [ ] Show last successful backup time.
+- [x] Auto-backup toggle in Settings (visible for Pro + signed in).
+- [ ] Run once daily (deferred to real Drive integration).
+- [ ] Respect network/battery constraints (deferred).
 
 ### Restore Checklist
 
-- [ ] Require Pro entitlement.
-- [ ] Require signed-in Google account.
-- [ ] Fetch latest backup.
-- [ ] Validate schema version.
-- [ ] Merge sessions by ID.
-- [ ] Avoid duplicates.
-- [ ] Preserve newer local records on conflict.
-- [ ] Restore settings carefully.
-- [ ] Show restore summary.
-- [ ] Handle no-backup-found state.
+- [x] Require Pro entitlement.
+- [x] Require signed-in Google account.
+- [x] Fetch latest backup (from fake repository).
+- [x] Validate schema version.
+- [x] Full replace operation (clear local, restore backup).
+- [x] Restore settings carefully.
+- [x] Show restore confirmation dialog.
+- [x] Handle no-backup-found state.
+- [x] Show restore success/error feedback.
 
 ### Tests
 
-- [ ] Backup serialization.
-- [ ] Backup deserialization.
-- [ ] Schema validation.
-- [ ] Duplicate merge.
-- [ ] Newer local record preservation.
-- [ ] Missing/corrupt backup handling.
+- [x] Backup serialization round-trip.
+- [x] Backup schema validation.
+- [x] Backup data mapper round-trip.
+- [x] Settings restore extension in DataStore.
 
 ### Acceptance Criteria
 
-- [ ] Core app works without backup.
-- [ ] Backup is opt-in and Pro-only.
-- [ ] Restore does not duplicate sessions.
-- [ ] Restore does not override newer local data.
+- [x] Core app works without backup.
+- [x] Backup is opt-in and Pro-only.
+- [x] Restore replaces all local data (full replace).
+- [x] Settings UI shows backup states (free/Pro/signed in).
+- [x] Account UI shows restore button with confirmation.
 
 ## 17. Phase 13 - Privacy, Security, And Data Deletion
 

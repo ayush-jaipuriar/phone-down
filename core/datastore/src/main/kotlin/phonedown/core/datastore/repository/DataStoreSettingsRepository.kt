@@ -85,6 +85,20 @@ class DataStoreSettingsRepository
             }
         }
 
+        suspend fun restoreSettings(settings: UserSettings) {
+            dataStore.edit { prefs ->
+                prefs[DEFAULT_DURATION_SECONDS_KEY] = settings.defaultDurationSeconds
+                prefs[SOUND_ENABLED_KEY] = settings.soundEnabled
+                prefs[HAPTICS_ENABLED_KEY] = settings.hapticsEnabled
+                prefs[THEME_MODE_KEY] = settings.themeMode.name
+                prefs[ONBOARDING_COMPLETED_KEY] = settings.onboardingCompleted
+                prefs[BACKUP_OPT_IN_KEY] = settings.backupOptIn
+                prefs[AUTO_BACKUP_ENABLED_KEY] = settings.autoBackupEnabled
+                settings.lastBackupEpochMillis?.let { prefs[LAST_BACKUP_EPOCH_MILLIS_KEY] = it } ?: prefs.remove(LAST_BACKUP_EPOCH_MILLIS_KEY)
+                settings.freeCustomDurationSeconds?.let { prefs[FREE_CUSTOM_DURATION_SECONDS_KEY] = it } ?: prefs.remove(FREE_CUSTOM_DURATION_SECONDS_KEY)
+            }
+        }
+
         private fun String.toThemeMode(): ThemeMode = ThemeMode.entries.firstOrNull { it.name == this } ?: ThemeMode.System
 
         companion object {

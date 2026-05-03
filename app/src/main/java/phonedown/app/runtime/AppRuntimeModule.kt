@@ -9,6 +9,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import phonedown.core.auth.FakeAuthRepository
+import phonedown.core.backup.FakeBackupRepository
 import phonedown.core.billing.FakeBillingRepository
 import phonedown.core.common.Clock
 import phonedown.core.common.IdGenerator
@@ -201,4 +202,8 @@ object AppRuntimeModule {
     @Provides
     @Singleton
     fun providesAuthRepository(): AuthRepository = FakeAuthRepository()
+
+    @Provides
+    @Singleton
+    fun providesBackupRepository(): phonedown.core.model.repository.BackupRepository = FakeBackupRepository()
 }

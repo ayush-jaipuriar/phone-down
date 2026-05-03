@@ -11,4 +11,7 @@ data class SettingsUiState(
     val lastBackupEpochMillis: Long? = null,
     val backupOptIn: Boolean = false,
     val isProUser: Boolean = false,
+    val isSignedIn: Boolean = false,
+    val isBackingUp: Boolean = false,
+    val backupError: String? = null,
 )

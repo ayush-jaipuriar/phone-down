@@ -20,6 +20,7 @@ fun SettingsRoute(
         uiState = uiState,
         onAccountClick = onAccountClick,
         onProClick = onProClick,
+        onBackupClick = viewModel::triggerBackup,
         onSoundToggled = viewModel::setSoundEnabled,
         onHapticsToggled = viewModel::setHapticsEnabled,
         onThemeModeSelected = { mode ->

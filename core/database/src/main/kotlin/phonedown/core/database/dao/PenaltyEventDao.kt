@@ -31,4 +31,10 @@ interface PenaltyEventDao {
 
     @Query("DELETE FROM penalty_events WHERE session_id = :sessionId")
     suspend fun deletePenaltyEventsForSession(sessionId: String)
+
+    @Query("SELECT * FROM penalty_events")
+    suspend fun getAllPenaltyEvents(): List<PenaltyEventEntity>
+
+    @Query("DELETE FROM penalty_events")
+    suspend fun deleteAllPenaltyEvents()
 }

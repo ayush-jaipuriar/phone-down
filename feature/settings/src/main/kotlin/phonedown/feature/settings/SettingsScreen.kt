@@ -47,6 +47,7 @@ fun SettingsScreen(
     uiState: SettingsUiState,
     onAccountClick: () -> Unit,
     onProClick: () -> Unit,
+    onBackupClick: () -> Unit,
     onSoundToggled: (Boolean) -> Unit,
     onHapticsToggled: (Boolean) -> Unit,
     onThemeModeSelected: (ThemeMode) -> Unit,
@@ -82,6 +83,7 @@ fun SettingsScreen(
         AccountBackupSection(
             onAccountClick = onAccountClick,
             onProClick = onProClick,
+            onBackupClick = onBackupClick,
             uiState = uiState,
         )
 
@@ -183,12 +185,17 @@ private fun AccountBackupSection(
     uiState: SettingsUiState,
     onAccountClick: () -> Unit,
     onProClick: () -> Unit,
+    onBackupClick: () -> Unit,
 ) {
     SettingsSectionHeader(title = "Account & Backup") {
         PhoneDownSettingRow(
             title = "Google Account",
-            supportingText = "Sign in to enable cloud backup",
-            trailing = "Sign In",
+            supportingText = if (uiState.isSignedIn) {
+                "Manage your account and backup"
+            } else {
+                "Sign in to enable cloud backup"
+            },
+            trailing = if (uiState.isSignedIn) "Manage" else "Sign In",
             modifier = Modifier.testTag(SettingsTestTags.ACCOUNT_ROW),
             onClick = onAccountClick,
         )
@@ -207,22 +214,47 @@ private fun AccountBackupSection(
             )
             PhoneDownProBadge()
         }
-        PhoneDownSettingRow(
-            title = "Backup & Restore",
-            supportingText = if (uiState.lastBackupEpochMillis != null) {
-                "Last backup: ${formatBackupTime(uiState.lastBackupEpochMillis)}"
-            } else {
-                "No backup yet"
-            },
-            trailing = "Pro",
-            onClick = onProClick,
-        )
-        PhoneDownSettingRow(
-            title = "Auto Backup",
-            supportingText = "Daily automatic backup to Google Drive",
-            trailing = "Pro",
-            onClick = onProClick,
-        )
+
+        when {
+            !uiState.isProUser -> {
+                PhoneDownSettingRow(
+                    title = "Backup & Restore",
+                    supportingText = "Cloud backup for your sessions and settings",
+                    trailing = "Pro",
+                    onClick = onProClick,
+                )
+            }
+            !uiState.isSignedIn -> {
+                PhoneDownSettingRow(
+                    title = "Backup & Restore",
+                    supportingText = "Sign in to Google to enable backup",
+                    trailing = "Sign In",
+                    onClick = onAccountClick,
+                )
+            }
+            else -> {
+                PhoneDownSettingRow(
+                    title = "Backup & Restore",
+                    supportingText = if (uiState.isBackingUp) {
+                        "Backing up..."
+                    } else if (uiState.lastBackupEpochMillis != null) {
+                        "Last backup: ${formatBackupTime(uiState.lastBackupEpochMillis)}"
+                    } else {
+                        "No backup yet. Tap to back up now."
+                    },
+                    trailing = if (uiState.isBackingUp) "..." else "Back Up",
+                    onClick = onBackupClick,
+                )
+            }
+        }
+
+        if (uiState.isProUser && uiState.isSignedIn) {
+            PhoneDownSettingRow(
+                title = "Auto Backup",
+                supportingText = "Daily automatic backup to Google Drive",
+                trailing = if (uiState.autoBackupEnabled) "On" else "Off",
+            )
+        }
     }
 }
 
@@ -334,6 +366,7 @@ private fun SettingsScreenLightPreview() {
             uiState = SettingsUiState(),
             onAccountClick = {},
             onProClick = {},
+            onBackupClick = {},
             onSoundToggled = {},
             onHapticsToggled = {},
             onThemeModeSelected = {},
@@ -350,6 +383,7 @@ private fun SettingsScreenDarkPreview() {
             uiState = SettingsUiState(themeMode = ThemeMode.Dark),
             onAccountClick = {},
             onProClick = {},
+            onBackupClick = {},
             onSoundToggled = {},
             onHapticsToggled = {},
             onThemeModeSelected = {},

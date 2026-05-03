@@ -67,4 +67,14 @@ class RoomSessionRepository
             penaltyEventDao.getPenaltyEventsForSession(sessionId).map {
                 it.toDomainModel()
             }
+
+        override suspend fun getAllSessions(): List<FocusSession> =
+            sessionDao.getAllSessions().map { it.toDomainModel() }
+
+        override suspend fun getAllPenaltyEvents(): List<PenaltyEvent> =
+            penaltyEventDao.getAllPenaltyEvents().map { it.toDomainModel() }
+
+        override suspend fun clearAllSessions() = sessionDao.deleteAllSessions()
+
+        override suspend fun clearAllPenaltyEvents() = penaltyEventDao.deleteAllPenaltyEvents()
     }

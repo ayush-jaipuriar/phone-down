@@ -10,9 +10,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,10 +42,17 @@ import phonedown.core.model.ThemeMode
 fun AccountScreen(
     accountState: AccountState,
     isProUser: Boolean,
+    isRestoring: Boolean,
+    restoreError: String?,
+    restoreSuccess: String?,
     onSignIn: () -> Unit,
     onSignOut: () -> Unit,
+    onRestoreClick: () -> Unit,
+    onClearRestoreState: () -> Unit,
     onBack: () -> Unit,
 ) {
+    var showRestoreDialog by remember { mutableStateOf(false) }
+
     PhoneDownScreen(
         modifier = Modifier.fillMaxSize(),
     ) {
@@ -64,9 +78,60 @@ fun AccountScreen(
                 SignedInContent(
                     accountState = accountState,
                     isProUser = isProUser,
+                    isRestoring = isRestoring,
+                    onRestoreClick = { showRestoreDialog = true },
                     onSignOut = onSignOut,
                 )
             }
+        }
+
+        if (showRestoreDialog) {
+            AlertDialog(
+                onDismissRequest = { showRestoreDialog = false },
+                title = { Text("Restore from Backup") },
+                text = { Text("This will replace all local data with your latest backup. This action cannot be undone.") },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            showRestoreDialog = false
+                            onRestoreClick()
+                        },
+                    ) {
+                        Text("Restore", color = PhoneDownDesign.colors.danger)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showRestoreDialog = false }) {
+                        Text("Cancel")
+                    }
+                },
+            )
+        }
+
+        if (restoreError != null) {
+            AlertDialog(
+                onDismissRequest = onClearRestoreState,
+                title = { Text("Restore Failed") },
+                text = { Text(restoreError) },
+                confirmButton = {
+                    TextButton(onClick = onClearRestoreState) {
+                        Text("OK")
+                    }
+                },
+            )
+        }
+
+        if (restoreSuccess != null) {
+            AlertDialog(
+                onDismissRequest = onClearRestoreState,
+                title = { Text("Restore Complete") },
+                text = { Text(restoreSuccess) },
+                confirmButton = {
+                    TextButton(onClick = onClearRestoreState) {
+                        Text("OK")
+                    }
+                },
+            )
         }
     }
 }
@@ -105,6 +170,8 @@ private fun SignedOutContent(onSignIn: () -> Unit) {
 private fun SignedInContent(
     accountState: AccountState.SignedIn,
     isProUser: Boolean,
+    isRestoring: Boolean,
+    onRestoreClick: () -> Unit,
     onSignOut: () -> Unit,
 ) {
     Column(
@@ -166,6 +233,38 @@ private fun SignedInContent(
                     )
                 }
             }
+
+            PhoneDownCard {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.sm),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(
+                        text = "Backup & Restore",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = PhoneDownDesign.colors.textPrimary,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                    Text(
+                        text = "Restore your focus data from a previous backup.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = PhoneDownDesign.colors.textSecondary,
+                    )
+                    if (isRestoring) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = PhoneDownDesign.colors.progress,
+                            strokeWidth = 2.dp,
+                        )
+                    } else {
+                        PhoneDownButton(
+                            text = "Restore from Backup",
+                            onClick = onRestoreClick,
+                            quiet = true,
+                        )
+                    }
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(PhoneDownSpacing.md))
@@ -187,8 +286,13 @@ private fun AccountScreenSignedOutPreview() {
         AccountScreen(
             accountState = AccountState.SignedOut,
             isProUser = false,
+            isRestoring = false,
+            restoreError = null,
+            restoreSuccess = null,
             onSignIn = {},
             onSignOut = {},
+            onRestoreClick = {},
+            onClearRestoreState = {},
             onBack = {},
         )
     }
@@ -206,8 +310,13 @@ private fun AccountScreenSignedInPreview() {
                 photoUrl = null,
             ),
             isProUser = true,
+            isRestoring = false,
+            restoreError = null,
+            restoreSuccess = null,
             onSignIn = {},
             onSignOut = {},
+            onRestoreClick = {},
+            onClearRestoreState = {},
             onBack = {},
         )
     }

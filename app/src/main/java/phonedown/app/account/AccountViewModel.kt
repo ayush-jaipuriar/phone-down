@@ -3,14 +3,17 @@ package phonedown.app.account
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import phonedown.core.model.AccountState
 import phonedown.core.model.ProEntitlement
 import phonedown.core.model.repository.AuthRepository
+import phonedown.core.model.repository.BackupRepository
 import phonedown.core.model.repository.BillingRepository
 import javax.inject.Inject
 
@@ -20,7 +23,11 @@ class AccountViewModel
     constructor(
         private val authRepository: AuthRepository,
         billingRepository: BillingRepository,
+        private val backupRepository: BackupRepository,
     ) : ViewModel() {
+    private val _restoreState = MutableStateFlow<RestoreState>(RestoreState.Idle)
+    val restoreState: StateFlow<RestoreState> = _restoreState.asStateFlow()
+
     val uiState: StateFlow<AccountUiState> =
         combine(
             authRepository.accountState,
@@ -43,9 +50,35 @@ class AccountViewModel
     fun signOut() {
         viewModelScope.launch { authRepository.signOut() }
     }
+
+    fun restoreBackup() {
+        viewModelScope.launch {
+            _restoreState.value = RestoreState.InProgress
+            val result = backupRepository.restoreBackup()
+            _restoreState.value = when (result) {
+                is phonedown.core.model.repository.RestoreResult.Success ->
+                    RestoreState.Success(result.sessionsRestored)
+                is phonedown.core.model.repository.RestoreResult.Failure ->
+                    RestoreState.Error(result.reason)
+                phonedown.core.model.repository.RestoreResult.NoBackupFound ->
+                    RestoreState.Error("No backup found")
+            }
+        }
+    }
+
+    fun clearRestoreState() {
+        _restoreState.value = RestoreState.Idle
+    }
 }
 
 data class AccountUiState(
     val accountState: AccountState = AccountState.SignedOut,
     val isProUser: Boolean = false,
 )
+
+sealed class RestoreState {
+    data object Idle : RestoreState()
+    data object InProgress : RestoreState()
+    data class Success(val sessionsRestored: Int) : RestoreState()
+    data class Error(val message: String) : RestoreState()
+}
