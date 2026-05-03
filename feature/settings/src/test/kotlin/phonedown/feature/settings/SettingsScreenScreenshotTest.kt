@@ -16,9 +16,12 @@ class SettingsScreenScreenshotTest {
         paparazzi.snapshot {
             PhoneDownTheme(themeMode = ThemeMode.Light) {
                 SettingsScreen(
+                    uiState = SettingsUiState(themeMode = ThemeMode.Light),
                     onAccountClick = {},
                     onProClick = {},
-                    selectedThemeMode = ThemeMode.Light,
+                    onSoundToggled = {},
+                    onHapticsToggled = {},
+                    onThemeModeSelected = {},
                 )
             }
         }
@@ -29,9 +32,12 @@ class SettingsScreenScreenshotTest {
         paparazzi.snapshot {
             PhoneDownTheme(themeMode = ThemeMode.Dark) {
                 SettingsScreen(
+                    uiState = SettingsUiState(themeMode = ThemeMode.Dark),
                     onAccountClick = {},
                     onProClick = {},
-                    selectedThemeMode = ThemeMode.Dark,
+                    onSoundToggled = {},
+                    onHapticsToggled = {},
+                    onThemeModeSelected = {},
                 )
             }
         }

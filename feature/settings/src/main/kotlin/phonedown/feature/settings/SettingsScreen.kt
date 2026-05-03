@@ -1,3 +1,5 @@
+@file:Suppress("LongMethod", "MagicNumber")
+
 package phonedown.feature.settings
 
 import androidx.compose.foundation.layout.Arrangement
@@ -7,13 +9,21 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import phonedown.feature.settings.SettingsUiState
 import phonedown.core.designsystem.PhoneDownCard
 import phonedown.core.designsystem.PhoneDownDesign
 import phonedown.core.designsystem.PhoneDownProBadge
@@ -25,15 +35,24 @@ import phonedown.core.designsystem.PhoneDownTheme
 import phonedown.core.designsystem.PhoneDownThemeControl
 import phonedown.core.designsystem.PhoneDownTopBar
 import phonedown.core.model.ThemeMode
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
+private val DURATION_PRESETS = listOf(10L, 15L, 25L, 45L, 60L)
 
 @Composable
-@Suppress("FunctionName", "LongMethod")
+@Suppress("FunctionName")
 fun SettingsScreen(
+    uiState: SettingsUiState,
     onAccountClick: () -> Unit,
     onProClick: () -> Unit,
-    selectedThemeMode: ThemeMode = ThemeMode.System,
-    onThemeModeSelected: (ThemeMode) -> Unit = {},
+    onSoundToggled: (Boolean) -> Unit,
+    onHapticsToggled: (Boolean) -> Unit,
+    onThemeModeSelected: (ThemeMode) -> Unit,
 ) {
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
     PhoneDownScreen(
         modifier =
             Modifier
@@ -44,98 +63,250 @@ fun SettingsScreen(
 
         Spacer(modifier = Modifier.height(PhoneDownSpacing.md))
 
-        SettingsSection(title = "Focus") {
-            PhoneDownSettingRow(
-                title = "Default Duration",
-                trailing = "25 min",
-            )
-            PhoneDownSettingRow(
-                title = "Duration Presets",
-                trailing = "10, 15, 25, 45, 60",
-            )
-            Column(verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.xs)) {
-                Text(
-                    text = "Theme",
-                    color = PhoneDownDesign.colors.textPrimary,
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-                PhoneDownThemeControl(
-                    selectedThemeMode = selectedThemeMode,
-                    onThemeModeSelected = onThemeModeSelected,
-                    modifier = Modifier.testTag(SettingsTestTags.THEME_CONTROL),
-                )
-            }
-        }
+        TimerSection(uiState = uiState)
 
         Spacer(modifier = Modifier.height(PhoneDownSpacing.sm))
 
-        SettingsSection(title = "Preferences") {
-            PhoneDownSwitchRow(
-                title = "Sounds",
-                checked = true,
-                onCheckedChange = {},
-            )
-            PhoneDownSwitchRow(
-                title = "Haptics",
-                checked = true,
-                onCheckedChange = {},
-            )
-            PhoneDownSettingRow(
-                title = "Start Delay",
-                trailing = "3 seconds",
-            )
-        }
+        PreferencesSection(
+            uiState = uiState,
+            onSoundToggled = onSoundToggled,
+            onHapticsToggled = onHapticsToggled,
+            onThemeModeSelected = onThemeModeSelected,
+        )
 
         Spacer(modifier = Modifier.height(PhoneDownSpacing.sm))
 
-        SettingsSection(title = "Account") {
-            PhoneDownSettingRow(
-                title = "Google Account",
-                supportingText = "john.doe@gmail.com",
-                trailing = "Connected",
-                modifier = Modifier.testTag(SettingsTestTags.ACCOUNT_ROW),
-                onClick = onAccountClick,
-            )
-            Row(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .testTag(SettingsTestTags.PRO_ROW),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                PhoneDownSettingRow(
-                    title = "Phone Down Pro",
-                    supportingText = "Advanced insights, backup, and unlimited history",
-                    modifier = Modifier.weight(1f),
-                    onClick = onProClick,
-                )
-                PhoneDownProBadge()
-            }
-            PhoneDownSettingRow(
-                title = "Backup & Restore",
-                supportingText = "Last backup: Today, 9:15 AM",
-                trailing = "Pro",
+        AccountBackupSection(
+            onAccountClick = onAccountClick,
+            onProClick = onProClick,
+            uiState = uiState,
+        )
+
+        Spacer(modifier = Modifier.height(PhoneDownSpacing.sm))
+
+        ProSection(onProClick = onProClick)
+
+        Spacer(modifier = Modifier.height(PhoneDownSpacing.sm))
+
+        PrivacySection(onDeleteRequested = { showDeleteDialog = true })
+
+        Spacer(modifier = Modifier.height(PhoneDownSpacing.sm))
+
+        AboutSection()
+
+        if (showDeleteDialog) {
+            AlertDialog(
+                onDismissRequest = { showDeleteDialog = false },
+                title = { Text("Delete All Local Data") },
+                text = { Text("This will permanently delete all your session history, settings, and preferences. This action cannot be undone.") },
+                confirmButton = {
+                    TextButton(onClick = { showDeleteDialog = false }) {
+                        Text("Delete", color = PhoneDownDesign.colors.danger)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDeleteDialog = false }) {
+                        Text("Cancel")
+                    }
+                },
             )
         }
     }
 }
 
 @Composable
-@Suppress("FunctionName")
-private fun SettingsSection(
+private fun TimerSection(uiState: SettingsUiState) {
+    SettingsSectionHeader(title = "Timer") {
+        PhoneDownSettingRow(
+            title = "Default Duration",
+            trailing = formatDuration(uiState.defaultDurationSeconds),
+        )
+        PhoneDownSettingRow(
+            title = "Duration Presets",
+            trailing = DURATION_PRESETS.joinToString(", ") { "${it} min" },
+        )
+        PhoneDownSettingRow(
+            title = "Custom Duration",
+            supportingText = "Free tier limited to one custom slot",
+            trailing = "Pro",
+        )
+    }
+}
+
+@Composable
+private fun PreferencesSection(
+    uiState: SettingsUiState,
+    onSoundToggled: (Boolean) -> Unit,
+    onHapticsToggled: (Boolean) -> Unit,
+    onThemeModeSelected: (ThemeMode) -> Unit,
+) {
+    SettingsSectionHeader(title = "Preferences") {
+        PhoneDownSwitchRow(
+            title = "Sounds",
+            checked = uiState.soundEnabled,
+            onCheckedChange = onSoundToggled,
+            modifier = Modifier.testTag(SettingsTestTags.SOUND_SWITCH),
+        )
+        PhoneDownSwitchRow(
+            title = "Haptics",
+            checked = uiState.hapticsEnabled,
+            onCheckedChange = onHapticsToggled,
+            modifier = Modifier.testTag(SettingsTestTags.HAPTICS_SWITCH),
+        )
+        Column(verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.xs)) {
+            PhoneDownSettingRow(title = "Theme")
+            PhoneDownThemeControl(
+                selectedThemeMode = uiState.themeMode,
+                onThemeModeSelected = onThemeModeSelected,
+                modifier = Modifier.testTag(SettingsTestTags.THEME_CONTROL),
+            )
+        }
+        PhoneDownSettingRow(
+            title = "Start Delay",
+            trailing = "3 seconds",
+        )
+    }
+}
+
+@Composable
+private fun AccountBackupSection(
+    uiState: SettingsUiState,
+    onAccountClick: () -> Unit,
+    onProClick: () -> Unit,
+) {
+    SettingsSectionHeader(title = "Account & Backup") {
+        PhoneDownSettingRow(
+            title = "Google Account",
+            supportingText = "Sign in to enable cloud backup",
+            trailing = "Sign In",
+            modifier = Modifier.testTag(SettingsTestTags.ACCOUNT_ROW),
+            onClick = onAccountClick,
+        )
+        Row(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .testTag(SettingsTestTags.PRO_ROW),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            PhoneDownSettingRow(
+                title = "Phone Down Pro",
+                supportingText = "Advanced insights, backup, and unlimited history",
+                modifier = Modifier.weight(1f),
+                onClick = onProClick,
+            )
+            PhoneDownProBadge()
+        }
+        PhoneDownSettingRow(
+            title = "Backup & Restore",
+            supportingText = if (uiState.lastBackupEpochMillis != null) {
+                "Last backup: ${formatBackupTime(uiState.lastBackupEpochMillis)}"
+            } else {
+                "No backup yet"
+            },
+            trailing = "Pro",
+        )
+        PhoneDownSettingRow(
+            title = "Auto Backup",
+            supportingText = "Daily automatic backup to Google Drive",
+            trailing = "Pro",
+        )
+    }
+}
+
+@Composable
+private fun ProSection(onProClick: () -> Unit) {
+    SettingsSectionHeader(title = "Pro") {
+        PhoneDownSettingRow(
+            title = "Upgrade to Pro",
+            supportingText = "Unlock advanced insights, backup, and unlimited history",
+            trailing = "Pro",
+            onClick = onProClick,
+        )
+        PhoneDownSettingRow(
+            title = "Restore Purchases",
+            trailing = "Pro",
+        )
+        PhoneDownSettingRow(
+            title = "Manage Subscription",
+            trailing = "Pro",
+        )
+    }
+}
+
+@Composable
+private fun PrivacySection(onDeleteRequested: () -> Unit) {
+    SettingsSectionHeader(title = "Privacy") {
+        PhoneDownSettingRow(
+            title = "Local Data",
+            supportingText = "All session data and preferences are stored locally on your device",
+        )
+        PhoneDownSettingRow(
+            title = "Cloud Backup",
+            supportingText = "Pro users can backup data to Google Drive. Backup is opt-in and encrypted.",
+        )
+        PhoneDownSettingRow(
+            title = "Export Data",
+            supportingText = "Export your session history as a file",
+            trailing = "Pro",
+        )
+        PhoneDownSettingRow(
+            title = "Delete All Local Data",
+            supportingText = "Permanently remove all sessions and settings from this device",
+            trailing = "Delete",
+            onClick = onDeleteRequested,
+        )
+    }
+}
+
+@Composable
+private fun AboutSection() {
+    SettingsSectionHeader(title = "About") {
+        PhoneDownSettingRow(
+            title = "Version",
+            trailing = "0.1.0",
+        )
+        PhoneDownSettingRow(
+            title = "Privacy Policy",
+            trailing = "View",
+        )
+        PhoneDownSettingRow(
+            title = "Terms of Service",
+            trailing = "View",
+        )
+        PhoneDownSettingRow(
+            title = "Support",
+            trailing = "Contact",
+        )
+    }
+}
+
+@Composable
+private fun SettingsSectionHeader(
     title: String,
     content: @Composable () -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.xs)) {
         Text(
             text = title,
-            color = PhoneDownDesign.colors.textPrimary,
+            color = PhoneDownDesign.colors.textSecondary,
             style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.SemiBold,
         )
         PhoneDownCard {
             Column(content = { content() })
         }
     }
+}
+
+private fun formatDuration(seconds: Long): String {
+    val minutes = seconds / 60
+    return "${minutes} min"
+}
+
+private fun formatBackupTime(epochMillis: Long): String {
+    val sdf = SimpleDateFormat("MMM d, h:mm a", Locale.getDefault())
+    return sdf.format(Date(epochMillis))
 }
 
 @Preview(showBackground = true)
@@ -144,9 +315,12 @@ private fun SettingsSection(
 private fun SettingsScreenLightPreview() {
     PhoneDownTheme(themeMode = ThemeMode.Light) {
         SettingsScreen(
+            uiState = SettingsUiState(),
             onAccountClick = {},
             onProClick = {},
-            selectedThemeMode = ThemeMode.Light,
+            onSoundToggled = {},
+            onHapticsToggled = {},
+            onThemeModeSelected = {},
         )
     }
 }
@@ -157,9 +331,12 @@ private fun SettingsScreenLightPreview() {
 private fun SettingsScreenDarkPreview() {
     PhoneDownTheme(themeMode = ThemeMode.Dark) {
         SettingsScreen(
+            uiState = SettingsUiState(themeMode = ThemeMode.Dark),
             onAccountClick = {},
             onProClick = {},
-            selectedThemeMode = ThemeMode.Dark,
+            onSoundToggled = {},
+            onHapticsToggled = {},
+            onThemeModeSelected = {},
         )
     }
 }

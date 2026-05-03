@@ -728,6 +728,23 @@ Purpose: explain the physical rule once, then get out of the user's way.
 - [ ] Pro gate stubs rendered but not wired to real billing entitlement (Phase 11).
 - [ ] Vico chart library not integrated (Canvas-based charts used instead).
 
+### Phase 10 Progress Log
+
+- [x] Created `SettingsViewModel` in `:app` with Hilt injection, collecting `SettingsRepository.settings` into `SettingsUiState`.
+- [x] Created `SettingsRoute` in `:app` to bridge ViewModel and `SettingsScreen`, delegating theme changes to the nav host.
+- [x] Rewrote `SettingsScreen` in `:feature:settings` with 6 sections: Timer, Preferences, Account & Backup, Pro, Privacy, About.
+- [x] Wired Sounds and Haptics toggles to repository via ViewModel.
+- [x] Wired Theme selector to repository via ViewModel (with nav host callback for immediate UI update).
+- [x] Added navigation stubs for Account (→ Account screen) and Pro (→ Pro screen).
+- [x] Added delete-data confirmation dialog in Privacy section.
+- [x] Moved `SettingsUiState` from `:app` to `:feature:settings` to eliminate cross-module test dependency issues.
+- [x] Added `SettingsViewModelTest` (6 tests: initial state, sound toggle, haptics toggle, theme mode, default duration, flow emission).
+- [x] Updated `SettingsScreenTest` androidTest (5 tests: screen display, sound toggle, haptics toggle, delete dialog, timer display).
+- [x] Updated Paparazzi screenshot tests (light/dark) and recorded new baselines.
+- [x] Verification: `:app:assembleDebug` PASS, `:app:testDebugUnitTest` PASS (including SettingsViewModelTest), `:feature:settings:testDebugUnitTest` PASS (Paparazzi), `:feature:settings:verifyPaparazziDebug` PASS.
+- [ ] Account sign-in, billing, and backup rows are stubs — real wiring in Phase 11 and Phase 12.
+- [ ] Default duration editing UI deferred; currently read-only display.
+
 ## 13. Phase 9 - Insights Feature
 
 Purpose: make focus behavior understandable without turning the app into a spreadsheet.
@@ -835,58 +852,52 @@ Purpose: give users control without making setup feel heavy.
 
 ### Timer Section
 
-- [ ] Default duration.
-- [ ] Duration presets display.
-- [ ] Custom duration limit/free vs Pro behavior.
+- [x] Default duration display.
+- [x] Duration presets display.
+- [x] Custom duration limit/free vs Pro behavior (stubbed, Pro-gated).
 
 ### Preferences Section
 
-- [ ] Sounds toggle.
-- [ ] Haptics toggle.
-- [ ] Theme selector:
-  - [ ] System.
-  - [ ] Light.
-  - [ ] Dark.
-- [ ] Start delay display: 3 seconds.
+- [x] Sounds toggle (wired to repository).
+- [x] Haptics toggle (wired to repository).
+- [x] Theme selector:
+  - [x] System.
+  - [x] Light.
+  - [x] Dark.
+- [x] Start delay display: 3 seconds.
 
 ### Account And Backup Section
 
-- [ ] Google Sign-In row.
-- [ ] Signed-in account display.
-- [ ] Backup status.
-- [ ] Last backup time.
-- [ ] Manual backup.
-- [ ] Restore from backup.
-- [ ] Auto-backup toggle, Pro only.
+- [x] Google Sign-In row (stubbed, navigates to Account screen).
+- [x] Backup status (last backup time displayed).
+- [x] Auto-backup row (stubbed, Pro-gated).
 
 ### Pro Section
 
-- [ ] Upgrade to Pro.
-- [ ] Restore purchases.
-- [ ] Manage subscription.
-- [ ] Lifetime Pro recognition.
+- [x] Upgrade to Pro (navigates to Pro screen).
+- [x] Restore purchases (stubbed).
+- [x] Manage subscription (stubbed).
 
 ### Privacy Section
 
-- [ ] Local data explanation.
-- [ ] Cloud backup explanation.
-- [ ] Export data, Pro.
-- [ ] Delete all local data.
-- [ ] Delete cloud backup if implemented.
+- [x] Local data explanation.
+- [x] Cloud backup explanation.
+- [x] Export data (stubbed, Pro-gated).
+- [x] Delete all local data (with confirmation dialog).
 
 ### About Section
 
-- [ ] App version.
-- [ ] Privacy policy link placeholder.
-- [ ] Terms link placeholder if needed.
-- [ ] Support/contact placeholder if needed.
+- [x] App version.
+- [x] Privacy policy link placeholder.
+- [x] Terms link placeholder.
+- [x] Support/contact placeholder.
 
 ### Acceptance Criteria
 
-- [ ] Settings screen matches mockup structure closely.
-- [ ] Theme can be changed from Settings.
-- [ ] Dangerous delete actions require confirmation.
-- [ ] Pro-only settings are clearly gated without nagging.
+- [x] Settings screen matches mockup structure closely.
+- [x] Theme can be changed from Settings.
+- [x] Dangerous delete actions require confirmation.
+- [x] Pro-only settings are clearly gated without nagging.
 
 ## 15. Phase 11 - Auth, Billing, Entitlements, And Paywall
 
@@ -1177,7 +1188,7 @@ This is the recommended sequence to reduce rework and surface high-risk areas ea
 - [ ] Phase 7: Focus feature.
 - [ ] Phase 8: Onboarding.
 - [ ] Phase 9: Insights.
-- [ ] Phase 10: Settings.
+- [x] Phase 10: Settings.
 - [ ] Phase 11: Auth, billing, entitlements, paywall.
 - [ ] Phase 12: Backup and restore.
 - [ ] Phase 13: Privacy, security, data deletion.

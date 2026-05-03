@@ -25,12 +25,12 @@ import kotlinx.coroutines.launch
 import phonedown.app.focus.FocusRoute
 import phonedown.app.insights.InsightsRoute
 import phonedown.app.onboarding.OnboardingRoute
+import phonedown.app.settings.SettingsRoute
 import phonedown.core.designsystem.PhoneDownDesign
 import phonedown.core.designsystem.PhoneDownTheme
 import phonedown.core.model.ThemeMode
 import phonedown.feature.account.AccountScreen
 import phonedown.feature.pro.ProScreen
-import phonedown.feature.settings.SettingsScreen
 
 @Composable
 @Suppress("FunctionName")
@@ -121,10 +121,9 @@ private fun PhoneDownNavHost(
             InsightsRoute()
         }
         composable(PhoneDownRoute.Settings.path) {
-            SettingsScreen(
+            SettingsRoute(
                 onAccountClick = { navController.navigate(PhoneDownRoute.Account.path) },
                 onProClick = { navController.navigate(PhoneDownRoute.Pro.path) },
-                selectedThemeMode = themeMode,
                 onThemeModeSelected = onThemeModeSelected,
             )
         }
