@@ -9,7 +9,7 @@ android {
     defaultConfig {
         applicationId = "phonedown.app"
         versionCode = 1
-        versionName = "0.1.0"
+        versionName = "1.0.0"
     }
 
     buildFeatures {
@@ -20,6 +20,9 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            // Use debug signing for now. For production, configure signingConfigs.release
+            // with your keystore and update this to signingConfig = signingConfigs.release
+            signingConfig = signingConfigs.getByName("debug")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",

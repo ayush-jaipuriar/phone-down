@@ -99,6 +99,18 @@ class FakeSessionRepository(
 
     override suspend fun getPenaltyEvents(sessionId: String): List<PenaltyEvent> =
         penaltyEvents.filter { it.sessionId == sessionId }
+
+    override suspend fun getAllSessions(): List<FocusSession> = sessions
+
+    override suspend fun getAllPenaltyEvents(): List<PenaltyEvent> = penaltyEvents
+
+    override suspend fun clearAllSessions() {
+        sessions = emptyList()
+    }
+
+    override suspend fun clearAllPenaltyEvents() {
+        penaltyEvents = emptyList()
+    }
 }
 
 class TestClock(private var timeMillis: Long) : Clock {

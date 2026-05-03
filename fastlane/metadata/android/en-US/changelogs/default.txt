@@ -1,0 +1,7 @@
+Initial release of Phone Down.
+
+- Start focus sessions and track time only while phone is face down
+- Daily and weekly insights
+- Streak tracking
+- Clean session tracking
+- Pro upgrade with advanced analytics and cloud backup

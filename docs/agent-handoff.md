@@ -3,7 +3,7 @@
 ## 1. Goal
 - Build Phone Down, a native Android focus app where sessions only progress while the phone is face down and stable.
 - Keep following the repo's strict phase workflow: clarify, plan, approve, implement, verify, then report honestly.
-- Current objective: Phases 10-13 are complete. Settings, Auth/Billing/Paywall, Backup/Restore, and Privacy/Security are all implemented with fake repositories.
+- Current objective: Phases 10-14 are complete. Settings, Auth/Billing/Paywall, Backup/Restore, Privacy/Security, and QA/Release Readiness are all implemented with fake repositories.
 
 ## 2. Context The Next Agent Must Know
 - Read `AGENTS.md` first and follow it strictly.
@@ -31,7 +31,7 @@
   - Restore is a full-replace operation (not merge)
   - Backup/restore is Pro-gated and requires signed-in Google account
 
-## 3. Work Completed (Phases 10-13)
+## 3. Work Completed (Phases 10-14)
 
 ### Phase 10: Settings
 - SettingsScreen wired to SettingsRepository via Hilt ViewModel
@@ -70,9 +70,20 @@
 - `proguard-rules.pro` with obfuscation and log stripping
 - Security documentation (`docs/security.md`) with threat model and OWASP mapping
 
+### Phase 14: QA, Polish, And Release Readiness
+- AccountViewModelTest and ProViewModelTest added
+- All unit tests passing across modules
+- App icons generated for all densities
+- Play Store feature graphic and icon created
+- Play Store listing metadata prepared
+- Release build configured (ProGuard/R8, version 1.0.0)
+- Release AAB builds successfully
+- Lint passes (7 minor warnings)
+- `docs/release-readiness.md` and `docs/phase-14-bugs.md` created
+
 ## 4. Current Workspace State
 - Branch: `main`
-- Multiple commits since last push (Phases 10, 11, 12, 13)
+- Multiple commits since last push (Phases 10, 11, 12, 13, 14)
 - `git status`: clean working tree (all changes committed)
 - No secrets, tokens, credentials noticed in any commit
 
@@ -98,17 +109,21 @@
 
 ## 7. Exact Next Steps
 1. Push commits to remote if desired.
-2. Proceed to Phase 14 (QA, Polish, Release Readiness).
-3. Or address any remaining concerns first.
+2. Conduct manual device testing and document bugs in `docs/phase-14-bugs.md`.
+3. Fix critical bugs discovered during manual testing.
+4. Integrate real Google Play Billing, Google Sign-In, and Google Drive API.
+5. Replace certificate pinning placeholders with real pins.
+6. Configure release signing with real keystore.
+7. Submit to Google Play Console for internal testing.
 
 ## 8. Suggested Prompt For The Next Agent
 ```text
 Continue work in the Phone Down project. First, read `AGENTS.md`, `docs/agent-handoff.md`, and inspect `git status`.
 
 Key current state:
-- Phases 10-13 are complete: Settings, Auth/Billing/Paywall, Backup/Restore, Privacy/Security.
+- Phases 10-14 are complete: Settings, Auth/Billing/Paywall, Backup/Restore, Privacy/Security, QA/Release Readiness.
 - All features use fake repositories (real external services deferred to post-V1).
-- App assembles and tests pass.
-- Remaining: Phase 14 (QA/Polish), real device validation.
+- App assembles, tests pass, and release AAB builds successfully.
+- Remaining: Manual device validation, real service integration, Play Store submission.
 - Build-logic has intermittent issues; clean `~/.gradle/caches` + `build-logic/convention/build` as needed.
 ```

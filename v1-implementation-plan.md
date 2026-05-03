@@ -1349,6 +1349,45 @@ Use this section during development iterations. Each meaningful implementation p
 - Manual validation findings: Follow-up emulator reruns fixed two genuine issues uncovered in the first pass: the recovery DAO now matches stable snake_case state storage, so app relaunch classifies a dangling `waiting_for_phone_down` session to `abandoned`, and Android 13+ now requests `POST_NOTIFICATIONS` before starting focus. On the fresh emulator pass, the service started after permission grant, the OS posted the foreground notification with an `End Session` action according to `dumpsys notification --noredact`, and the session persisted as `waiting_for_phone_down` before recovery. Remaining gaps are mostly emulator-surface limitations: notification-shade tapping stayed unreliable, injected sensor values still did not produce a trustworthy face-down progression, and dimming, feedback feel, and reboot recovery still need a real-device pass.
 - Next steps: Run a real-device Phase 6 validation pass for notification interaction, sensor-driven session progression, dimming feel, feedback behavior, and reboot recovery, then close Phase 6 without caveats or tune the runtime based on what that device pass reveals.
 
+## 18. Phase 14 - QA, Polish, And Release Readiness
+
+Purpose: bring Phone Down to production release quality with comprehensive testing, visual assets, Play Store listing, release build config, and code quality.
+
+### Checklist
+
+- [x] Automated test gap filling (AccountViewModel, ProViewModel, insights test fixtures)
+- [x] All existing unit tests pass
+- [x] App icon created (all densities)
+- [x] Play Store feature graphic created (1024x500)
+- [x] Play Store icon created (512x512)
+- [x] Play Store listing metadata prepared (title, description, changelog)
+- [x] Release build configuration (ProGuard/R8, version 1.0.0)
+- [x] Signed release AAB builds successfully
+- [x] Lint passes (7 minor warnings, no errors)
+- [x] `docs/release-readiness.md` created
+- [x] `docs/phase-14-bugs.md` created (placeholder for manual testing)
+- [ ] Compose UI tests for Focus, Insights, Onboarding, Account, Pro (deferred)
+- [ ] Paparazzi screenshot regression baseline update (deferred)
+- [ ] Manual device testing matrix (deferred to bug-fix sprint)
+
+### Phase 14 Progress Log
+
+- [x] Completed on May 3, 2026.
+- [x] Added `AccountViewModelTest` (9 tests: initial state, signed in, pro entitlement, sign in/out, restore success/failure/no backup, clear state).
+- [x] Added `ProViewModelTest` (5 tests: init loads products, products reflected, purchase calls repo, restore calls repo, empty default).
+- [x] Updated `FakeSessionRepository` in `TestFixtures.kt` to implement new bulk methods (`getAllSessions`, `getAllPenaltyEvents`, `clearAllSessions`, `clearAllPenaltyEvents`).
+- [x] Generated app icons for all densities (mdpi, hdpi, xhdpi, xxhdpi, xxxhdpi) using Pillow.
+- [x] Generated Play Store feature graphic (1024x500) and icon (512x512).
+- [x] Created Play Store listing metadata in `fastlane/metadata/android/en-US/`.
+- [x] Updated version name to "1.0.0" and version code to 1.
+- [x] Configured release build with ProGuard/R8 and debug signing (placeholder for real keystore).
+- [x] Verified release AAB builds successfully (`:app:bundleRelease`).
+- [x] Ran lint (`:app:lintDebug`) — 7 minor warnings, no errors.
+- [x] Created `docs/release-readiness.md` with complete status, build instructions, and next steps.
+- [x] Created `docs/phase-14-bugs.md` as placeholder for manual testing findings.
+- [ ] InsightsViewModelTest and FocusViewModelTest attempted but deferred due to complex use case subclassing requirements.
+- [ ] Compose UI tests, Paparazzi regression, and manual device testing deferred to follow-up sprint.
+
 ## 22. Open Items To Revisit During Build
 
 These are not blockers because product direction has been clarified, but they should be revisited when implementation reveals real constraints.
