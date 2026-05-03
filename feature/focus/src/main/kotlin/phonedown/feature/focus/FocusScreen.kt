@@ -575,7 +575,9 @@ private fun DurationSelectorSheet(
             )
             PhoneDownButton(
                 text = "Apply Custom Duration",
-                onClick = { onSelect(customDurationSeconds!!) },
+                onClick = {
+                    customDurationSeconds?.let { onSelect(it) }
+                },
                 enabled = canApplyCustom,
                 modifier = Modifier.fillMaxWidth(),
             )

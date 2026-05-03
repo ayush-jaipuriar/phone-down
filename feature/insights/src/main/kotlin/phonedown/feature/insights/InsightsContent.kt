@@ -343,8 +343,7 @@ private fun HistoryRow(item: SessionHistoryItem) {
             when {
                 item.broken -> "Broken"
                 item.clean -> "Clean"
-                item.result != null -> item.result!!.name
-                else -> "Active"
+                else -> item.result?.name ?: "Active"
             }
         val resultColor =
             when {

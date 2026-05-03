@@ -32,8 +32,9 @@ class FakeBackupRepository : BackupRepository {
             val backupData = BackupDataMapper.toBackupData(sessions, penaltyEvents, settings)
             storedJson = BackupSerializer.serialize(backupData)
             val backupId = "backup_${System.currentTimeMillis()}"
-            lastBackupTime = System.currentTimeMillis()
-            BackupResult.Success(backupId, lastBackupTime!!)
+            val timestamp = System.currentTimeMillis()
+            lastBackupTime = timestamp
+            BackupResult.Success(backupId, timestamp)
         } catch (e: Exception) {
             BackupResult.Failure(e.message ?: "Unknown error")
         }
