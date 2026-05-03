@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import phonedown.app.MainActivity
 import phonedown.core.model.repository.SettingsRepository
 import phonedown.core.notifications.FocusFeedbackPlayer
@@ -132,8 +133,18 @@ class FocusSessionService : Service() {
 
     override fun onDestroy() {
         stopRuntimeLoops()
+        // Flush session state synchronously with a timeout to avoid data loss.
+        // runBlocking is used here because onDestroy must complete cleanup
+        // before the service process terminates. The flush is a quick DB write.
         runBlocking {
-            runtimeCoordinator.flushCurrentRuntime()
+            try {
+                withTimeout(2_000L) {
+                    runtimeCoordinator.flushCurrentRuntime()
+                }
+            } catch (e: Exception) {
+                // Log but don't crash during shutdown
+                android.util.Log.w("FocusSessionService", "Failed to flush session on destroy", e)
+            }
         }
         serviceScope.cancel()
         super.onDestroy()

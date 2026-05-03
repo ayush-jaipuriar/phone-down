@@ -28,7 +28,9 @@ object DatabaseModule {
                 context,
                 PhoneDownDatabase::class.java,
                 "phone_down_database",
-            ).build()
+            )
+            .fallbackToDestructiveMigration(true)
+            .build()
 
     @Provides
     fun providesFocusSessionDao(database: PhoneDownDatabase): FocusSessionDao = database.focusSessionDao()

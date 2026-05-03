@@ -39,7 +39,7 @@ class FocusForegroundNotificationManager(
     ): Notification =
         NotificationCompat
             .Builder(context, CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
+            .setSmallIcon(R.drawable.ic_notification_focus)
             .setContentTitle(state.title)
             .setContentText(state.body)
             .setContentIntent(contentIntent)
@@ -47,7 +47,7 @@ class FocusForegroundNotificationManager(
             .setOnlyAlertOnce(true)
             .setSilent(true)
             .addAction(
-                android.R.drawable.ic_menu_close_clear_cancel,
+                R.drawable.ic_notification_end,
                 "End Session",
                 endSessionIntent,
             ).build()

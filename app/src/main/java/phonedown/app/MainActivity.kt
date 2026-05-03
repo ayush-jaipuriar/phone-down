@@ -37,8 +37,10 @@ class MainActivity : ComponentActivity() {
 
     private val notificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-            if (granted) {
-                FocusSessionService.start(this, pendingStartDurationSeconds)
+            val duration = pendingStartDurationSeconds
+            pendingStartDurationSeconds = null
+            if (granted && duration != null) {
+                FocusSessionService.start(this, duration)
             }
         }
 
@@ -106,5 +108,10 @@ class MainActivity : ComponentActivity() {
 
     private fun retrySensors(durationSeconds: Long) {
         FocusSessionService.retrySensors(this, durationSeconds)
+    }
+
+    override fun onDestroy() {
+        pendingStartDurationSeconds = null
+        super.onDestroy()
     }
 }
