@@ -21,6 +21,7 @@ dependencies {
     implementation(project(":core:model"))
     implementation(project(":core:notifications"))
     implementation(project(":core:sensors"))
+    implementation(project(":domain:insights"))
     implementation(project(":domain:session"))
     implementation(project(":feature:account"))
     implementation(project(":feature:focus"))

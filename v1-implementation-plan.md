@@ -713,6 +713,21 @@ Purpose: explain the physical rule once, then get out of the user's way.
 - [ ] Manual physical device testing remaining to validate first-run routing and persistence behaviour.
 - [ ] Compose UI tests for 3-card pager progression (requires instrumented/Robolectric test setup, not yet wired).
 
+### Phase 9 Progress Log
+
+- [x] Implemented 10 domain use cases in `:domain:insights` with 31 passing unit tests.
+- [x] Created `InsightSummary`, `WeeklyInsight`, `FocusQualityResult`, `StreakResult`, `BestHourResult`, `BestDayResult`, `TrendPoint`, `HeatmapDay`, `SessionHistoryItem`, and `AdvancedInsights` data types.
+- [x] Built Canvas-based bar chart, line chart, and GitHub-style heatmap composables in `:core:charts`.
+- [x] Replaced placeholder `InsightsScreen` with real data-driven `InsightsContent` composable (all sections: today, weekly, focus quality, streak, history, heatmap, best time, completion rate trend, clean ratio trend, interruption trend, focus quality trend, season highlights, export).
+- [x] Created `InsightsViewModel` and `InsightsRoute` in `:app` with Hilt injection wiring.
+- [x] Added 10 use case providers to `AppRuntimeModule`.
+- [x] Updated Paparazzi screenshot tests: light, dark, empty state, loading state (4 tests).
+- [x] Updated Compose UI instrumented test for `InsightsContent` (3 tests).
+- [x] Verification: `:app:assembleDebug` PASS, `:domain:insights:test` 31/31 PASS, `:app:testDebugUnitTest` PASS, `:feature:insights:testDebugUnitTest` 4/4 Paparazzi PASS.
+- [ ] Lint (`lintDebug`) could not run due to persistent build-logic Gradle cache issue (unrelated to code).
+- [ ] Pro gate stubs rendered but not wired to real billing entitlement (Phase 11).
+- [ ] Vico chart library not integrated (Canvas-based charts used instead).
+
 ## 13. Phase 9 - Insights Feature
 
 Purpose: make focus behavior understandable without turning the app into a spreadsheet.

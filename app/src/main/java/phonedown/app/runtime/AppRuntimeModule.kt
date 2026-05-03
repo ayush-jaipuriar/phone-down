@@ -20,6 +20,16 @@ import phonedown.domain.session.RecoverSessionsUseCase
 import phonedown.domain.session.SessionEngine
 import phonedown.domain.session.SessionRecoveryClassifier
 import phonedown.domain.session.StartSessionUseCase
+import phonedown.domain.insights.GetTodayInsightsUseCase
+import phonedown.domain.insights.GetWeeklyInsightsUseCase
+import phonedown.domain.insights.GetFocusQualityUseCase
+import phonedown.domain.insights.GetStreakUseCase
+import phonedown.domain.insights.GetBestHourUseCase
+import phonedown.domain.insights.GetBestWeekdayUseCase
+import phonedown.domain.insights.GetTrendsUseCase
+import phonedown.domain.insights.GetAdvancedInsightsUseCase
+import phonedown.domain.insights.GetHeatmapDataUseCase
+import phonedown.domain.insights.GetHistoryUseCase
 import java.util.UUID
 import javax.inject.Singleton
 
@@ -101,4 +111,73 @@ object AppRuntimeModule {
     fun providesFeedbackPlayer(
         @ApplicationContext context: Context,
     ): FocusFeedbackPlayer = FocusFeedbackPlayer(context)
+
+    @Provides
+    @Singleton
+    fun providesGetTodayInsightsUseCase(
+        sessionRepository: SessionRepository,
+        clock: Clock,
+    ): GetTodayInsightsUseCase = GetTodayInsightsUseCase(sessionRepository, clock)
+
+    @Provides
+    @Singleton
+    fun providesGetWeeklyInsightsUseCase(
+        sessionRepository: SessionRepository,
+        clock: Clock,
+    ): GetWeeklyInsightsUseCase = GetWeeklyInsightsUseCase(sessionRepository, clock)
+
+    @Provides
+    @Singleton
+    fun providesGetFocusQualityUseCase(
+        sessionRepository: SessionRepository,
+        clock: Clock,
+    ): GetFocusQualityUseCase = GetFocusQualityUseCase(sessionRepository, clock)
+
+    @Provides
+    @Singleton
+    fun providesGetStreakUseCase(
+        sessionRepository: SessionRepository,
+        clock: Clock,
+    ): GetStreakUseCase = GetStreakUseCase(sessionRepository, clock)
+
+    @Provides
+    @Singleton
+    fun providesGetBestHourUseCase(
+        sessionRepository: SessionRepository,
+        clock: Clock,
+    ): GetBestHourUseCase = GetBestHourUseCase(sessionRepository, clock)
+
+    @Provides
+    @Singleton
+    fun providesGetBestWeekdayUseCase(
+        sessionRepository: SessionRepository,
+        clock: Clock,
+    ): GetBestWeekdayUseCase = GetBestWeekdayUseCase(sessionRepository, clock)
+
+    @Provides
+    @Singleton
+    fun providesGetTrendsUseCase(
+        sessionRepository: SessionRepository,
+        clock: Clock,
+    ): GetTrendsUseCase = GetTrendsUseCase(sessionRepository, clock)
+
+    @Provides
+    @Singleton
+    fun providesGetAdvancedInsightsUseCase(
+        sessionRepository: SessionRepository,
+        clock: Clock,
+    ): GetAdvancedInsightsUseCase = GetAdvancedInsightsUseCase(sessionRepository, clock)
+
+    @Provides
+    @Singleton
+    fun providesGetHeatmapDataUseCase(
+        sessionRepository: SessionRepository,
+        clock: Clock,
+    ): GetHeatmapDataUseCase = GetHeatmapDataUseCase(sessionRepository, clock)
+
+    @Provides
+    @Singleton
+    fun providesGetHistoryUseCase(
+        sessionRepository: SessionRepository,
+    ): GetHistoryUseCase = GetHistoryUseCase(sessionRepository)
 }

@@ -6,25 +6,65 @@ import org.junit.Rule
 import org.junit.Test
 import phonedown.core.designsystem.PhoneDownTheme
 import phonedown.core.model.ThemeMode
+import phonedown.domain.insights.FocusQualityLabel
+import phonedown.domain.insights.FocusQualityResult
+import phonedown.domain.insights.InsightSummary
+import phonedown.domain.insights.StreakResult
 
 class InsightsScreenScreenshotTest {
     @get:Rule
     val paparazzi = Paparazzi(deviceConfig = DeviceConfig.PIXEL_5)
 
+    private val sampleState =
+        InsightsUiState(
+            today =
+                InsightSummary(
+                    totalFocusSeconds = 4800,
+                    sessionCount = 3,
+                    cleanSessionCount = 2,
+                ),
+            focusQuality = FocusQualityResult(78, FocusQualityLabel.Focused, 0.8f, 0.6f, 0.5f, 0.9f),
+            streak = StreakResult(5, 12),
+            isEmpty = false,
+            isLoading = false,
+        )
+
+    private val emptyState = InsightsUiState(isEmpty = true, isLoading = false)
+
+    private val loadingState = InsightsUiState(isLoading = true)
+
     @Test
-    fun insightsScreenLight() {
+    fun insightsContentLight() {
         paparazzi.snapshot {
             PhoneDownTheme(themeMode = ThemeMode.Light) {
-                InsightsScreen()
+                InsightsContent(uiState = sampleState, onRefresh = {})
             }
         }
     }
 
     @Test
-    fun insightsScreenDark() {
+    fun insightsContentDark() {
         paparazzi.snapshot {
             PhoneDownTheme(themeMode = ThemeMode.Dark) {
-                InsightsScreen()
+                InsightsContent(uiState = sampleState, onRefresh = {})
+            }
+        }
+    }
+
+    @Test
+    fun insightsContentEmptyLight() {
+        paparazzi.snapshot {
+            PhoneDownTheme(themeMode = ThemeMode.Light) {
+                InsightsContent(uiState = emptyState, onRefresh = {})
+            }
+        }
+    }
+
+    @Test
+    fun insightsContentLoadingLight() {
+        paparazzi.snapshot {
+            PhoneDownTheme(themeMode = ThemeMode.Light) {
+                InsightsContent(uiState = loadingState, onRefresh = {})
             }
         }
     }
