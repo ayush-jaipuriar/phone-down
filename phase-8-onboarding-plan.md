@@ -74,15 +74,15 @@ Why:
 
 ## 4. In Scope
 
-- [ ] Replace the onboarding placeholder UI with a real 3-card experience.
-- [ ] Persist onboarding completion using the existing settings repository.
-- [ ] Ensure app launch routing respects `onboardingCompleted`.
-- [ ] Route users directly to Focus after onboarding completion.
-- [ ] Keep onboarding out of the way for returning users.
-- [ ] Refine onboarding copy for clarity and tone.
-- [ ] Keep permission messaging optional and lightweight.
-- [ ] Add screenshot/UI coverage for the onboarding states.
-- [ ] Update planning/progress docs after implementation and verification.
+- [x] Replace the onboarding placeholder UI with a real 3-card experience.
+- [x] Persist onboarding completion using the existing settings repository.
+- [x] Ensure app launch routing respects `onboardingCompleted`.
+- [x] Route users directly to Focus after onboarding completion.
+- [x] Keep onboarding out of the way for returning users.
+- [x] Refine onboarding copy for clarity and tone.
+- [x] Keep permission messaging optional and lightweight.
+- [x] Add screenshot/UI coverage for the onboarding states.
+- [x] Update planning/progress docs after implementation and verification.
 
 ## 5. Out Of Scope
 
@@ -161,9 +161,9 @@ Recommended visual rule:
 
 ### 10.1 Card 1 - Start A Focus Session
 
-- [ ] Explain the user starts a session intentionally.
-- [ ] Keep the message short and concrete.
-- [ ] Establish the tone of the app as calm and focused.
+- [x] Explain the user starts a session intentionally.
+- [x] Keep the message short and concrete.
+- [x] Establish the tone of the app as calm and focused.
 
 Recommended copy direction:
 
@@ -171,9 +171,9 @@ Recommended copy direction:
 
 ### 10.2 Card 2 - Place Your Phone Face Down
 
-- [ ] Explain the physical rule plainly.
-- [ ] Make it obvious that focus begins only while the phone is face down and stable.
-- [ ] Avoid technical sensor language.
+- [x] Explain the physical rule plainly.
+- [x] Make it obvious that focus begins only while the phone is face down and stable.
+- [x] Avoid technical sensor language.
 
 Recommended copy direction:
 
@@ -181,9 +181,9 @@ Recommended copy direction:
 
 ### 10.3 Card 3 - Pickups Pause Your Session
 
-- [ ] Explain that pickups pause the session.
-- [ ] Introduce Focus Quality gently.
-- [ ] Avoid making the feature sound punitive or gamified.
+- [x] Explain that pickups pause the session.
+- [x] Introduce Focus Quality gently.
+- [x] Avoid making the feature sound punitive or gamified.
 
 Recommended copy direction:
 
@@ -213,10 +213,10 @@ This phase must fully wire first-run behavior.
 
 Required behavior:
 
-- [ ] On fresh install, `onboardingCompleted == false` routes to onboarding.
-- [ ] Finishing onboarding sets `onboardingCompleted = true`.
-- [ ] After finish, navigate directly to Focus.
-- [ ] On subsequent launches, skip onboarding entirely and route to Focus.
+- [x] On fresh install, `onboardingCompleted == false` routes to onboarding.
+- [x] Finishing onboarding sets `onboardingCompleted = true`.
+- [x] After finish, navigate directly to Focus.
+- [x] On subsequent launches, skip onboarding entirely and route to Focus.
 
 Recommended implementation detail:
 
@@ -226,11 +226,11 @@ Recommended implementation detail:
 
 Recommended interaction shape:
 
-- [ ] one primary CTA per card
-- [ ] optional back affordance only if it improves usability without adding clutter
-- [ ] no freeform inputs
-- [ ] no setup toggles
-- [ ] no branching logic
+- [x] one primary CTA per card
+- [x] optional back affordance only if it improves usability without adding clutter
+- [x] no freeform inputs
+- [x] no setup toggles
+- [x] no branching logic
 
 Recommended CTA language:
 
@@ -243,11 +243,11 @@ Phase 8 should match the app’s visual language very closely.
 
 Implementation expectations:
 
-- [ ] typography hierarchy should feel aligned with Focus
-- [ ] spacing should feel premium and restrained
-- [ ] card treatment should align with the existing design system
-- [ ] dark and light modes should both feel intentional
-- [ ] onboarding should not look like a default template bolted onto the product
+- [x] typography hierarchy should feel aligned with Focus
+- [x] spacing should feel premium and restrained
+- [x] card treatment should align with the existing design system
+- [x] dark and light modes should both feel intentional
+- [x] onboarding should not look like a default template bolted onto the product
 
 Recommended design note:
 
@@ -257,10 +257,11 @@ Recommended design note:
 
 ### Automated
 
-- [ ] onboarding composable/unit tests where useful
-- [ ] Compose UI tests for progression through the 3 cards
-- [ ] screenshot/Paparazzi coverage for at least one representative state in both themes
-- [ ] app compile/build verification
+- [x] onboarding ViewModel unit tests (persistence + callback behavior)
+- [ ] Compose UI tests for progression through the 3 cards (deferred — requires instrumented test setup; Paparazzi screenshot tests provide visual coverage in both themes)
+- [x] screenshot/Paparazzi coverage for at least one representative state in both themes
+- [x] app compile/build verification
+- [x] initial-route decision tests (onboardingCompleted → Onboarding/Focus routing)
 - [ ] broader `./scripts/check.sh` if the changes touch shared app/navigation paths meaningfully
 
 ### Manual
@@ -275,9 +276,9 @@ Recommended design note:
 
 During implementation, update:
 
-- [ ] `phase-8-onboarding-plan.md`
-- [ ] `v1-implementation-plan.md`
-- [ ] `docs/agent-handoff.md` if continuity materially changes
+- [x] `phase-8-onboarding-plan.md`
+- [x] `v1-implementation-plan.md`
+- [x] `docs/agent-handoff.md` if continuity materially changes
 
 Record:
 
@@ -344,17 +345,17 @@ Mitigation:
 
 Phase 8 is complete only when:
 
-- [ ] Fresh installs see onboarding once.
-- [ ] Returning users bypass onboarding completely.
-- [ ] Onboarding completion persists reliably.
-- [ ] The user lands directly in Focus after onboarding completion.
-- [ ] The three cards clearly explain the ritual without extra setup friction.
-- [ ] Permission messaging, if present, is minimal and non-blocking.
-- [ ] The onboarding visuals match the app’s style language closely in both themes.
-- [ ] Automated verification passes for the implemented onboarding layer.
+- [x] Fresh installs see onboarding once.
+- [x] Returning users bypass onboarding completely.
+- [x] Onboarding completion persists reliably.
+- [x] The user lands directly in Focus after onboarding completion.
+- [x] The three cards clearly explain the ritual without extra setup friction.
+- [x] Permission messaging, if present, is minimal and non-blocking.
+- [x] The onboarding visuals match the app’s style language closely in both themes.
+- [x] Automated verification passes for the implemented onboarding layer.
 - [ ] Manual first-run persistence/routing validation is completed.
-- [ ] Documentation is updated with the real implementation and verification state.
-- [ ] The parked Phase 6/7 physical QA remains documented until revisited.
+- [x] Documentation is updated with the real implementation and verification state.
+- [x] The parked Phase 6/7 physical QA remains documented until revisited.
 
 ## 19. Recommended Implementation Order
 

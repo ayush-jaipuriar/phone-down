@@ -22,13 +22,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
+import phonedown.app.focus.FocusRoute
+import phonedown.app.onboarding.OnboardingRoute
 import phonedown.core.designsystem.PhoneDownDesign
 import phonedown.core.designsystem.PhoneDownTheme
 import phonedown.core.model.ThemeMode
 import phonedown.feature.account.AccountScreen
-import phonedown.app.focus.FocusRoute
 import phonedown.feature.insights.InsightsScreen
-import phonedown.feature.onboarding.OnboardingScreen
 import phonedown.feature.pro.ProScreen
 import phonedown.feature.settings.SettingsScreen
 
@@ -101,7 +101,7 @@ private fun PhoneDownNavHost(
         modifier = modifier,
     ) {
         composable(PhoneDownRoute.Onboarding.path) {
-            OnboardingScreen(
+            OnboardingRoute(
                 onContinue = {
                     navController.navigate(PhoneDownRoute.Focus.path) {
                         popUpTo(PhoneDownRoute.Onboarding.path) {

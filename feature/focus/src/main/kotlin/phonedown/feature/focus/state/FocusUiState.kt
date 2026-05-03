@@ -8,12 +8,10 @@ data class FocusUiState(
     val penaltySeconds: Long = 0,
     val interruptionCount: Int = 0,
     val clean: Boolean = true,
-    
     // Today summary
     val todayTotalFocusSeconds: Long = 0,
     val todaySessionsCount: Int = 0,
     val todayCleanCount: Int = 0,
-
     val freeCustomDurationSeconds: Long? = null,
     val showDurationSelector: Boolean = false,
     val showEndConfirmation: Boolean = false,
@@ -31,5 +29,5 @@ enum class FocusPresentationState {
     EndedEarly,
     Broken,
     Invalid,
-    SensorUnavailable
+    SensorUnavailable,
 }

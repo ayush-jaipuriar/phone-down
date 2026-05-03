@@ -325,9 +325,7 @@ private fun ResultState(
 }
 
 @Composable
-private fun SensorUnavailableState(
-    onRetryClick: () -> Unit,
-) {
+private fun SensorUnavailableState(onRetryClick: () -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.md),

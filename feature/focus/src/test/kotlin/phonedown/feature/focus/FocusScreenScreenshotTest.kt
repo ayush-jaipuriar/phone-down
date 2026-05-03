@@ -11,18 +11,20 @@ import phonedown.feature.focus.state.FocusUiState
 
 class FocusScreenScreenshotTest {
     @get:Rule
-    val paparazzi = Paparazzi(
-        deviceConfig = DeviceConfig.PIXEL_5,
-        theme = "android:Theme.Material.NoActionBar",
-    )
+    val paparazzi =
+        Paparazzi(
+            deviceConfig = DeviceConfig.PIXEL_5,
+            theme = "android:Theme.Material.NoActionBar",
+        )
 
-    private val baseState = FocusUiState(
-        selectedDurationSeconds = 25 * 60,
-        remainingSeconds = 25 * 60,
-        todayTotalFocusSeconds = 80 * 60,
-        todaySessionsCount = 3,
-        todayCleanCount = 2,
-    )
+    private val baseState =
+        FocusUiState(
+            selectedDurationSeconds = 25 * 60,
+            remainingSeconds = 25 * 60,
+            todayTotalFocusSeconds = 80 * 60,
+            todaySessionsCount = 3,
+            todayCleanCount = 2,
+        )
 
     @Test
     fun idleState_Light() {
@@ -47,11 +49,12 @@ class FocusScreenScreenshotTest {
         paparazzi.snapshot {
             PhoneDownTheme(themeMode = ThemeMode.Dark) {
                 FocusScreen(
-                    uiState = baseState.copy(
-                        presentationState = FocusPresentationState.Active,
-                        remainingSeconds = 14 * 60 + 38
-                    ),
-                    onEvent = {}
+                    uiState =
+                        baseState.copy(
+                            presentationState = FocusPresentationState.Active,
+                            remainingSeconds = 14 * 60 + 38,
+                        ),
+                    onEvent = {},
                 )
             }
         }
@@ -62,12 +65,13 @@ class FocusScreenScreenshotTest {
         paparazzi.snapshot {
             PhoneDownTheme(themeMode = ThemeMode.Dark) {
                 FocusScreen(
-                    uiState = baseState.copy(
-                        presentationState = FocusPresentationState.PausedByPickup,
-                        remainingSeconds = 24 * 60 + 12,
-                        penaltySeconds = 60
-                    ),
-                    onEvent = {}
+                    uiState =
+                        baseState.copy(
+                            presentationState = FocusPresentationState.PausedByPickup,
+                            remainingSeconds = 24 * 60 + 12,
+                            penaltySeconds = 60,
+                        ),
+                    onEvent = {},
                 )
             }
         }
