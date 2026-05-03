@@ -10,4 +10,5 @@ data class SettingsUiState(
     val autoBackupEnabled: Boolean = false,
     val lastBackupEpochMillis: Long? = null,
     val backupOptIn: Boolean = false,
+    val isProUser: Boolean = false,
 )

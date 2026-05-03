@@ -10,4 +10,5 @@ dependencies {
     implementation(project(":core:auth"))
     implementation(project(":core:backup"))
     implementation(project(":core:designsystem"))
+    implementation(project(":core:model"))
 }

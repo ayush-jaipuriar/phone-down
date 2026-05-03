@@ -8,8 +8,12 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import phonedown.core.auth.FakeAuthRepository
+import phonedown.core.billing.FakeBillingRepository
 import phonedown.core.common.Clock
 import phonedown.core.common.IdGenerator
+import phonedown.core.model.repository.AuthRepository
+import phonedown.core.model.repository.BillingRepository
 import phonedown.core.model.repository.SessionRepository
 import phonedown.core.notifications.FocusFeedbackPlayer
 import phonedown.core.notifications.FocusForegroundNotificationManager
@@ -180,4 +184,12 @@ object AppRuntimeModule {
     fun providesGetHistoryUseCase(
         sessionRepository: SessionRepository,
     ): GetHistoryUseCase = GetHistoryUseCase(sessionRepository)
+
+    @Provides
+    @Singleton
+    fun providesBillingRepository(): BillingRepository = FakeBillingRepository()
+
+    @Provides
+    @Singleton
+    fun providesAuthRepository(): AuthRepository = FakeAuthRepository()
 }

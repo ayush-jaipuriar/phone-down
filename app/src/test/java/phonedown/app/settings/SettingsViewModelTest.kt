@@ -14,8 +14,10 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import phonedown.core.model.ProEntitlement
 import phonedown.core.model.ThemeMode
 import phonedown.core.model.UserSettings
+import phonedown.core.model.repository.BillingRepository
 import phonedown.core.model.repository.SettingsRepository
 import phonedown.feature.settings.SettingsUiState
 
@@ -37,7 +39,8 @@ class SettingsViewModelTest {
     @Test
     fun `initial uiState reflects repository defaults`() = runTest(testDispatcher) {
         val repo = FakeSettingsRepository()
-        val viewModel = SettingsViewModel(repo)
+        val billingRepo = FakeBillingRepository()
+        val viewModel = SettingsViewModel(repo, billingRepo)
 
         testScheduler.advanceUntilIdle()
 
@@ -54,7 +57,8 @@ class SettingsViewModelTest {
     @Test
     fun `setSoundEnabled updates repository and uiState`() = runTest(testDispatcher) {
         val repo = FakeSettingsRepository()
-        val viewModel = SettingsViewModel(repo)
+        val billingRepo = FakeBillingRepository()
+        val viewModel = SettingsViewModel(repo, billingRepo)
 
         viewModel.setSoundEnabled(false)
         testScheduler.advanceUntilIdle()
@@ -66,7 +70,8 @@ class SettingsViewModelTest {
     @Test
     fun `setHapticsEnabled updates repository and uiState`() = runTest(testDispatcher) {
         val repo = FakeSettingsRepository()
-        val viewModel = SettingsViewModel(repo)
+        val billingRepo = FakeBillingRepository()
+        val viewModel = SettingsViewModel(repo, billingRepo)
 
         viewModel.setHapticsEnabled(false)
         testScheduler.advanceUntilIdle()
@@ -78,7 +83,8 @@ class SettingsViewModelTest {
     @Test
     fun `setThemeMode updates repository and uiState`() = runTest(testDispatcher) {
         val repo = FakeSettingsRepository()
-        val viewModel = SettingsViewModel(repo)
+        val billingRepo = FakeBillingRepository()
+        val viewModel = SettingsViewModel(repo, billingRepo)
 
         viewModel.setThemeMode(ThemeMode.Dark)
         testScheduler.advanceUntilIdle()
@@ -90,7 +96,8 @@ class SettingsViewModelTest {
     @Test
     fun `setDefaultDuration updates repository and uiState`() = runTest(testDispatcher) {
         val repo = FakeSettingsRepository()
-        val viewModel = SettingsViewModel(repo)
+        val billingRepo = FakeBillingRepository()
+        val viewModel = SettingsViewModel(repo, billingRepo)
 
         viewModel.setDefaultDuration(1800)
         testScheduler.advanceUntilIdle()
@@ -102,7 +109,8 @@ class SettingsViewModelTest {
     @Test
     fun `repository flow emission updates uiState`() = runTest(testDispatcher) {
         val repo = FakeSettingsRepository()
-        val viewModel = SettingsViewModel(repo)
+        val billingRepo = FakeBillingRepository()
+        val viewModel = SettingsViewModel(repo, billingRepo)
 
         repo.setSoundEnabled(false)
         testScheduler.advanceUntilIdle()
@@ -113,7 +121,8 @@ class SettingsViewModelTest {
     @Test
     fun `settings flow emits updated values`() = runTest(testDispatcher) {
         val repo = FakeSettingsRepository()
-        val viewModel = SettingsViewModel(repo)
+        val billingRepo = FakeBillingRepository()
+        val viewModel = SettingsViewModel(repo, billingRepo)
 
         viewModel.setHapticsEnabled(false)
         testScheduler.advanceUntilIdle()
@@ -121,6 +130,20 @@ class SettingsViewModelTest {
         val emitted = repo.settings.first()
         assertFalse(emitted.hapticsEnabled)
     }
+}
+
+private class FakeBillingRepository : BillingRepository {
+    override val products: kotlinx.coroutines.flow.Flow<List<phonedown.core.model.ProProduct>> =
+        kotlinx.coroutines.flow.MutableStateFlow(emptyList())
+    override val purchases: kotlinx.coroutines.flow.Flow<List<phonedown.core.model.ProPurchase>> =
+        kotlinx.coroutines.flow.MutableStateFlow(emptyList())
+    override val entitlement: kotlinx.coroutines.flow.Flow<ProEntitlement> =
+        kotlinx.coroutines.flow.MutableStateFlow(ProEntitlement.Free)
+
+    override suspend fun loadProducts() {}
+    override suspend fun launchPurchaseFlow(product: phonedown.core.model.ProProduct) {}
+    override suspend fun restorePurchases() {}
+    override suspend fun acknowledgePurchase(purchaseToken: String) {}
 }
 
 private class FakeSettingsRepository(

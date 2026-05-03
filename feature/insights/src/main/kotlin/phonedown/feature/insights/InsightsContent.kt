@@ -67,6 +67,7 @@ data class InsightsUiState(
     val advanced: AdvancedInsights? = null,
     val isEmpty: Boolean = true,
     val isLoading: Boolean = true,
+    val isProUser: Boolean = false,
 )
 
 @Composable
@@ -116,6 +117,10 @@ fun InsightsContent(
         ) {
             item { TodaySection(summary = uiState.today) }
 
+            if (!uiState.isProUser && uiState.today.sessionCount >= 3) {
+                item { UpsellBanner() }
+            }
+
             uiState.weekly?.let { weekly ->
                 item { WeeklyChartSection(weekly = weekly) }
             }
@@ -135,32 +140,36 @@ fun InsightsContent(
             item { Spacer(modifier = Modifier.height(PhoneDownSpacing.md)) }
             item { ProHeader() }
 
-            if (uiState.heatmap.isNotEmpty()) {
-                item { HeatmapSection(days = uiState.heatmap) }
-            }
+            if (uiState.isProUser) {
+                if (uiState.heatmap.isNotEmpty()) {
+                    item { HeatmapSection(days = uiState.heatmap) }
+                }
 
-            uiState.bestHour?.let { hour ->
-                item { BestTimeSection(bestHour = hour, bestDay = uiState.bestDay) }
-            }
+                uiState.bestHour?.let { hour ->
+                    item { BestTimeSection(bestHour = hour, bestDay = uiState.bestDay) }
+                }
 
-            if (uiState.completionRateTrend.isNotEmpty()) {
-                item { TrendSection(label = "Completion Rate %", points = uiState.completionRateTrend) }
-            }
-            if (uiState.cleanRatioTrend.isNotEmpty()) {
-                item { TrendSection(label = "Clean Ratio %", points = uiState.cleanRatioTrend) }
-            }
-            if (uiState.interruptionTrend.isNotEmpty()) {
-                item { TrendSection(label = "Interruptions", points = uiState.interruptionTrend) }
-            }
-            if (uiState.focusQualityTrend.isNotEmpty()) {
-                item { TrendSection(label = "Focus Quality", points = uiState.focusQualityTrend) }
-            }
+                if (uiState.completionRateTrend.isNotEmpty()) {
+                    item { TrendSection(label = "Completion Rate %", points = uiState.completionRateTrend) }
+                }
+                if (uiState.cleanRatioTrend.isNotEmpty()) {
+                    item { TrendSection(label = "Clean Ratio %", points = uiState.cleanRatioTrend) }
+                }
+                if (uiState.interruptionTrend.isNotEmpty()) {
+                    item { TrendSection(label = "Interruptions", points = uiState.interruptionTrend) }
+                }
+                if (uiState.focusQualityTrend.isNotEmpty()) {
+                    item { TrendSection(label = "Focus Quality", points = uiState.focusQualityTrend) }
+                }
 
-            uiState.advanced?.let { advanced ->
-                item { AdvancedSection(advanced = advanced) }
-            }
+                uiState.advanced?.let { advanced ->
+                    item { AdvancedSection(advanced = advanced) }
+                }
 
-            item { ExportSection() }
+                item { ExportSection() }
+            } else {
+                item { ProTeaserCard() }
+            }
         }
     }
 }
@@ -516,6 +525,70 @@ private fun ExportSection() {
                 text = "Pro",
                 color = PhoneDownDesign.colors.progress,
                 style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
+            )
+        }
+    }
+}
+
+@Composable
+private fun ProTeaserCard() {
+    PhoneDownCard {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.sm),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(
+                text = "Upgrade to Pro",
+                style = MaterialTheme.typography.titleSmall,
+                color = PhoneDownDesign.colors.textPrimary,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Text(
+                text = "Unlock advanced insights including focus heatmaps, best focus times, trend analysis, and data export.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = PhoneDownDesign.colors.textSecondary,
+                textAlign = TextAlign.Center,
+            )
+            Text(
+                text = "Pro",
+                style = MaterialTheme.typography.labelSmall,
+                color = PhoneDownDesign.colors.progress,
+                fontWeight = FontWeight.Bold,
+            )
+        }
+    }
+}
+
+@Composable
+private fun UpsellBanner() {
+    PhoneDownCard {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(PhoneDownSpacing.md),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.xxs),
+            ) {
+                Text(
+                    text = "See your focus patterns over time",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = PhoneDownDesign.colors.textPrimary,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Text(
+                    text = "Upgrade to Pro for advanced insights, heatmaps, and trend analysis.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = PhoneDownDesign.colors.textSecondary,
+                )
+            }
+            Text(
+                text = "Pro",
+                style = MaterialTheme.typography.labelSmall,
+                color = PhoneDownDesign.colors.progress,
                 fontWeight = FontWeight.Bold,
             )
         }

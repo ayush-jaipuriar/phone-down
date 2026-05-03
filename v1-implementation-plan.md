@@ -745,6 +745,28 @@ Purpose: explain the physical rule once, then get out of the user's way.
 - [ ] Account sign-in, billing, and backup rows are stubs — real wiring in Phase 11 and Phase 12.
 - [ ] Default duration editing UI deferred; currently read-only display.
 
+### Phase 11 Progress Log
+
+- [x] Added `ProProduct`, `ProPurchase`, `ProEntitlement`, `AccountState` data types to `:core:model`.
+- [x] Added `BillingRepository` and `AuthRepository` interfaces to `:core:model`.
+- [x] Created `FakeBillingRepository` in `:core:billing` with hardcoded products (monthly $4.99, yearly $29.99, lifetime $79.99) and simulated purchase flow.
+- [x] Created `FakeAuthRepository` in `:core:auth` with mock Google account simulation.
+- [x] Wired `BillingRepository` and `AuthRepository` providers into `AppRuntimeModule`.
+- [x] Rewrote `AccountScreen` in `:feature:account` with signed-in and signed-out states, user info display, and Pro status card.
+- [x] Created `AccountViewModel` and `AccountRoute` in `:app` with Hilt injection, collecting auth state and entitlement.
+- [x] Rewrote `ProScreen` in `:feature:pro` with product cards (Monthly, Yearly "Best Value", Lifetime), restore purchases, and calm non-aggressive copy.
+- [x] Created `ProViewModel` and `ProRoute` in `:app` with Hilt injection.
+- [x] Added `isProUser` to `InsightsUiState` and `SettingsUiState`.
+- [x] Updated `InsightsViewModel` and `SettingsViewModel` to collect `BillingRepository.entitlement`.
+- [x] Gated advanced insights sections behind Pro check (teaser card for free users).
+- [x] Gated Pro settings (backup, export, custom duration) to navigate to paywall on tap for free users.
+- [x] Added passive upsell banner in Insights after 3+ sessions.
+- [x] Updated `SettingsViewModelTest` to include `FakeBillingRepository`.
+- [x] Verification: `:app:assembleDebug` PASS, `:app:testDebugUnitTest` PASS, `:feature:settings:testDebugUnitTest` PASS, `:feature:insights:testDebugUnitTest` PASS.
+- [ ] Entitlement caching in DataStore deferred — fake implementation keeps state in memory.
+- [ ] Real Google Sign-In and Play Billing Client swap deferred to post-V1.
+- [ ] Post-session completion upsell teaser deferred.
+
 ## 13. Phase 9 - Insights Feature
 
 Purpose: make focus behavior understandable without turning the app into a spreadsheet.
@@ -905,57 +927,65 @@ Purpose: monetize advanced features while keeping the core focus ritual free and
 
 ### Google Sign-In Checklist
 
-- [ ] Add Google Sign-In dependency.
+- [x] Auth repository interface (`AuthRepository`) in `:core:model`.
+- [x] Fake auth implementation (`FakeAuthRepository`) for development/testing.
+- [x] Account screen with sign-in/out states and Pro status card.
 - [ ] Configure OAuth/client IDs outside committed secrets.
-- [ ] Sign-in from Settings/Account.
-- [ ] Sign-out.
-- [ ] Account state persistence.
-- [ ] Token access for Drive backup.
+- [ ] Account state persistence (real Google Sign-In deferred).
+- [ ] Token access for Drive backup (deferred to Phase 12).
 - [ ] Graceful offline/error handling.
 
 ### Billing Checklist
 
-- [ ] Add Play Billing Library.
-- [ ] Product IDs:
-  - [ ] `phone_down_pro_monthly`.
-  - [ ] `phone_down_pro_yearly`.
-  - [ ] `phone_down_pro_lifetime`.
-- [ ] Load subscription products.
-- [ ] Load lifetime product.
-- [ ] Purchase monthly.
-- [ ] Purchase yearly.
-- [ ] Purchase lifetime.
-- [ ] Restore purchases.
-- [ ] Manage subscription entry.
-- [ ] Handle pending purchases.
-- [ ] Handle canceled purchases.
-- [ ] Handle billing unavailable state.
+- [x] Billing repository interface (`BillingRepository`) in `:core:model`.
+- [x] Fake billing implementation (`FakeBillingRepository`) with hardcoded products.
+- [x] Product IDs defined:
+  - [x] `phone_down_pro_monthly`.
+  - [x] `phone_down_pro_yearly`.
+  - [x] `phone_down_pro_lifetime`.
+- [x] Load subscription products (fake).
+- [x] Load lifetime product (fake).
+- [x] Purchase monthly (simulated).
+- [x] Purchase yearly (simulated).
+- [x] Purchase lifetime (simulated).
+- [x] Restore purchases (simulated).
+- [ ] Manage subscription entry (stubbed).
+- [ ] Handle pending purchases (deferred).
+- [ ] Handle canceled purchases (deferred).
+- [ ] Handle billing unavailable state (deferred).
 
 ### Entitlement Checklist
 
-- [ ] User is Pro with active monthly subscription.
-- [ ] User is Pro with active yearly subscription.
-- [ ] User is Pro with owned lifetime purchase.
-- [ ] Expired/canceled subscription removes Pro access after entitlement expiry.
-- [ ] Lifetime purchase does not expire.
-- [ ] Do not backup billing entitlement as source of truth.
+- [x] Pro entitlement model (`ProEntitlement.Free` / `ProEntitlement.Pro`).
+- [x] Fake entitlement updates on purchase/restore.
+- [ ] Local DataStore cache with 24-hour TTL (deferred).
+- [ ] Expired/canceled subscription removes Pro access after entitlement expiry (deferred).
+- [ ] Lifetime purchase does not expire (fake implementation covers this).
+- [x] Do not backup billing entitlement as source of truth.
 
 ### Paywall Checklist
 
-- [ ] Advanced analytics gate.
-- [ ] Heatmap gate.
-- [ ] Backup/restore gate.
-- [ ] Export gate.
-- [ ] Advanced custom durations gate.
-- [ ] Avoid showing paywall before user experiences core timer.
-- [ ] Keep paywall calm, clear, and non-aggressive.
+- [x] Paywall UI with monthly/yearly/lifetime product cards.
+- [x] Advanced analytics gate (teaser card for free users).
+- [x] Heatmap gate (hidden behind Pro check).
+- [x] Backup/restore gate (navigates to paywall on tap).
+- [x] Export gate (navigates to paywall on tap).
+- [x] Advanced custom durations gate (navigates to paywall on tap).
+- [x] Avoid showing paywall before user experiences core timer.
+- [x] Keep paywall calm, clear, and non-aggressive.
+
+### Upsell Moments
+
+- [x] Passive upsell banner in Insights after 3+ sessions.
+- [ ] Post-session completion upsell teaser (deferred to Focus feature refinement).
 
 ### Acceptance Criteria
 
-- [ ] Free user can use unlimited focus sessions.
-- [ ] Free user sees today and 7 days insights.
-- [ ] Pro user unlocks advanced features.
-- [ ] Billing failures do not break core timer.
+- [x] Free user can use unlimited focus sessions.
+- [x] Free user sees today and 7 days insights.
+- [x] Pro user unlocks advanced features.
+- [x] Billing failures do not break core timer (fake implementation is safe).
+- [x] App assembles and tests pass.
 
 ## 16. Phase 12 - Backup And Restore
 

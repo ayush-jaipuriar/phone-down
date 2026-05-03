@@ -63,7 +63,10 @@ fun SettingsScreen(
 
         Spacer(modifier = Modifier.height(PhoneDownSpacing.md))
 
-        TimerSection(uiState = uiState)
+        TimerSection(
+            uiState = uiState,
+            onProClick = onProClick,
+        )
 
         Spacer(modifier = Modifier.height(PhoneDownSpacing.sm))
 
@@ -88,7 +91,10 @@ fun SettingsScreen(
 
         Spacer(modifier = Modifier.height(PhoneDownSpacing.sm))
 
-        PrivacySection(onDeleteRequested = { showDeleteDialog = true })
+        PrivacySection(
+            onDeleteRequested = { showDeleteDialog = true },
+            onProClick = onProClick,
+        )
 
         Spacer(modifier = Modifier.height(PhoneDownSpacing.sm))
 
@@ -115,7 +121,10 @@ fun SettingsScreen(
 }
 
 @Composable
-private fun TimerSection(uiState: SettingsUiState) {
+private fun TimerSection(
+    uiState: SettingsUiState,
+    onProClick: () -> Unit,
+) {
     SettingsSectionHeader(title = "Timer") {
         PhoneDownSettingRow(
             title = "Default Duration",
@@ -129,6 +138,7 @@ private fun TimerSection(uiState: SettingsUiState) {
             title = "Custom Duration",
             supportingText = "Free tier limited to one custom slot",
             trailing = "Pro",
+            onClick = onProClick,
         )
     }
 }
@@ -205,11 +215,13 @@ private fun AccountBackupSection(
                 "No backup yet"
             },
             trailing = "Pro",
+            onClick = onProClick,
         )
         PhoneDownSettingRow(
             title = "Auto Backup",
             supportingText = "Daily automatic backup to Google Drive",
             trailing = "Pro",
+            onClick = onProClick,
         )
     }
 }
@@ -235,7 +247,10 @@ private fun ProSection(onProClick: () -> Unit) {
 }
 
 @Composable
-private fun PrivacySection(onDeleteRequested: () -> Unit) {
+private fun PrivacySection(
+    onDeleteRequested: () -> Unit,
+    onProClick: () -> Unit,
+) {
     SettingsSectionHeader(title = "Privacy") {
         PhoneDownSettingRow(
             title = "Local Data",
@@ -249,6 +264,7 @@ private fun PrivacySection(onDeleteRequested: () -> Unit) {
             title = "Export Data",
             supportingText = "Export your session history as a file",
             trailing = "Pro",
+            onClick = onProClick,
         )
         PhoneDownSettingRow(
             title = "Delete All Local Data",

@@ -9,4 +9,5 @@ android {
 dependencies {
     implementation(project(":core:billing"))
     implementation(project(":core:designsystem"))
+    implementation(project(":core:model"))
 }

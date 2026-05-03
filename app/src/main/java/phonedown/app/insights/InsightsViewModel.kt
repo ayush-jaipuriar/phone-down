@@ -6,6 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import phonedown.domain.insights.AdvancedInsights
 import phonedown.domain.insights.BestDayResult
@@ -27,6 +28,8 @@ import phonedown.domain.insights.SessionHistoryItem
 import phonedown.domain.insights.StreakResult
 import phonedown.domain.insights.TrendPoint
 import phonedown.domain.insights.WeeklyInsight
+import phonedown.core.model.ProEntitlement
+import phonedown.core.model.repository.BillingRepository
 import phonedown.feature.insights.InsightsUiState
 import javax.inject.Inject
 
@@ -44,9 +47,12 @@ class InsightsViewModel
         private val getBestDay: GetBestWeekdayUseCase,
         private val getTrends: GetTrendsUseCase,
         private val getAdvancedInsights: GetAdvancedInsightsUseCase,
+        billingRepository: BillingRepository,
     ) : ViewModel() {
     private val _uiState = MutableStateFlow(InsightsUiState())
     val uiState: StateFlow<InsightsUiState> = _uiState.asStateFlow()
+
+    private val entitlementFlow = billingRepository.entitlement
 
     init {
         refresh()
@@ -66,6 +72,7 @@ class InsightsViewModel
             val bestDay = getBestDay()
             val trends = getTrends()
             val advanced = getAdvancedInsights()
+            val entitlement = entitlementFlow.first()
 
             val isEmpty = today.sessionCount == 0 &&
                 weekly == null &&
@@ -88,6 +95,7 @@ class InsightsViewModel
                     advanced = advanced,
                     isEmpty = isEmpty,
                     isLoading = false,
+                    isProUser = entitlement is ProEntitlement.Pro,
                 )
         }
     }

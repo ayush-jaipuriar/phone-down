@@ -3,7 +3,7 @@
 ## 1. Goal
 - Build Phone Down, a native Android focus app where sessions only progress while the phone is face down and stable.
 - Keep following the repo's strict phase workflow: clarify, plan, approve, implement, verify, then report honestly.
-- Current objective: Phase 10 Settings feature has been implemented. SettingsScreen is fully wired to SettingsRepository via SettingsViewModel, organized into 6 sections, and verified with tests.
+- Current objective: Phase 11 Auth, Billing, Entitlements, and Paywall has been implemented. Fake billing and auth repositories are wired, paywall UI is built, Pro gates are active across Insights and Settings.
 
 ## 2. Context The Next Agent Must Know
 - Read `AGENTS.md` first and follow it strictly.
@@ -13,70 +13,80 @@
   - update docs during meaningful progress
   - run comprehensive verification before claiming completion
 - Architecture:
-  - `:app` owns route/viewmodel/runtime wiring (SettingsRoute, SettingsViewModel, FocusRoute/ViewModel, InsightsRoute/ViewModel, AppRuntimeModule)
-  - `:feature:settings` owns UI composables (SettingsScreen, SettingsUiState)
+  - `:app` owns route/viewmodel/runtime wiring (all Routes, all ViewModels, AppRuntimeModule)
+  - `:feature:*` modules own UI composables (SettingsScreen, InsightsContent, AccountScreen, ProScreen)
   - `:domain:insights` owns 10 pure Kotlin use cases with 31 passing unit tests
-  - `:core:charts` owns canvas-based bar chart, line chart, and heatmap composables
+  - `:core:billing` owns fake billing implementation (`FakeBillingRepository`)
+  - `:core:auth` owns fake auth implementation (`FakeAuthRepository`)
+  - `:core:model` owns all data types and repository interfaces
   - Persistence goes through `SessionRepository` and `SettingsRepository` interfaces
 - Important implementation notes:
-  - `SettingsUiState` lives in `:feature:settings` (not `:app`) so the feature module can consume it without a circular dependency
-  - `SettingsViewModel` lives in `:app` and bridges `SettingsRepository` → `SettingsUiState`
-  - `SettingsRoute` lives in `:app` and handles the Hilt injection + theme callback delegation
-  - Theme changes are persisted via `SettingsRepository.setThemeMode()` AND propagated immediately via `onThemeModeSelected` nav host callback
-  - Account, Pro, and Backup rows are navigation stubs — real wiring deferred to Phase 11 (Auth/Billing) and Phase 12 (Backup)
-  - Pro-only features are visually gated with "Pro" trailing labels but not functionally blocked yet
+  - `FakeBillingRepository` returns hardcoded products and simulates purchase flow with 2-second delay
+  - `FakeAuthRepository` simulates Google Sign-In with mock account
+  - Real Play Billing Client and Google Sign-In are deferred to post-V1
+  - Pro entitlement is determined by `BillingRepository.entitlement` flow
+  - Pro-gated features in Insights show a teaser card; in Settings they navigate to paywall on tap
+  - `InsightsUiState.isProUser` and `SettingsUiState.isProUser` drive the gating
+  - Canvas-based charts remain from Phase 9 (Vico was deferred)
 
 ## 3. Work Completed This Session
-- Created `SettingsViewModel` in `:app` with Hilt injection, collecting `SettingsRepository.settings` into `SettingsUiState`
-- Created `SettingsRoute` in `:app` to bridge ViewModel and `SettingsScreen`, delegating theme changes to nav host
-- Rewrote `SettingsScreen` in `:feature:settings` with 6 sections: Timer, Preferences, Account & Backup, Pro, Privacy, About
-- Wired Sounds and Haptics toggles to repository via ViewModel
-- Wired Theme selector to repository via ViewModel (with nav host callback for immediate UI update)
-- Added navigation stubs for Account (→ Account screen) and Pro (→ Pro screen)
-- Added delete-data confirmation dialog in Privacy section
-- Moved `SettingsUiState` from `:app` to `:feature:settings` to eliminate cross-module test dependency issues
-- Added `SettingsViewModelTest` (6 tests: initial state, sound toggle, haptics toggle, theme mode, default duration, flow emission)
-- Updated `SettingsScreenTest` androidTest (5 tests: screen display, sound toggle, haptics toggle, delete dialog, timer display)
-- Updated Paparazzi screenshot tests (light/dark) and recorded new baselines
-- Verification: `:app:assembleDebug` PASS, `:app:testDebugUnitTest` PASS, `:feature:settings:testDebugUnitTest` PASS, `:feature:settings:verifyPaparazziDebug` PASS
+- Added `ProProduct`, `ProPurchase`, `ProEntitlement`, `AccountState` to `:core:model`
+- Added `BillingRepository` and `AuthRepository` interfaces to `:core:model`
+- Created `FakeBillingRepository` in `:core:billing` and `FakeAuthRepository` in `:core:auth`
+- Wired both repositories into `AppRuntimeModule`
+- Rewrote `AccountScreen` with signed-in/signed-out states and Pro status card
+- Created `AccountViewModel` and `AccountRoute` in `:app`
+- Rewrote `ProScreen` with product cards (Monthly, Yearly, Lifetime) and calm copy
+- Created `ProViewModel` and `ProRoute` in `:app`
+- Added `isProUser` to `InsightsUiState` and `SettingsUiState`
+- Updated `InsightsViewModel` and `SettingsViewModel` to collect billing entitlement
+- Gated advanced insights behind Pro check (teaser card for free users)
+- Gated Pro settings to navigate to paywall on tap for free users
+- Added passive upsell banner in Insights after 3+ sessions
+- Updated `SettingsViewModelTest` to include `FakeBillingRepository`
+- Verification: `:app:assembleDebug` PASS, `:app:testDebugUnitTest` PASS, `:feature:settings:testDebugUnitTest` PASS, `:feature:insights:testDebugUnitTest` PASS
 
 ## 4. Current Workspace State
 - Branch: `main`
-- `git status`: uncommitted changes from Phase 10 implementation
-- Modified files include: `feature/settings/src/main/kotlin/phonedown/feature/settings/SettingsScreen.kt`, `app/src/main/java/phonedown/app/navigation/PhoneDownNavHost.kt`, `v1-implementation-plan.md`, and test files
-- New files include: `app/src/main/java/phonedown/app/settings/SettingsViewModel.kt`, `app/src/main/java/phonedown/app/settings/SettingsRoute.kt`, `feature/settings/src/main/kotlin/phonedown/feature/settings/SettingsUiState.kt`, `app/src/test/java/phonedown/app/settings/SettingsViewModelTest.kt`, and updated test files
+- `git status`: uncommitted changes from Phase 11 implementation
+- Modified files include: `core/model/`, `core/billing/`, `core/auth/`, `feature/account/`, `feature/pro/`, `feature/insights/`, `feature/settings/`, `app/`, `v1-implementation-plan.md`
+- New files include: `ProProduct.kt`, `ProPurchase.kt`, `ProEntitlement.kt`, `AccountState.kt`, `BillingRepository.kt`, `AuthRepository.kt`, `FakeBillingRepository.kt`, `FakeAuthRepository.kt`, `AccountViewModel.kt`, `AccountRoute.kt`, `ProViewModel.kt`, `ProRoute.kt`
 - No secrets, tokens, credentials noticed.
 
 ## 5. Decisions And Rationale
-- `SettingsUiState` lives in `:feature:settings` not `:app`:
-  - rationale: the composable in feature module needs to consume it; `:app` already depends on `:feature:settings`
-- Theme changes use dual path (repository + callback):
-  - rationale: repository persistence is async; nav host callback updates the app theme immediately without waiting for DataStore round-trip
-- Account/Pro/Backup rows are stubs with navigation only:
-  - rationale: real auth, billing, and backup logic belong in Phase 11 and Phase 12; Settings should not own those domains
-- Canvas-based charts remain from Phase 9:
-  - rationale: Vico was deferred and Canvas charts work reliably
+- Fake implementations instead of real BillingClient/Sign-In:
+  - rationale: real Play Billing requires Play Console setup, test accounts, signed APKs. Fake lets us build full UX now and swap later with minimal changes
+- `BillingRepository` and `AuthRepository` interfaces in `:core:model` (not `:core:billing`/`auth`):
+  - rationale: feature modules need to reference the interfaces without depending on the implementation modules
+- Activity parameter removed from repository interfaces:
+  - rationale: `:core:model` is pure Kotlin and cannot depend on Android. Activity handling belongs at the UI layer
+- Entitlement not cached in DataStore yet:
+  - rationale: fake implementation keeps state in memory; real cache will be needed when switching to real BillingClient
+- Pro gates use simple navigation to paywall:
+  - rationale: minimal viable implementation; real feature gates (e.g., disabling backup UI entirely) can be added later
 
 ## 6. Known Issues / Blockers
-- Pro gate stubs rendered but not wired to real billing entitlement (Phase 11).
-- Account sign-in is a navigation stub only — no real Google Sign-In (Phase 11).
-- Backup/restore is a navigation/read-only stub — no real Drive backup (Phase 12).
-- Default duration is read-only display; editing UI deferred.
-- Build-logic Gradle module has intermittent hash mismatch issues (clean `~/.gradle/caches` + `build-logic/convention/build` as workaround).
-- Lint (`lintDebug`) could not run due to build-logic issue (code compiles clean).
-- Physical-device QA for Phases 6, 7, 8 still parked.
+- Pro entitlement caching in DataStore not implemented (deferred)
+- Real Play Billing Client not integrated (deferred to post-V1)
+- Real Google Sign-In not integrated (deferred to post-V1)
+- Post-session completion upsell teaser not implemented (deferred)
+- Subscription expiry edge cases (grace period, account hold) not handled
+- Google Sign-In OAuth client IDs not configured (must not be committed)
+- Build-logic Gradle module has intermittent hash mismatch issues (clean `~/.gradle/caches` + `build-logic/convention/build` as workaround)
+- Lint (`lintDebug`) could not run due to build-logic issue (code compiles clean)
+- Physical-device QA for Phases 6, 7, 8 still parked
 
 ## 7. Exact Next Steps
-1. Commit the Phase 10 work with a descriptive message.
-2. Ask the user whether to proceed to Phase 11 (Auth, Billing, Entitlements, Paywall) or address any remaining concerns.
+1. Commit the Phase 11 work with a descriptive message.
+2. Ask the user whether to proceed to Phase 12 (Backup and Restore) or address any remaining concerns.
 
 ## 8. Suggested Prompt For The Next Agent
 ```text
 Continue work in the Phone Down project. First, read `AGENTS.md`, `docs/agent-handoff.md`, and inspect `git status`.
 
 Key current state:
-- Phase 10 Settings is implemented: 6-section SettingsScreen wired to SettingsRepository via SettingsViewModel, with real toggles for sound/haptics/theme and stubs for account/pro/backup.
-- App assembles and tests pass (ViewModel tests, Compose UI tests, Paparazzi screenshots).
-- Remaining: Phase 11 (Auth/Billing), Phase 12 (Backup), and real device QA for earlier phases.
+- Phase 11 Auth/Billing/Paywall is implemented: fake repositories, paywall UI, Pro gates across Insights and Settings.
+- App assembles and tests pass.
+- Remaining: Phase 12 (Backup/Restore), real BillingClient/Sign-In swap, entitlement caching, physical device QA.
 - Build-logic has intermittent issues; clean `~/.gradle/caches` + `build-logic/convention/build` as needed.
 ```
