@@ -73,6 +73,53 @@ class SettingsViewModel
         viewModelScope.launch { settingsRepository.setDefaultDurationSeconds(seconds) }
     }
 
+    fun showDeleteConfirmation() {
+        _uiState.value = _uiState.value.copy(showDeleteConfirmation = true)
+    }
+
+    fun dismissDeleteConfirmation() {
+        _uiState.value = _uiState.value.copy(
+            showDeleteConfirmation = false,
+            deleteConfirmationText = "",
+            deleteIncludeBackup = true,
+            deleteSuccess = false,
+        )
+    }
+
+    fun setDeleteConfirmationText(text: String) {
+        _uiState.value = _uiState.value.copy(deleteConfirmationText = text)
+    }
+
+    fun setDeleteIncludeBackup(include: Boolean) {
+        _uiState.value = _uiState.value.copy(deleteIncludeBackup = include)
+    }
+
+    fun deleteAllData() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isDeleting = true)
+            try {
+                sessionRepository.clearAllSessions()
+                sessionRepository.clearAllPenaltyEvents()
+                settingsRepository.resetToDefaults()
+                if (_uiState.value.deleteIncludeBackup && _uiState.value.isSignedIn) {
+                    backupRepository.deleteBackup()
+                    authRepository.signOut()
+                }
+                _uiState.value = _uiState.value.copy(
+                    isDeleting = false,
+                    deleteSuccess = true,
+                    showDeleteConfirmation = false,
+                    deleteConfirmationText = "",
+                )
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isDeleting = false,
+                    backupError = e.message ?: "Delete failed",
+                )
+            }
+        }
+    }
+
     fun triggerBackup() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isBackingUp = true, backupError = null)

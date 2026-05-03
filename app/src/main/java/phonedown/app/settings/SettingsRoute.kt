@@ -11,6 +11,7 @@ import phonedown.feature.settings.SettingsScreen
 fun SettingsRoute(
     onAccountClick: () -> Unit,
     onProClick: () -> Unit,
+    onPrivacyPolicyClick: () -> Unit,
     onThemeModeSelected: (phonedown.core.model.ThemeMode) -> Unit,
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
@@ -21,6 +22,12 @@ fun SettingsRoute(
         onAccountClick = onAccountClick,
         onProClick = onProClick,
         onBackupClick = viewModel::triggerBackup,
+        onPrivacyPolicyClick = onPrivacyPolicyClick,
+        onDeleteRequested = viewModel::showDeleteConfirmation,
+        onDeleteConfirmed = viewModel::deleteAllData,
+        onDeleteDismissed = viewModel::dismissDeleteConfirmation,
+        onDeleteConfirmationTextChanged = viewModel::setDeleteConfirmationText,
+        onDeleteIncludeBackupChanged = viewModel::setDeleteIncludeBackup,
         onSoundToggled = viewModel::setSoundEnabled,
         onHapticsToggled = viewModel::setHapticsEnabled,
         onThemeModeSelected = { mode ->

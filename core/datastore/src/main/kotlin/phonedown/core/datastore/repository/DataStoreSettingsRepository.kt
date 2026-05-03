@@ -85,6 +85,20 @@ class DataStoreSettingsRepository
             }
         }
 
+        override suspend fun resetToDefaults() {
+            dataStore.edit { prefs ->
+                prefs[DEFAULT_DURATION_SECONDS_KEY] = UserSettings.DEFAULT_DURATION_SECONDS
+                prefs[SOUND_ENABLED_KEY] = true
+                prefs[HAPTICS_ENABLED_KEY] = true
+                prefs[THEME_MODE_KEY] = ThemeMode.System.name
+                prefs[ONBOARDING_COMPLETED_KEY] = false
+                prefs[BACKUP_OPT_IN_KEY] = false
+                prefs[AUTO_BACKUP_ENABLED_KEY] = false
+                prefs.remove(LAST_BACKUP_EPOCH_MILLIS_KEY)
+                prefs.remove(FREE_CUSTOM_DURATION_SECONDS_KEY)
+            }
+        }
+
         suspend fun restoreSettings(settings: UserSettings) {
             dataStore.edit { prefs ->
                 prefs[DEFAULT_DURATION_SECONDS_KEY] = settings.defaultDurationSeconds

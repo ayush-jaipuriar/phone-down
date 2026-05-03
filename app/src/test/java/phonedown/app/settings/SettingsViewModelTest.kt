@@ -167,6 +167,57 @@ class SettingsViewModelTest {
 
         assertTrue(viewModel.uiState.value.isProUser)
     }
+
+    @Test
+    fun `showDeleteConfirmation sets showDeleteConfirmation true`() = runTest(testDispatcher) {
+        val viewModel = createViewModel()
+        testScheduler.advanceUntilIdle()
+
+        viewModel.showDeleteConfirmation()
+
+        assertTrue(viewModel.uiState.value.showDeleteConfirmation)
+    }
+
+    @Test
+    fun `dismissDeleteConfirmation resets delete state`() = runTest(testDispatcher) {
+        val viewModel = createViewModel()
+        testScheduler.advanceUntilIdle()
+
+        viewModel.showDeleteConfirmation()
+        viewModel.setDeleteConfirmationText("DELETE")
+        viewModel.dismissDeleteConfirmation()
+
+        assertFalse(viewModel.uiState.value.showDeleteConfirmation)
+        assertEquals("", viewModel.uiState.value.deleteConfirmationText)
+        assertTrue(viewModel.uiState.value.deleteIncludeBackup)
+    }
+
+    @Test
+    fun `deleteAllData clears sessions and penalties and resets settings`() = runTest(testDispatcher) {
+        val sessionRepo = FakeSessionRepository()
+        val settingsRepo = FakeSettingsRepository()
+        val viewModel = createViewModel(sessionRepo = sessionRepo, settingsRepo = settingsRepo)
+        testScheduler.advanceUntilIdle()
+
+        viewModel.deleteAllData()
+        testScheduler.advanceUntilIdle()
+
+        assertTrue(viewModel.uiState.value.deleteSuccess)
+        assertFalse(viewModel.uiState.value.isDeleting)
+    }
+
+    @Test
+    fun `deleteAllData with signed in and include backup deletes backup and signs out`() = runTest(testDispatcher) {
+        val authRepo = FakeAuthRepository(AccountState.SignedIn("Test", "test@test.com", null))
+        val backupRepo = FakeBackupRepository()
+        val viewModel = createViewModel(authRepo = authRepo, backupRepo = backupRepo)
+        testScheduler.advanceUntilIdle()
+
+        viewModel.deleteAllData()
+        testScheduler.advanceUntilIdle()
+
+        assertTrue(viewModel.uiState.value.deleteSuccess)
+    }
 }
 
 private class FakeBillingRepository(
@@ -264,5 +315,9 @@ private class FakeSettingsRepository(
 
     override suspend fun setFreeCustomDurationSeconds(seconds: Long?) {
         settingsFlow.value = settingsFlow.value.copy(freeCustomDurationSeconds = seconds)
+    }
+
+    override suspend fun resetToDefaults() {
+        settingsFlow.value = UserSettings()
     }
 }

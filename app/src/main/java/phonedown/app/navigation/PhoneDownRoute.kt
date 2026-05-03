@@ -26,4 +26,8 @@ sealed interface PhoneDownRoute {
     data object Pro : PhoneDownRoute {
         override val path = "pro"
     }
+
+    data object PrivacyPolicy : PhoneDownRoute {
+        override val path = "privacy_policy"
+    }
 }

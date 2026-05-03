@@ -14,4 +14,9 @@ data class SettingsUiState(
     val isSignedIn: Boolean = false,
     val isBackingUp: Boolean = false,
     val backupError: String? = null,
+    val showDeleteConfirmation: Boolean = false,
+    val deleteConfirmationText: String = "",
+    val deleteIncludeBackup: Boolean = true,
+    val isDeleting: Boolean = false,
+    val deleteSuccess: Boolean = false,
 )

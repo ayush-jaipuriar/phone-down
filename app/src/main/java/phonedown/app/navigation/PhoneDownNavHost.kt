@@ -124,6 +124,7 @@ private fun PhoneDownNavHost(
             SettingsRoute(
                 onAccountClick = { navController.navigate(PhoneDownRoute.Account.path) },
                 onProClick = { navController.navigate(PhoneDownRoute.Pro.path) },
+                onPrivacyPolicyClick = { navController.navigate(PhoneDownRoute.PrivacyPolicy.path) },
                 onThemeModeSelected = onThemeModeSelected,
             )
         }
@@ -132,6 +133,9 @@ private fun PhoneDownNavHost(
         }
         composable(PhoneDownRoute.Pro.path) {
             ProRoute(onBack = navController::popBackStack)
+        }
+        composable(PhoneDownRoute.PrivacyPolicy.path) {
+            phonedown.feature.settings.PrivacyPolicyScreen(onBack = navController::popBackStack)
         }
     }
 }

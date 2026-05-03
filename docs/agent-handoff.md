@@ -3,7 +3,7 @@
 ## 1. Goal
 - Build Phone Down, a native Android focus app where sessions only progress while the phone is face down and stable.
 - Keep following the repo's strict phase workflow: clarify, plan, approve, implement, verify, then report honestly.
-- Current objective: Phases 10-12 are complete. Settings, Auth/Billing/Paywall, and Backup/Restore are all implemented with fake repositories.
+- Current objective: Phases 10-13 are complete. Settings, Auth/Billing/Paywall, Backup/Restore, and Privacy/Security are all implemented with fake repositories.
 
 ## 2. Context The Next Agent Must Know
 - Read `AGENTS.md` first and follow it strictly.
@@ -31,7 +31,7 @@
   - Restore is a full-replace operation (not merge)
   - Backup/restore is Pro-gated and requires signed-in Google account
 
-## 3. Work Completed (Phases 10-12)
+## 3. Work Completed (Phases 10-13)
 
 ### Phase 10: Settings
 - SettingsScreen wired to SettingsRepository via Hilt ViewModel
@@ -55,9 +55,24 @@
 - Account UI with restore button, confirmation dialog, progress/success/error feedback
 - DataStore settings restore extension
 
+### Phase 13: Privacy, Security, And Data Deletion
+- Full privacy policy document (`docs/privacy-policy.md`)
+- Permissions documentation (`docs/permissions.md`)
+- Play Store data safety form documentation (`docs/play-store-data-safety.md`)
+- Privacy Policy screen in app (`PrivacyPolicyScreen` in `:feature:settings`)
+- Enhanced delete dialog with cloud backup option and "DELETE" confirmation
+- `resetToDefaults()` added to `SettingsRepository`
+- `SecureRandomUtils` in `:core:common`
+- `SecurityUtils` in `:app` (root detection, emulator detection, signature verification)
+- `SecureLogger` in `:app` (redacts emails, tokens, session IDs)
+- `CertificatePinningConfig` and `network_security_config.xml`
+- `EncryptedDataStore` wrapper prepared in `:core:datastore`
+- `proguard-rules.pro` with obfuscation and log stripping
+- Security documentation (`docs/security.md`) with threat model and OWASP mapping
+
 ## 4. Current Workspace State
 - Branch: `main`
-- Multiple commits since last push (Phases 10, 11, 12)
+- Multiple commits since last push (Phases 10, 11, 12, 13)
 - `git status`: clean working tree (all changes committed)
 - No secrets, tokens, credentials noticed in any commit
 
@@ -75,13 +90,15 @@
 - Real Google Sign-In, Play Billing, Google Drive API not integrated (deferred to post-V1)
 - Auto-backup scheduling not implemented (needs real Drive client)
 - Subscription expiry edge cases not handled
+- Certificate pinning placeholders must be replaced with real pins before release
+- Real encrypted DataStore requires `androidx.security:security-crypto` integration post-V1
 - Build-logic Gradle module has intermittent hash mismatch issues (clean `~/.gradle/caches` + `build-logic/convention/build` as workaround)
 - Lint (`lintDebug`) could not run due to build-logic issue (code compiles clean)
 - Physical-device QA for Phases 6, 7, 8 still parked
 
 ## 7. Exact Next Steps
 1. Push commits to remote if desired.
-2. Proceed to Phase 13 (Privacy, Security, Data Deletion) or Phase 14 (QA, Polish, Release Readiness).
+2. Proceed to Phase 14 (QA, Polish, Release Readiness).
 3. Or address any remaining concerns first.
 
 ## 8. Suggested Prompt For The Next Agent
@@ -89,9 +106,9 @@
 Continue work in the Phone Down project. First, read `AGENTS.md`, `docs/agent-handoff.md`, and inspect `git status`.
 
 Key current state:
-- Phases 10-12 are complete: Settings, Auth/Billing/Paywall, Backup/Restore.
+- Phases 10-13 are complete: Settings, Auth/Billing/Paywall, Backup/Restore, Privacy/Security.
 - All features use fake repositories (real external services deferred to post-V1).
 - App assembles and tests pass.
-- Remaining: Phase 13 (Privacy/Security), Phase 14 (QA/Polish), real device validation.
+- Remaining: Phase 14 (QA/Polish), real device validation.
 - Build-logic has intermittent issues; clean `~/.gradle/caches` + `build-logic/convention/build` as needed.
 ```

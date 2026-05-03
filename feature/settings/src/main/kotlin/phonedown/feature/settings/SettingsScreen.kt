@@ -48,11 +48,16 @@ fun SettingsScreen(
     onAccountClick: () -> Unit,
     onProClick: () -> Unit,
     onBackupClick: () -> Unit,
+    onPrivacyPolicyClick: () -> Unit,
+    onDeleteRequested: () -> Unit,
+    onDeleteConfirmed: () -> Unit,
+    onDeleteDismissed: () -> Unit,
+    onDeleteConfirmationTextChanged: (String) -> Unit,
+    onDeleteIncludeBackupChanged: (Boolean) -> Unit,
     onSoundToggled: (Boolean) -> Unit,
     onHapticsToggled: (Boolean) -> Unit,
     onThemeModeSelected: (ThemeMode) -> Unit,
 ) {
-    var showDeleteDialog by remember { mutableStateOf(false) }
 
     PhoneDownScreen(
         modifier =
@@ -94,29 +99,21 @@ fun SettingsScreen(
         Spacer(modifier = Modifier.height(PhoneDownSpacing.sm))
 
         PrivacySection(
-            onDeleteRequested = { showDeleteDialog = true },
+            onDeleteRequested = onDeleteRequested,
             onProClick = onProClick,
         )
 
         Spacer(modifier = Modifier.height(PhoneDownSpacing.sm))
 
-        AboutSection()
+        AboutSection(onPrivacyPolicyClick = onPrivacyPolicyClick)
 
-        if (showDeleteDialog) {
-            AlertDialog(
-                onDismissRequest = { showDeleteDialog = false },
-                title = { Text("Delete All Local Data") },
-                text = { Text("This will permanently delete all your session history, settings, and preferences. This action cannot be undone.") },
-                confirmButton = {
-                    TextButton(onClick = { showDeleteDialog = false }) {
-                        Text("Delete", color = PhoneDownDesign.colors.danger)
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showDeleteDialog = false }) {
-                        Text("Cancel")
-                    }
-                },
+        if (uiState.showDeleteConfirmation) {
+            DeleteConfirmationDialog(
+                uiState = uiState,
+                onConfirm = onDeleteConfirmed,
+                onDismiss = onDeleteDismissed,
+                onConfirmationTextChanged = onDeleteConfirmationTextChanged,
+                onIncludeBackupChanged = onDeleteIncludeBackupChanged,
             )
         }
     }
@@ -308,7 +305,7 @@ private fun PrivacySection(
 }
 
 @Composable
-private fun AboutSection() {
+private fun AboutSection(onPrivacyPolicyClick: () -> Unit) {
     SettingsSectionHeader(title = "About") {
         PhoneDownSettingRow(
             title = "Version",
@@ -317,6 +314,7 @@ private fun AboutSection() {
         PhoneDownSettingRow(
             title = "Privacy Policy",
             trailing = "View",
+            onClick = onPrivacyPolicyClick,
         )
         PhoneDownSettingRow(
             title = "Terms of Service",
@@ -357,6 +355,73 @@ private fun formatBackupTime(epochMillis: Long): String {
     return sdf.format(Date(epochMillis))
 }
 
+@Composable
+private fun DeleteConfirmationDialog(
+    uiState: SettingsUiState,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+    onConfirmationTextChanged: (String) -> Unit,
+    onIncludeBackupChanged: (Boolean) -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Delete All Data") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.md)) {
+                Text(
+                    "This will permanently delete:",
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Column(verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.xs)) {
+                    Text("• All focus sessions and history", style = MaterialTheme.typography.bodySmall)
+                    Text("• All penalty events", style = MaterialTheme.typography.bodySmall)
+                    Text("• All app settings and preferences", style = MaterialTheme.typography.bodySmall)
+                    if (uiState.isSignedIn) {
+                        Text("• Your account connection", style = MaterialTheme.typography.bodySmall)
+                    }
+                }
+
+                if (uiState.isSignedIn) {
+                    PhoneDownSwitchRow(
+                        title = "Also delete cloud backup",
+                        checked = uiState.deleteIncludeBackup,
+                        onCheckedChange = onIncludeBackupChanged,
+                    )
+                }
+
+                Text(
+                    "Type DELETE to confirm:",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = PhoneDownDesign.colors.textSecondary,
+                )
+
+                androidx.compose.material3.OutlinedTextField(
+                    value = uiState.deleteConfirmationText,
+                    onValueChange = onConfirmationTextChanged,
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = onConfirm,
+                enabled = uiState.deleteConfirmationText == "DELETE" && !uiState.isDeleting,
+            ) {
+                Text(
+                    if (uiState.isDeleting) "Deleting..." else "Delete",
+                    color = if (uiState.deleteConfirmationText == "DELETE") PhoneDownDesign.colors.danger else PhoneDownDesign.colors.textTertiary,
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss, enabled = !uiState.isDeleting) {
+                Text("Cancel")
+            }
+        },
+    )
+}
+
 @Preview(showBackground = true)
 @Composable
 @Suppress("FunctionName", "UnusedPrivateMember")
@@ -367,6 +432,12 @@ private fun SettingsScreenLightPreview() {
             onAccountClick = {},
             onProClick = {},
             onBackupClick = {},
+            onPrivacyPolicyClick = {},
+            onDeleteRequested = {},
+            onDeleteConfirmed = {},
+            onDeleteDismissed = {},
+            onDeleteConfirmationTextChanged = {},
+            onDeleteIncludeBackupChanged = {},
             onSoundToggled = {},
             onHapticsToggled = {},
             onThemeModeSelected = {},
@@ -384,6 +455,12 @@ private fun SettingsScreenDarkPreview() {
             onAccountClick = {},
             onProClick = {},
             onBackupClick = {},
+            onPrivacyPolicyClick = {},
+            onDeleteRequested = {},
+            onDeleteConfirmed = {},
+            onDeleteDismissed = {},
+            onDeleteConfirmationTextChanged = {},
+            onDeleteIncludeBackupChanged = {},
             onSoundToggled = {},
             onHapticsToggled = {},
             onThemeModeSelected = {},

@@ -190,6 +190,10 @@ private class FakeSettingsRepository(
     override suspend fun setFreeCustomDurationSeconds(seconds: Long?) {
         settingsFlow.value = settingsFlow.value.copy(freeCustomDurationSeconds = seconds)
     }
+
+    override suspend fun resetToDefaults() {
+        settingsFlow.value = UserSettings()
+    }
 }
 
 private class TestClock : Clock {

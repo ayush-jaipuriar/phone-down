@@ -24,4 +24,6 @@ interface SettingsRepository {
     suspend fun setLastBackupEpochMillis(epochMillis: Long?)
 
     suspend fun setFreeCustomDurationSeconds(seconds: Long?)
+
+    suspend fun resetToDefaults()
 }
