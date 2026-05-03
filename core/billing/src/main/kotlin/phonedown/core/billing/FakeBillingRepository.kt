@@ -10,14 +10,18 @@ import phonedown.core.model.ProProductType
 import phonedown.core.model.ProPurchase
 import phonedown.core.model.ProPurchaseState
 import phonedown.core.model.repository.BillingRepository
+import phonedown.core.model.repository.EntitlementCache
 
 /**
  * Fake billing repository for development and UI testing.
  *
  * Returns hardcoded products and simulates purchase flow with a 2-second delay.
+ * Reads initial entitlement from cache if available.
  * Not for production use.
  */
-class FakeBillingRepository : BillingRepository {
+class FakeBillingRepository(
+    private val cache: EntitlementCache? = null,
+) : BillingRepository {
 
     private val _products = MutableStateFlow(
         listOf(
@@ -52,6 +56,15 @@ class FakeBillingRepository : BillingRepository {
     private val _entitlement = MutableStateFlow<ProEntitlement>(ProEntitlement.Free)
     override val entitlement: Flow<ProEntitlement> = _entitlement.asStateFlow()
 
+    init {
+        // Read cached entitlement on initialization if available
+        kotlinx.coroutines.runBlocking {
+            cache?.read()?.let { cached ->
+                _entitlement.value = cached
+            }
+        }
+    }
+
     override suspend fun loadProducts() {
         // Products are already loaded in this fake implementation.
     }
@@ -65,9 +78,11 @@ class FakeBillingRepository : BillingRepository {
             purchaseTimeMillis = System.currentTimeMillis(),
         )
         _purchases.value = _purchases.value + purchase
-        _entitlement.value = ProEntitlement.Pro(
+        val newEntitlement = ProEntitlement.Pro(
             expiryDateMillis = if (product.type == ProProductType.Lifetime) null else System.currentTimeMillis() + 365L.daysInMillis(),
         )
+        _entitlement.value = newEntitlement
+        cache?.write(newEntitlement)
     }
 
     override suspend fun restorePurchases() {
@@ -76,9 +91,11 @@ class FakeBillingRepository : BillingRepository {
             val latestPurchase = _purchases.value.maxByOrNull { it.purchaseTimeMillis }
             if (latestPurchase != null) {
                 val product = _products.value.find { it.id == latestPurchase.productId }
-                _entitlement.value = ProEntitlement.Pro(
+                val newEntitlement = ProEntitlement.Pro(
                     expiryDateMillis = if (product?.type == ProProductType.Lifetime) null else System.currentTimeMillis() + 365L.daysInMillis(),
                 )
+                _entitlement.value = newEntitlement
+                cache?.write(newEntitlement)
             }
         }
     }

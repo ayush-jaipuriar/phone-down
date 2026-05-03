@@ -763,8 +763,12 @@ Purpose: explain the physical rule once, then get out of the user's way.
 - [x] Added passive upsell banner in Insights after 3+ sessions.
 - [x] Updated `SettingsViewModelTest` to include `FakeBillingRepository`.
 - [x] Verification: `:app:assembleDebug` PASS, `:app:testDebugUnitTest` PASS, `:feature:settings:testDebugUnitTest` PASS, `:feature:insights:testDebugUnitTest` PASS.
-- [ ] Entitlement caching in DataStore deferred — fake implementation keeps state in memory.
-- [ ] Real Google Sign-In and Play Billing Client swap deferred to post-V1.
+- [x] Added `ProEntitlementCache` in `:core:datastore` with 24-hour TTL, read/write/invalidation.
+- [x] Added `EntitlementCache` interface in `:core:model`.
+- [x] Updated `FakeBillingRepository` to read from cache on init and write on purchase/restore.
+- [x] Wired `ProEntitlementCache` into `AppRuntimeModule`.
+- [x] Added `ProEntitlementCacheTest` (6 tests: empty read, free write/read, pro with expiry, pro without expiry, valid check, clear).
+- [ ] Real Play Billing Client and Google Sign-In deferred to post-V1.
 - [ ] Post-session completion upsell teaser deferred.
 
 ## 13. Phase 9 - Insights Feature
@@ -958,9 +962,9 @@ Purpose: monetize advanced features while keeping the core focus ritual free and
 
 - [x] Pro entitlement model (`ProEntitlement.Free` / `ProEntitlement.Pro`).
 - [x] Fake entitlement updates on purchase/restore.
-- [ ] Local DataStore cache with 24-hour TTL (deferred).
+- [x] Local DataStore cache with 24-hour TTL (`ProEntitlementCache` in `:core:datastore`).
 - [ ] Expired/canceled subscription removes Pro access after entitlement expiry (deferred).
-- [ ] Lifetime purchase does not expire (fake implementation covers this).
+- [x] Lifetime purchase does not expire (fake implementation covers this).
 - [x] Do not backup billing entitlement as source of truth.
 
 ### Paywall Checklist

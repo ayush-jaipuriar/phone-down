@@ -187,7 +187,16 @@ object AppRuntimeModule {
 
     @Provides
     @Singleton
-    fun providesBillingRepository(): BillingRepository = FakeBillingRepository()
+    fun providesEntitlementCache(
+        dataStore: androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences>,
+    ): phonedown.core.model.repository.EntitlementCache =
+        phonedown.core.datastore.cache.ProEntitlementCache(dataStore)
+
+    @Provides
+    @Singleton
+    fun providesBillingRepository(
+        cache: phonedown.core.model.repository.EntitlementCache,
+    ): BillingRepository = FakeBillingRepository(cache)
 
     @Provides
     @Singleton
