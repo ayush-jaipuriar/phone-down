@@ -221,6 +221,10 @@ class ActiveSessionRuntimeCoordinator
                 ActiveSessionRuntimeState(
                     session = session,
                     latestValidity = validity,
+                    shouldKeepScreenAwake =
+                        session.state == SessionState.WaitingForPhoneDown ||
+                            session.state == SessionState.Arming ||
+                            session.state == SessionState.Active,
                     shouldDimScreen = session.state == SessionState.Arming || session.state == SessionState.Active,
                     shouldStopService =
                         session.result != null ||

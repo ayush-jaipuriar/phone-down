@@ -77,6 +77,8 @@ fun FocusScreen(
         ) {
             FocusRingSection(uiState = uiState)
 
+            SessionProgressSummary(uiState = uiState)
+
             AnimatedContent(
                 targetState = uiState.presentationState,
                 label = "FocusActions",
@@ -166,6 +168,50 @@ fun FocusScreen(
             onConfirm = { onEvent(FocusEvent.EndConfirmed) },
             onDismiss = { onEvent(FocusEvent.EndDismissed) },
         )
+    }
+}
+
+@Composable
+private fun SessionProgressSummary(uiState: FocusUiState) {
+    val visible =
+        uiState.presentationState == FocusPresentationState.WaitingForPhoneDown ||
+            uiState.presentationState == FocusPresentationState.Arming ||
+            uiState.presentationState == FocusPresentationState.Active ||
+            uiState.presentationState == FocusPresentationState.PausedByPickup ||
+            uiState.presentationState == FocusPresentationState.PausedByCall
+    if (!visible) {
+        return
+    }
+
+    val focusedSeconds = (uiState.selectedDurationSeconds - uiState.remainingSeconds).coerceAtLeast(0L)
+    PhoneDownCard(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            PhoneDownMetricCard(
+                label = "Focused",
+                value = formatDurationMinsSecs(focusedSeconds),
+                modifier = Modifier.weight(1f),
+                accent =
+                    if (focusedSeconds > 0L) {
+                        PhoneDownAccent.Progress
+                    } else {
+                        PhoneDownAccent.Neutral
+                    },
+            )
+            PhoneDownMetricCard(
+                label = "Remaining",
+                value = formatDurationMinsSecs(uiState.remainingSeconds),
+                modifier = Modifier.weight(1f),
+            )
+            PhoneDownMetricCard(
+                label = "State",
+                value = progressStateLabel(uiState.presentationState),
+                modifier = Modifier.weight(1f),
+                accent = progressStateAccent(uiState.presentationState),
+            )
+        }
     }
 }
 
@@ -325,7 +371,9 @@ private fun ResultState(
 }
 
 @Composable
-private fun SensorUnavailableState(onRetryClick: () -> Unit) {
+private fun SensorUnavailableState(
+    onRetryClick: () -> Unit,
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.md),
@@ -649,6 +697,26 @@ private fun topBarTitle(presentationState: FocusPresentationState): String =
         -> "Session complete"
 
         else -> "Phone Down"
+    }
+
+private fun progressStateLabel(presentationState: FocusPresentationState): String =
+    when (presentationState) {
+        FocusPresentationState.WaitingForPhoneDown -> "Waiting"
+        FocusPresentationState.Arming -> "Starting"
+        FocusPresentationState.Active -> "Active"
+        FocusPresentationState.PausedByPickup -> "Paused"
+        FocusPresentationState.PausedByCall -> "Call"
+        else -> "-"
+    }
+
+private fun progressStateAccent(presentationState: FocusPresentationState): PhoneDownAccent =
+    when (presentationState) {
+        FocusPresentationState.Active -> PhoneDownAccent.Success
+        FocusPresentationState.Arming -> PhoneDownAccent.Progress
+        FocusPresentationState.PausedByPickup,
+        FocusPresentationState.PausedByCall,
+        -> PhoneDownAccent.Warning
+        else -> PhoneDownAccent.Neutral
     }
 
 private fun formatDurationMinsSecs(seconds: Long): String {

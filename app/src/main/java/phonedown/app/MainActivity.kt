@@ -55,6 +55,7 @@ class MainActivity : ComponentActivity() {
             val runtimeState by runtimeCoordinator.state
                 .collectAsStateWithLifecycle(initialValue = phonedown.app.runtime.ActiveSessionRuntimeState())
             val shouldDimScreen = runtimeState.shouldDimScreen
+            val shouldKeepScreenAwake = runtimeState.shouldKeepScreenAwake
 
             val scope = rememberCoroutineScope()
             val initialRoute =
@@ -66,6 +67,11 @@ class MainActivity : ComponentActivity() {
                 }
 
             SideEffect {
+                if (shouldKeepScreenAwake) {
+                    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                } else {
+                    window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                }
                 window.attributes =
                     window.attributes.apply {
                         screenBrightness =

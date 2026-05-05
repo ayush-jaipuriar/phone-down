@@ -14,6 +14,7 @@ import phonedown.core.common.Clock
 import phonedown.core.common.IdGenerator
 import phonedown.core.model.FocusSession
 import phonedown.core.model.PenaltyEvent
+import phonedown.core.model.SessionResult
 import phonedown.core.model.SessionState
 import phonedown.core.model.ThemeMode
 import phonedown.core.model.UserSettings
@@ -116,6 +117,24 @@ class ActiveSessionRuntimeCoordinatorTest {
             coordinator.onTick()
 
             assertTrue(sessionRepository.upsertedSessions.size > persistedBeforeTicks)
+        }
+
+    @Test
+    fun endSessionFromWaitingStateInvalidatesSessionAndRequestsShutdown() =
+        runTest {
+            val sessionRepository = FakeSessionRepository()
+            val settingsRepository = FakeSettingsRepository()
+            val coordinator = createCoordinator(sessionRepository, settingsRepository)
+
+            coordinator.ensureSessionStarted()
+
+            val result = coordinator.endSession().state
+            val endedSession = result.session ?: error("ended session missing")
+
+            assertEquals(SessionState.Invalidated, endedSession.state)
+            assertEquals(SessionResult.Invalidated, endedSession.result)
+            assertTrue(result.shouldStopService)
+            assertFalse(coordinator.hasActiveRuntime())
         }
 
     private fun createCoordinator(

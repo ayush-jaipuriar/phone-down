@@ -146,6 +146,7 @@ class FocusSessionService : Service() {
                 android.util.Log.w("FocusSessionService", "Failed to flush session on destroy", e)
             }
         }
+        feedbackPlayer.release()
         serviceScope.cancel()
         super.onDestroy()
     }

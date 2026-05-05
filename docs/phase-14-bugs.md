@@ -198,7 +198,8 @@ This file documents bugs discovered during Phase 14 code review and manual devic
 
 | Device | Android Version | Tester | Date | Notes |
 |---|---|---|---|---|
-| | | | | |
+| Pixel_8 AVD | Android 14 (API 34) | Codex | 2026-05-03 | Onboarding completed successfully; relaunch skipped onboarding; notification permission deny/allow flows worked; start focus entered waiting state and foreground service/notification were posted; force-stop during waiting relaunched to idle and recorded an `Abandoned` session; sensor-dependent tests remain emulator-limited; notification shade action could not be exercised reliably; waiting-state controls appeared unresponsive to emulator tap/back input |
+| RMX3686 | Android 15 | Codex | 2026-05-05 | Real-device QA confirmed first-run onboarding, relaunch-to-Focus, notification permission deny/allow behavior, waiting-state foreground service start, posted notification with `End Session`, waiting-state `Cancel` returning to idle, force-stop/relaunch recovery that recorded an `Abandoned` session in Insights, and successful face-down progression through to a completed focus session with correct elapsed-time pickup reporting after the gravity-based flatness fix. `pm clear` was blocked by OEM shell restrictions, so clean-state resets used uninstall/reinstall. Notification shade action tapping, call interruption, and dimming feel still need direct physical interaction. |
 
 ## Edge Cases Checklist
 
@@ -248,3 +249,141 @@ This file documents bugs discovered during Phase 14 code review and manual devic
 - **Screenshots/Logs**:
 - **Suggested Fix**:
 ```
+
+## Emulator QA Notes (2026-05-03)
+
+### Confirmed Passes
+- First-run onboarding advanced through all 3 cards and routed to Focus home.
+- Relaunch after onboarding skipped onboarding and landed directly on Focus.
+- Notification permission flow worked:
+  - denying permission kept the app on idle Focus and did not start the foreground session
+  - granting permission allowed session start
+- Starting focus with permission granted entered the waiting state:
+  - heading: `Ready to focus?`
+  - body: `Place phone down to begin.`
+- Foreground runtime service was confirmed via `dumpsys activity services phonedown.app`.
+- Foreground notification was confirmed via `dumpsys notification --noredact` with:
+  - title `Phone Down`
+  - text `Waiting for phone down`
+  - `End Session` action present
+- Force-stop/relaunch recovery from the waiting state returned to idle Focus and the abandoned session appeared in Insights history as `Abandoned`.
+
+### Emulator Limitations / Inconclusive
+- Face-down sensor validity progression could not be validated honestly in the emulator.
+- Notification shade expansion was not reliable enough to validate tapping the notification `End Session` action.
+- Screenshot capture occasionally lagged the current Compose state, so UI tree dumps were more reliable than screenshots during transitions.
+
+### Bug #1: Waiting-State Controls Appear Unresponsive On Emulator
+- **Device**: Pixel_8 AVD
+- **Android Version**: 14 / API 34
+- **Severity**: Medium
+- **Reproduction Steps**:
+  1. Fresh install / clear app data
+  2. Complete onboarding
+  3. Start focus and grant notification permission
+  4. Wait for the `Ready to focus?` waiting state
+  5. Attempt to tap `Cancel`, `Insights`, `Settings`, or press system Back
+- **Expected Behavior**:
+  - `Cancel` should end the waiting session and stop the service
+  - bottom navigation and/or Back behavior should follow the intended runtime UX
+- **Actual Behavior**:
+  - multiple adb tap attempts derived from the UI tree produced no visible state change
+  - system Back also left the screen unchanged
+- **Screenshots/Logs**:
+  - UI tree continued to show the same waiting state after repeated interactions
+  - no app crash was observed
+- **Suggested Fix**:
+  - verify on a physical device first to rule out emulator-only input handling
+  - if reproducible on device, inspect the waiting-state composable and interaction layers for an input blocker or disabled click handlers during active runtime
+
+### Follow-up Investigation (2026-05-03)
+- Added focused automated coverage for the waiting-state end path:
+  - `feature/focus/src/androidTest/kotlin/phonedown/feature/focus/FocusScreenTest.kt`
+    - `focusScreenWaitingCancelTriggersEndEvent`
+  - `app/src/test/java/phonedown/app/runtime/ActiveSessionRuntimeCoordinatorTest.kt`
+    - `endSessionFromWaitingStateInvalidatesSessionAndRequestsShutdown`
+- Result:
+  - the runtime unit test passed, confirming that ending from `WaitingForPhoneDown` transitions to `Invalidated` and requests service shutdown
+  - static code inspection also confirmed the waiting-state `Cancel` button is wired to emit `FocusEvent.EndClicked`
+- Remaining uncertainty:
+  - a connected emulator instrumentation rerun was inconclusive because one attempt used an unsupported test filter and a later run failed after the emulator went offline
+  - current best hypothesis is that the observed manual-QA issue is either emulator-input-specific or lives in a UI integration layer above the tested event/runtime logic
+
+## Real Device QA Notes (RMX3686 / Android 15, 2026-05-05)
+
+### Confirmed Passes
+- Fresh-install onboarding advanced through all 3 cards and routed to Focus home successfully.
+- Relaunch after onboarding skipped onboarding and opened Focus directly.
+- Android 15 notification permission flow behaved correctly:
+  - denying permission kept the app on idle Focus and did not start the foreground service
+  - allowing permission on the next attempt started the focus runtime successfully
+- Starting focus with notification permission granted entered the waiting state:
+  - UI changed to `Ready to focus?`
+  - `FocusSessionService` was present in `dumpsys activity services`
+  - the foreground notification was present in `dumpsys notification --noredact`
+- Waiting-state `Cancel` worked on the real device:
+  - UI returned to idle Focus
+  - `dumpsys activity services phonedown.app` showed no running service afterward
+- Force-stop / relaunch recovery behaved coherently:
+  - after force-stopping from the waiting state, relaunch returned to idle Focus
+  - Insights session history recorded the interrupted waiting session as `Abandoned`
+  - the prior waiting-state cancel path appeared in Insights as `Invalidated`
+
+### Operational Notes
+- `adb shell pm clear phonedown.app` failed on this OEM device with a shell `CLEAR_APP_USER_DATA` restriction.
+- Clean-state resets for QA were performed with uninstall/reinstall instead of `pm clear`.
+- `adb shell monkey -p phonedown.app -c android.intent.category.LAUNCHER 1` brought the app to foreground more reliably than `am start` on this device.
+
+### Still Pending
+- True sensor-driven face-down progression and active-session timing validation
+- Notification shade tap on the `End Session` action
+- Call interruption behavior
+- Screen dimming feel / hardware-specific brightness behavior
+
+### Active Investigation (2026-05-05)
+- Real-device testing suggests the session is often stuck in `WaitingForPhoneDown` with `0` progress rather than transitioning into active focus.
+- Current working theory:
+  - the sensor gate is too strict for at least some real hardware
+  - the app effectively had two hold-still gates: a sensor stabilization delay and the domain arming countdown
+  - the user-visible result is "phone times out and relocks before focus ever truly starts"
+- Mitigations now being implemented:
+  - expose waiting-state sensor rejection diagnostics in the Focus UI
+  - loosen sensor thresholds and shorten pre-arming sensor stabilization so the domain `Arming` state remains the primary ritual countdown
+  - add proximity as a supporting face-down hint rather than a replacement for orientation/motion logic
+  - keep the screen awake during waiting/arming/active states so timeout does not sabotage startup
+- Follow-up UX fix:
+  - waiting, arming, active, pickup-paused, and call-paused states now show explicit `Focused`, `Remaining`, and `State` metrics
+  - this makes it clear after pickup whether real focus time counted, for example `Focused 00:30` and `Remaining 04:30` for a 5-minute session
+  - haptic feedback patterns were strengthened and the reusable tone generator now recreates itself after service cleanup
+
+### Additional Sensor Fix (2026-05-05)
+- User retested on RMX3686 and the app still remained in `Waiting` after roughly 1 minute face down:
+  - `Focused` stayed `00:00`
+  - `Remaining` stayed at the full selected duration
+  - after pickup, the UI showed `Screen is facing up.`
+- Root cause identified in code review:
+  - `AndroidFocusValidityMonitor` was feeding rotation-vector pitch/roll into the flatness check when available
+  - some devices can report a near-180-degree roll when the phone is perfectly face down
+  - this made a true face-down posture look "not flat" to the validity evaluator, preventing transition into `Arming` or `Active`
+- Fix implemented:
+  - `FocusValidityEvaluator` now uses gravity-derived tilt as the source of truth for face-down flatness and clamps any supplemental sensor tilt to that gravity value
+  - added a regression test for the inverted-roll case
+  - added debug-only `PhoneDownSensors` logcat transition logging so blind face-down QA can verify whether `FaceDownStabilizing` and `FaceDownStable` were reached
+- Retest result:
+  - user confirmed the updated APK successfully registered face-down focus on RMX3686
+  - a full focus session completed successfully
+  - midway pickup showed elapsed focus time progressing correctly
+  - this validates the gravity-derived flatness fix for the primary sensor-start blocker
+
+### Focus UI Cleanup (2026-05-05)
+- Removed the temporary in-UI sensor diagnosis copy that was added during hardware debugging:
+  - waiting and arming states no longer render temporary sensor-status text
+  - debug-only raw sensor traces remain in logcat under `PhoneDownSensors`
+  - user-facing progress metrics (`Focused`, `Remaining`, `State`) remain in place because they proved useful during real-world pickup validation
+
+### Notification Action Follow-up (2026-05-05)
+- The `End Session` notification action is wired to a non-exported `FocusSessionService` start request using `ACTION_END`.
+- `dumpsys notification --noredact` confirmed the notification action is posted correctly on-device.
+- A direct `adb shell am start-foreground-service ... -a phonedown.app.action.END_FOCUS_SESSION` attempt was rejected with `Requires permission not exported from uid 10087`, which is expected and desirable.
+- Remaining gap:
+  - the exact notification-shade tap interaction on RMX3686 still needs a literal manual device tap because adb cannot legitimately invoke that private entrypoint from outside the app.

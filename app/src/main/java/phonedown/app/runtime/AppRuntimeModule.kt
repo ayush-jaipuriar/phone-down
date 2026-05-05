@@ -8,6 +8,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import phonedown.app.BuildConfig
 import phonedown.core.auth.FakeAuthRepository
 import phonedown.core.backup.FakeBackupRepository
 import phonedown.core.billing.FakeBillingRepository
@@ -18,6 +19,7 @@ import phonedown.core.model.repository.BillingRepository
 import phonedown.core.model.repository.SessionRepository
 import phonedown.core.notifications.FocusFeedbackPlayer
 import phonedown.core.notifications.FocusForegroundNotificationManager
+import phonedown.core.sensors.FocusSensorConfig
 import phonedown.core.sensors.AndroidFocusValidityMonitor
 import phonedown.core.sensors.FocusValidityMonitor
 import phonedown.domain.session.EndSessionUseCase
@@ -97,7 +99,12 @@ object AppRuntimeModule {
     @Singleton
     fun providesFocusValidityMonitor(
         @ApplicationContext context: Context,
-    ): FocusValidityMonitor = AndroidFocusValidityMonitor(context)
+    ): FocusValidityMonitor =
+        AndroidFocusValidityMonitor(
+            context = context,
+            config = FocusSensorConfig(),
+            debugDiagnosticsEnabled = BuildConfig.DEBUG,
+        )
 
     @Provides
     @Singleton

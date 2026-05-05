@@ -7,5 +7,6 @@ data class FocusSensorSnapshot(
     val gravityZ: Float,
     val linearMotionMagnitude: Float,
     val tiltDegrees: Float?,
+    val proximityNear: Boolean?,
     val activeSensors: Set<SensorSource>,
 )

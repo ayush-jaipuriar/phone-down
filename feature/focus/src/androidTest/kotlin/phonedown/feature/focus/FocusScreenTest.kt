@@ -40,7 +40,10 @@ class FocusScreenTest {
         composeRule.setContent {
             PhoneDownTheme(themeMode = ThemeMode.Light) {
                 FocusScreen(
-                    uiState = FocusUiState(presentationState = FocusPresentationState.WaitingForPhoneDown),
+                    uiState =
+                        FocusUiState(
+                            presentationState = FocusPresentationState.WaitingForPhoneDown,
+                        ),
                     onEvent = {},
                 )
             }
@@ -48,6 +51,23 @@ class FocusScreenTest {
 
         composeRule.onNodeWithText("Place phone down to begin.").assertIsDisplayed()
         composeRule.onNodeWithText("Cancel").assertIsDisplayed()
+    }
+
+    @Test
+    fun focusScreenWaitingCancelTriggersEndEvent() {
+        var eventReceived: FocusEvent? = null
+        composeRule.setContent {
+            PhoneDownTheme(themeMode = ThemeMode.Light) {
+                FocusScreen(
+                    uiState = FocusUiState(presentationState = FocusPresentationState.WaitingForPhoneDown),
+                    onEvent = { eventReceived = it },
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("Cancel").performClick()
+
+        assert(eventReceived is FocusEvent.EndClicked)
     }
 
     @Test
@@ -67,6 +87,10 @@ class FocusScreenTest {
 
         composeRule.onNodeWithTag(FocusTestTags.TIMER).assertIsDisplayed()
         composeRule.onNodeWithText("End Session").assertIsDisplayed()
+        composeRule.onNodeWithText("Focused").assertIsDisplayed()
+        composeRule.onNodeWithText("05:00").assertIsDisplayed()
+        composeRule.onNodeWithText("Remaining").assertIsDisplayed()
+        composeRule.onNodeWithText("20:00").assertIsDisplayed()
     }
 
     @Test
@@ -190,6 +214,8 @@ class FocusScreenTest {
 
         composeRule.onNodeWithText("Focus paused").assertIsDisplayed()
         composeRule.onNodeWithText("+1:00").assertIsDisplayed()
+        composeRule.onNodeWithText("Focused").assertIsDisplayed()
+        composeRule.onNodeWithText("Remaining").assertIsDisplayed()
     }
 
     @Test

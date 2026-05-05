@@ -9,6 +9,7 @@ package phonedown.core.sensors
 
 import kotlin.math.abs
 import kotlin.math.acos
+import kotlin.math.min
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -46,6 +47,7 @@ class FocusValidityEvaluator(
                             currentMotionMagnitude = snapshot.linearMotionMagnitude,
                             rollingMovementScore = 0f,
                             stableForMillis = 0L,
+                            proximityNear = snapshot.proximityNear,
                             activeSensors = snapshot.activeSensors,
                         )
                     } else {
@@ -55,19 +57,29 @@ class FocusValidityEvaluator(
         }
 
         val normalizedZ = snapshot.gravityZ / gravityMagnitude
-        val tiltDegrees = snapshot.tiltDegrees ?: tiltFromNormalizedZ(normalizedZ)
+        val gravityTiltDegrees = tiltFromNormalizedZ(normalizedZ)
+        val tiltDegrees =
+            snapshot.tiltDegrees?.let { sensorTiltDegrees ->
+                min(sensorTiltDegrees, gravityTiltDegrees)
+            } ?: gravityTiltDegrees
         val orientationConfidence = (-normalizedZ).coerceIn(0f, 1f)
         val movementScore = rollingMovementScore()
+        val proximityAssistedFaceDown =
+            snapshot.proximityNear == true &&
+                normalizedZ <= config.proximityFaceDownZThreshold &&
+                tiltDegrees <= config.proximityFlatTiltThresholdDegrees &&
+                snapshot.linearMotionMagnitude < config.pocketMotionThreshold
 
         val faceDownCandidate =
             normalizedZ <= config.faceDownZThreshold && tiltDegrees <= config.flatTiltThresholdDegrees
+        val faceDownCandidateWithAssistance = faceDownCandidate || proximityAssistedFaceDown
         val faceUp = normalizedZ >= abs(config.faceDownZThreshold)
         val vertical = abs(normalizedZ) <= config.verticalZThreshold
         val moving =
             snapshot.linearMotionMagnitude >= config.pickupMotionThreshold ||
                 movementScore >= config.rollingMotionThreshold
         val pocketLike =
-            !faceDownCandidate &&
+            !faceDownCandidateWithAssistance &&
                 normalizedZ < -0.45f &&
                 tiltDegrees in config.flatTiltThresholdDegrees..config.pocketTiltThresholdDegrees &&
                 movementScore >= config.pocketMotionThreshold
@@ -89,7 +101,7 @@ class FocusValidityEvaluator(
                     Evaluation(FocusValidityReason.PocketLike, FocusStabilityState.Unstable, false, 0L)
                 }
 
-                !faceDownCandidate -> {
+                !faceDownCandidateWithAssistance -> {
                     stableCandidateStartedAtMillis = null
                     Evaluation(FocusValidityReason.UnknownOrientation, FocusStabilityState.Unstable, false, 0L)
                 }
@@ -138,6 +150,7 @@ class FocusValidityEvaluator(
                         currentMotionMagnitude = snapshot.linearMotionMagnitude,
                         rollingMovementScore = movementScore,
                         stableForMillis = stableForMillis,
+                        proximityNear = snapshot.proximityNear,
                         activeSensors = snapshot.activeSensors,
                     )
                 } else {

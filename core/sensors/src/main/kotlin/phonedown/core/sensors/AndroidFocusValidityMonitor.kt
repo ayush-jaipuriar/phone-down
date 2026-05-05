@@ -7,6 +7,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.util.Log
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -42,11 +43,14 @@ class AndroidFocusValidityMonitor(
 
     private val accelerometer: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
     private val rotationVector: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
+    private val proximity: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY)
 
     private var started = false
     private val gravity = FloatArray(3)
     private val linearAcceleration = FloatArray(3)
     private var latestTiltDegrees: Float? = null
+    private var latestProximityNear: Boolean? = null
+    private var lastLoggedValidityKey: String? = null
     private val activeSensors = mutableSetOf<SensorSource>()
 
     override fun start() {
@@ -67,6 +71,10 @@ class AndroidFocusValidityMonitor(
             sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_GAME)
             activeSensors += SensorSource.RotationVector
         }
+        proximity?.let { sensor ->
+            sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_GAME)
+            activeSensors += SensorSource.Proximity
+        }
     }
 
     override fun stop() {
@@ -82,6 +90,7 @@ class AndroidFocusValidityMonitor(
         when (event.sensor.type) {
             Sensor.TYPE_ACCELEROMETER -> handleAccelerometer(event)
             Sensor.TYPE_ROTATION_VECTOR -> handleRotationVector(event)
+            Sensor.TYPE_PROXIMITY -> handleProximity(event)
         }
     }
 
@@ -111,9 +120,12 @@ class AndroidFocusValidityMonitor(
                         linearAcceleration[2],
                     ),
                 tiltDegrees = latestTiltDegrees ?: tiltFromGravity(gravity[2]),
+                proximityNear = latestProximityNear,
                 activeSensors = activeSensors.toSet(),
             )
-        _validity.value = evaluator.evaluate(snapshot)
+        val result = evaluator.evaluate(snapshot)
+        logDebugTransition(result)
+        _validity.value = result
     }
 
     private fun handleRotationVector(event: SensorEvent) {
@@ -126,8 +138,13 @@ class AndroidFocusValidityMonitor(
         latestTiltDegrees = maxOf(abs(pitch), abs(roll))
     }
 
+    private fun handleProximity(event: SensorEvent) {
+        val maximumRange = event.sensor.maximumRange
+        latestProximityNear = event.values.firstOrNull()?.let { it < maximumRange }
+    }
+
     private fun publishUnavailable() {
-        _validity.value =
+        val result =
             FocusValidityResult(
                 isValid = false,
                 reason = FocusValidityReason.SensorsUnavailable,
@@ -136,6 +153,26 @@ class AndroidFocusValidityMonitor(
                 movementScore = null,
                 diagnostics = null,
             )
+        logDebugTransition(result)
+        _validity.value = result
+    }
+
+    private fun logDebugTransition(result: FocusValidityResult) {
+        if (!debugDiagnosticsEnabled) {
+            return
+        }
+        val diagnostics = result.diagnostics
+        val key = "${result.reason}:${result.stabilityState}:${result.isValid}"
+        if (key == lastLoggedValidityKey) {
+            return
+        }
+        lastLoggedValidityKey = key
+        Log.d(
+            "PhoneDownSensors",
+            "valid=${result.isValid} reason=${result.reason} stability=${result.stabilityState} " +
+                "tilt=${diagnostics?.tiltDegrees} z=${diagnostics?.normalizedZ} " +
+                "move=${diagnostics?.currentMotionMagnitude} prox=${diagnostics?.proximityNear}",
+        )
     }
 
     private fun magnitude(

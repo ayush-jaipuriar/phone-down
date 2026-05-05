@@ -34,10 +34,12 @@ data class FocusSensorDiagnostics(
     val currentMotionMagnitude: Float,
     val rollingMovementScore: Float,
     val stableForMillis: Long,
+    val proximityNear: Boolean?,
     val activeSensors: Set<SensorSource>,
 )
 
 enum class SensorSource {
     Accelerometer,
     RotationVector,
+    Proximity,
 }

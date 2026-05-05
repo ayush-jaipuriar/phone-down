@@ -24,6 +24,7 @@ class FocusFeedbackPlayer(
     private val context: Context,
 ) {
     private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    private var toneGenerator: ToneGenerator? = null
 
     fun play(
         event: FocusFeedbackEvent,
@@ -46,10 +47,7 @@ class FocusFeedbackPlayer(
                 FocusFeedbackEvent.SessionCompleted -> ToneGenerator.TONE_PROP_BEEP2 to 220
                 FocusFeedbackEvent.SessionBroken -> ToneGenerator.TONE_PROP_NACK to 140
             }
-        ToneGenerator(AudioManager.STREAM_NOTIFICATION, 50).let { generator ->
-            generator.startTone(tone, durationMs)
-            generator.release()
-        }
+        currentToneGenerator().startTone(tone, durationMs)
     }
 
     @SuppressLint("MissingPermission")
@@ -62,14 +60,39 @@ class FocusFeedbackPlayer(
                 @Suppress("DEPRECATION")
                 context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
             }
-        val timings =
+        if (!vibrator.hasVibrator()) {
+            return
+        }
+        val (timings, amplitudes) =
             when (event) {
-                FocusFeedbackEvent.PhoneDownDetected -> longArrayOf(0L, 20L)
-                FocusFeedbackEvent.TimerStarted -> longArrayOf(0L, 30L, 20L, 30L)
-                FocusFeedbackEvent.PhonePickedUp -> longArrayOf(0L, 50L)
-                FocusFeedbackEvent.SessionCompleted -> longArrayOf(0L, 40L, 20L, 70L)
-                FocusFeedbackEvent.SessionBroken -> longArrayOf(0L, 35L)
+                FocusFeedbackEvent.PhoneDownDetected ->
+                    longArrayOf(0L, 70L) to intArrayOf(0, VibrationEffect.DEFAULT_AMPLITUDE)
+                FocusFeedbackEvent.TimerStarted ->
+                    longArrayOf(0L, 80L, 45L, 90L) to intArrayOf(0, 180, 0, VibrationEffect.DEFAULT_AMPLITUDE)
+                FocusFeedbackEvent.PhonePickedUp ->
+                    longArrayOf(0L, 90L) to intArrayOf(0, VibrationEffect.DEFAULT_AMPLITUDE)
+                FocusFeedbackEvent.SessionCompleted ->
+                    longArrayOf(0L, 70L, 50L, 120L) to intArrayOf(0, 160, 0, VibrationEffect.DEFAULT_AMPLITUDE)
+                FocusFeedbackEvent.SessionBroken ->
+                    longArrayOf(0L, 120L, 60L, 120L) to intArrayOf(0, 220, 0, 220)
             }
-        vibrator.vibrate(VibrationEffect.createWaveform(timings, -1))
+        vibrator.vibrate(VibrationEffect.createWaveform(timings, amplitudes, -1))
+    }
+
+    @Synchronized
+    private fun currentToneGenerator(): ToneGenerator {
+        val existing = toneGenerator
+        if (existing != null) {
+            return existing
+        }
+        return ToneGenerator(AudioManager.STREAM_NOTIFICATION, 80).also {
+            toneGenerator = it
+        }
+    }
+
+    @Synchronized
+    fun release() {
+        toneGenerator?.release()
+        toneGenerator = null
     }
 }

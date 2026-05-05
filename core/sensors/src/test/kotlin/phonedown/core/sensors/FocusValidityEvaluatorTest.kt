@@ -122,9 +122,9 @@ class FocusValidityEvaluatorTest {
             evaluator.evaluate(
                 snapshot(
                     elapsedRealtimeMillis = 0L,
-                    gravityX = 3.0f,
+                    gravityX = 5.8f,
                     gravityY = 0.0f,
-                    gravityZ = -8.7f,
+                    gravityZ = -7.9f,
                     tiltDegrees = 38f,
                     linearMotionMagnitude = 0.6f,
                 ),
@@ -132,6 +132,64 @@ class FocusValidityEvaluatorTest {
 
         assertFalse(result.isValid)
         assertEquals(FocusValidityReason.PocketLike, result.reason)
+    }
+
+    @Test
+    fun proximityCanAssistBorderlineFaceDownDetection() {
+        val evaluator =
+            FocusValidityEvaluator(
+                config =
+                    config.copy(
+                        stableDurationMillis = 0L,
+                    ),
+            )
+
+        val result =
+            evaluator.evaluate(
+                snapshot(
+                    elapsedRealtimeMillis = 0L,
+                    gravityX = 1.8f,
+                    gravityY = 0.2f,
+                    gravityZ = -6.4f,
+                    tiltDegrees = 34f,
+                    linearMotionMagnitude = 0.05f,
+                    proximityNear = true,
+                    activeSensors = setOf(SensorSource.Accelerometer, SensorSource.Proximity),
+                ),
+            )
+
+        assertTrue(result.isValid)
+        assertEquals(FocusValidityReason.FaceDownStable, result.reason)
+    }
+
+    @Test
+    fun gravityFlatnessWinsWhenRotationVectorReportsInvertedRoll() {
+        val evaluator =
+            FocusValidityEvaluator(
+                config =
+                    config.copy(
+                        stableDurationMillis = 0L,
+                    ),
+                debugDiagnosticsEnabled = true,
+            )
+
+        val result =
+            evaluator.evaluate(
+                snapshot(
+                    elapsedRealtimeMillis = 0L,
+                    gravityX = 0.1f,
+                    gravityY = 0.1f,
+                    gravityZ = -9.8f,
+                    tiltDegrees = 179f,
+                    linearMotionMagnitude = 0.03f,
+                    activeSensors = setOf(SensorSource.Accelerometer, SensorSource.RotationVector),
+                ),
+            )
+
+        assertTrue(result.isValid)
+        assertEquals(FocusValidityReason.FaceDownStable, result.reason)
+        val diagnostics = requireNotNull(result.diagnostics)
+        assertTrue(diagnostics.tiltDegrees in 0f..2f)
     }
 
     @Test
@@ -186,6 +244,7 @@ class FocusValidityEvaluatorTest {
         gravityZ: Float = -9.6f,
         tiltDegrees: Float? = 6f,
         linearMotionMagnitude: Float = 0.04f,
+        proximityNear: Boolean? = null,
         activeSensors: Set<SensorSource> = setOf(SensorSource.Accelerometer),
     ): FocusSensorSnapshot =
         FocusSensorSnapshot(
@@ -195,6 +254,7 @@ class FocusValidityEvaluatorTest {
             gravityZ = gravityZ,
             linearMotionMagnitude = linearMotionMagnitude,
             tiltDegrees = tiltDegrees,
+            proximityNear = proximityNear,
             activeSensors = activeSensors,
         )
 }
