@@ -197,3 +197,75 @@ Do NOT expand scope or implement new features without asking the user. Follow th
   - installed the updated debug APK
   - verified on-device dark theme captures for Focus, Insights, and Settings
   - confirmed the stronger header hierarchy is visible in the real app, not just Paparazzi output
+
+## 12. 2026-05-06 Focus Idle Polish And Feedback Tuning
+
+- Applied one additional polish pass on the Focus idle screen to better match the updated mock:
+  - made the duration chooser feel more interactive by adding a downward chevron next to the preset label
+  - strengthened the `TODAY` summary label hierarchy so it reads less like faint metadata and more like a card heading
+- Implemented a more noticeable and more polished audio path for focus session feedback:
+  - replaced the quiet `ToneGenerator`-only start/end behavior with short packaged chime assets loaded through `SoundPool`
+  - retained tone fallback behavior in case the custom sounds fail to load on a device
+  - slightly strengthened the corresponding haptic waveforms for start and completion so the full feedback package feels more intentional
+- Files touched for this pass:
+  - `feature/focus/src/main/kotlin/phonedown/feature/focus/FocusScreen.kt`
+  - `core/notifications/src/main/kotlin/phonedown/core/notifications/FocusFeedbackPlayer.kt`
+  - `core/notifications/src/main/res/raw/focus_start_chime.wav`
+  - `core/notifications/src/main/res/raw/focus_complete_chime.wav`
+- Verification completed:
+  - `./gradlew --no-configuration-cache :app:assembleDebug`
+  - `./gradlew --no-configuration-cache :feature:focus:recordPaparazziDebug`
+  - `./gradlew --no-configuration-cache :feature:focus:verifyPaparazziDebug`
+- Device update completed:
+  - installed updated debug APK on `192.168.1.14:40565`
+  - next manual check needed from the user: judge start/end sound audibility and feel on real hardware
+
+## 13. 2026-05-06 Focus Header Removal And Premium Sound Revision
+
+- Refined the Focus screen further based on live-feedback review:
+  - removed the redundant top-left `Phone Down` header from the Focus screen entirely instead of leaving an empty top bar
+  - this intentionally shifts the ring/content upward and makes the screen feel cleaner and less repetitive now that bottom navigation already anchors context
+- Reworked the focus start/end cues to feel louder, warmer, and more premium:
+  - regenerated both packaged chime assets with fuller lower-register tones, staggered harmonic layers, gentler fades, and light echo for a more polished feel
+  - kept `SoundPool` for low-latency playback, but raised the playback priority and strengthened fallback behavior
+  - increased start/completion haptic confidence so the audio and touch feedback feel like one designed gesture
+  - switched the custom audio content type to `CONTENT_TYPE_MUSIC` while keeping sonification usage, which helps the cues feel less like sterile system beeps
+- Files touched for this pass:
+  - `feature/focus/src/main/kotlin/phonedown/feature/focus/FocusScreen.kt`
+  - `core/notifications/src/main/kotlin/phonedown/core/notifications/FocusFeedbackPlayer.kt`
+  - `core/notifications/src/main/res/raw/focus_start_chime.wav`
+  - `core/notifications/src/main/res/raw/focus_complete_chime.wav`
+  - `feature/focus/src/test/snapshots/images/phonedown.feature.focus_FocusScreenScreenshotTest_idleState_Light.png`
+  - `feature/focus/src/test/snapshots/images/phonedown.feature.focus_FocusScreenScreenshotTest_idleState_Dark.png`
+  - `feature/focus/src/test/snapshots/images/phonedown.feature.focus_FocusScreenScreenshotTest_activeState_Dark.png`
+  - `feature/focus/src/test/snapshots/images/phonedown.feature.focus_FocusScreenScreenshotTest_pausedState_Dark.png`
+- Verification completed:
+  - `./gradlew --no-configuration-cache :app:assembleDebug`
+  - `./gradlew --no-configuration-cache :feature:focus:recordPaparazziDebug`
+  - `./gradlew --no-configuration-cache :feature:focus:verifyPaparazziDebug`
+  - `git diff --check`
+- Device update completed:
+  - installed updated debug APK on `192.168.1.14:40565`
+  - next manual check needed from the user: evaluate whether the start/end sound is now loud enough and premium enough on real hardware
+
+## 14. 2026-05-06 Audible Cue Cleanup And Portrait Lock
+
+- Investigated user-reported mismatch where the app still played a generic beep even after the premium start/end chimes were added.
+- Root cause:
+  - the runtime emits a distinct `PhoneDownDetected` feedback event before `TimerStarted`
+  - that early event still used the generic tone path, so users could hear a stray system-like beep before the nicer focus-start cue
+- Fix applied:
+  - `PhoneDownDetected` is now haptic-only and no longer plays an audible cue
+  - meaningful milestone sounds remain on the richer custom path for `TimerStarted` and `SessionCompleted`
+- Locked the app to portrait orientation at the Android activity level:
+  - `MainActivity` now declares `android:screenOrientation="portrait"`
+  - this keeps the app in portrait even when device auto-rotate is enabled
+- Files touched for this pass:
+  - `core/notifications/src/main/kotlin/phonedown/core/notifications/FocusFeedbackPlayer.kt`
+  - `app/src/main/AndroidManifest.xml`
+- Verification completed:
+  - `./gradlew --no-configuration-cache :app:assembleDebug`
+  - `git diff --check`
+- Next manual check needed from the user:
+  - confirm the stray beep is gone and only the intended premium cue remains
+  - confirm rotating the device no longer rotates the app UI

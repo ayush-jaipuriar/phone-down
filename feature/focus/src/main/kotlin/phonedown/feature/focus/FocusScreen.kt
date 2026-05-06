@@ -17,7 +17,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
@@ -53,7 +56,6 @@ import phonedown.core.designsystem.PhoneDownSectionHeaderTextStyle
 import phonedown.core.designsystem.PhoneDownSpacing
 import phonedown.core.designsystem.PhoneDownTheme
 import phonedown.core.designsystem.PhoneDownTimerTextStyle
-import phonedown.core.designsystem.PhoneDownTopBar
 import phonedown.core.model.ThemeMode
 import phonedown.feature.focus.state.FocusEvent
 import phonedown.feature.focus.state.FocusPresentationState
@@ -75,12 +77,6 @@ fun FocusScreen(
                 .fillMaxSize()
                 .testTag(FocusTestTags.SCREEN),
     ) {
-        PhoneDownTopBar(
-            title = topBarTitle(uiState.presentationState),
-        )
-
-        Spacer(modifier = Modifier.height(PhoneDownSpacing.xl))
-
         Column(
             modifier =
                 Modifier
@@ -280,15 +276,26 @@ private fun IdleActions(
             onClick = onStartClick,
             modifier = Modifier.testTag(FocusTestTags.START_BUTTON),
         )
-        Text(
-            text = "Default ${selectedDurationSeconds / 60L} min",
-            color = PhoneDownDesign.colors.textSecondary,
-            style = MaterialTheme.typography.labelMedium,
+        Row(
             modifier =
                 Modifier
                     .clickable(onClick = onDurationSelectorClick)
                     .padding(PhoneDownSpacing.xs),
-        )
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(PhoneDownSpacing.xxs),
+        ) {
+            Text(
+                text = "Default ${selectedDurationSeconds / 60L} min",
+                color = PhoneDownDesign.colors.textSecondary,
+                style = MaterialTheme.typography.labelMedium,
+            )
+            Icon(
+                imageVector = Icons.Rounded.KeyboardArrowDown,
+                contentDescription = "Choose duration",
+                tint = PhoneDownDesign.colors.textTertiary,
+                modifier = Modifier.size(16.dp),
+            )
+        }
     }
 }
 
@@ -880,8 +887,8 @@ private fun TodaySummary(uiState: FocusUiState) {
         Column(verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.sm)) {
             Text(
                 text = "TODAY",
-                color = PhoneDownDesign.colors.textTertiary,
-                style = MaterialTheme.typography.labelSmall,
+                color = PhoneDownDesign.colors.textSecondary,
+                style = PhoneDownCardHeaderTextStyle,
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -1160,25 +1167,6 @@ private fun EndConfirmationSheet(
         }
     }
 }
-
-private fun topBarTitle(presentationState: FocusPresentationState): String =
-    when (presentationState) {
-        FocusPresentationState.Idle -> "Phone Down"
-        FocusPresentationState.ReadyToFocus,
-        FocusPresentationState.WaitingForPhoneDown,
-        FocusPresentationState.Arming,
-        -> "Ready to focus?"
-
-        FocusPresentationState.Active -> "Focusing"
-        FocusPresentationState.PausedByUser -> "Focus paused"
-        FocusPresentationState.PausedByPickup -> "Phone Picked Up"
-        FocusPresentationState.PausedByCall -> "Call in progress"
-        FocusPresentationState.CompletedClean,
-        FocusPresentationState.CompletedInterrupted,
-        -> "Session complete"
-
-        else -> "Phone Down"
-    }
 
 private fun progressStateLabel(presentationState: FocusPresentationState): String =
     when (presentationState) {
