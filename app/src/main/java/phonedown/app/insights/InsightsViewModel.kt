@@ -8,28 +8,20 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import phonedown.domain.insights.AdvancedInsights
-import phonedown.domain.insights.BestDayResult
-import phonedown.domain.insights.BestHourResult
-import phonedown.domain.insights.FocusQualityResult
+import phonedown.core.model.ProEntitlement
+import phonedown.core.model.repository.BillingRepository
 import phonedown.domain.insights.GetAdvancedInsightsUseCase
 import phonedown.domain.insights.GetBestHourUseCase
 import phonedown.domain.insights.GetBestWeekdayUseCase
+import phonedown.domain.insights.GetDayInsightsUseCase
 import phonedown.domain.insights.GetFocusQualityUseCase
 import phonedown.domain.insights.GetHeatmapDataUseCase
 import phonedown.domain.insights.GetHistoryUseCase
+import phonedown.domain.insights.GetHourlyFocusUseCase
 import phonedown.domain.insights.GetStreakUseCase
 import phonedown.domain.insights.GetTodayInsightsUseCase
 import phonedown.domain.insights.GetTrendsUseCase
 import phonedown.domain.insights.GetWeeklyInsightsUseCase
-import phonedown.domain.insights.HeatmapDay
-import phonedown.domain.insights.InsightSummary
-import phonedown.domain.insights.SessionHistoryItem
-import phonedown.domain.insights.StreakResult
-import phonedown.domain.insights.TrendPoint
-import phonedown.domain.insights.WeeklyInsight
-import phonedown.core.model.ProEntitlement
-import phonedown.core.model.repository.BillingRepository
 import phonedown.feature.insights.InsightsUiState
 import javax.inject.Inject
 
@@ -47,56 +39,73 @@ class InsightsViewModel
         private val getBestDay: GetBestWeekdayUseCase,
         private val getTrends: GetTrendsUseCase,
         private val getAdvancedInsights: GetAdvancedInsightsUseCase,
+        private val getHourlyFocus: GetHourlyFocusUseCase,
+        private val getDayInsights: GetDayInsightsUseCase,
         billingRepository: BillingRepository,
     ) : ViewModel() {
-    private val _uiState = MutableStateFlow(InsightsUiState())
-    val uiState: StateFlow<InsightsUiState> = _uiState.asStateFlow()
+        private val _uiState = MutableStateFlow(InsightsUiState())
+        val uiState: StateFlow<InsightsUiState> = _uiState.asStateFlow()
 
-    private val entitlementFlow = billingRepository.entitlement
+        private val entitlementFlow = billingRepository.entitlement
 
-    init {
-        refresh()
-    }
+        init {
+            refresh()
+        }
 
-    fun refresh() {
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
+        fun onDaySelected(epochDay: Long) {
+            _uiState.value = _uiState.value.copy(selectedDateEpochDay = epochDay)
+            viewModelScope.launch {
+                val summary = getDayInsights(epochDay)
+                _uiState.value = _uiState.value.copy(selectedDaySummary = summary)
+            }
+        }
 
-            val today = getTodayInsights()
-            val weekly = getWeeklyInsights()
-            val focusQuality = getFocusQuality()
-            val streak = getStreak()
-            val history = getHistory()
-            val heatmap = getHeatmapData()
-            val bestHour = getBestHour()
-            val bestDay = getBestDay()
-            val trends = getTrends()
-            val advanced = getAdvancedInsights()
-            val entitlement = entitlementFlow.first()
+        fun onBackToToday() {
+            _uiState.value = _uiState.value.copy(selectedDateEpochDay = null, selectedDaySummary = null)
+        }
 
-            val isEmpty = today.sessionCount == 0 &&
-                weekly == null &&
-                focusQuality == null
+        fun refresh() {
+            viewModelScope.launch {
+                _uiState.value = _uiState.value.copy(isLoading = true)
 
-            _uiState.value =
-                InsightsUiState(
-                    today = today,
-                    weekly = weekly,
-                    focusQuality = focusQuality,
-                    streak = streak,
-                    history = history,
-                    heatmap = heatmap,
-                    bestHour = bestHour,
-                    bestDay = bestDay,
-                    completionRateTrend = trends.completionRate,
-                    cleanRatioTrend = trends.cleanRatio,
-                    interruptionTrend = trends.interruptions,
-                    focusQualityTrend = trends.focusQuality,
-                    advanced = advanced,
-                    isEmpty = isEmpty,
-                    isLoading = false,
-                    isProUser = entitlement is ProEntitlement.Pro,
-                )
+                val today = getTodayInsights()
+                val weekly = getWeeklyInsights()
+                val focusQuality = getFocusQuality()
+                val streak = getStreak()
+                val history = getHistory()
+                val heatmap = getHeatmapData()
+                val bestHour = getBestHour()
+                val bestDay = getBestDay()
+                val trends = getTrends()
+                val advanced = getAdvancedInsights()
+                val hourly = getHourlyFocus()
+                val entitlement = entitlementFlow.first()
+
+                val isEmpty =
+                    today.sessionCount == 0 &&
+                        weekly == null &&
+                        focusQuality == null
+
+                _uiState.value =
+                    InsightsUiState(
+                        today = today,
+                        weekly = weekly,
+                        focusQuality = focusQuality,
+                        streak = streak,
+                        history = history,
+                        heatmap = heatmap,
+                        bestHour = bestHour,
+                        bestDay = bestDay,
+                        completionRateTrend = trends.completionRate,
+                        cleanRatioTrend = trends.cleanRatio,
+                        interruptionTrend = trends.interruptions,
+                        focusQualityTrend = trends.focusQuality,
+                        advanced = advanced,
+                        isEmpty = isEmpty,
+                        isLoading = false,
+                        isProUser = entitlement is ProEntitlement.Pro,
+                        hourlyFocus = hourly,
+                    )
+            }
         }
     }
-}

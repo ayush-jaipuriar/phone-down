@@ -199,7 +199,7 @@ This file documents bugs discovered during Phase 14 code review and manual devic
 | Device | Android Version | Tester | Date | Notes |
 |---|---|---|---|---|
 | Pixel_8 AVD | Android 14 (API 34) | Codex | 2026-05-03 | Onboarding completed successfully; relaunch skipped onboarding; notification permission deny/allow flows worked; start focus entered waiting state and foreground service/notification were posted; force-stop during waiting relaunched to idle and recorded an `Abandoned` session; sensor-dependent tests remain emulator-limited; notification shade action could not be exercised reliably; waiting-state controls appeared unresponsive to emulator tap/back input |
-| RMX3686 | Android 15 | Codex | 2026-05-05 | Real-device QA confirmed first-run onboarding, relaunch-to-Focus, notification permission deny/allow behavior, waiting-state foreground service start, posted notification with `End Session`, waiting-state `Cancel` returning to idle, force-stop/relaunch recovery that recorded an `Abandoned` session in Insights, and successful face-down progression through to a completed focus session with correct elapsed-time pickup reporting after the gravity-based flatness fix. `pm clear` was blocked by OEM shell restrictions, so clean-state resets used uninstall/reinstall. Notification shade action tapping, call interruption, and dimming feel still need direct physical interaction. |
+| RMX3686 | Android 15 | Codex + User | 2026-05-06 | Real-device QA confirmed fresh-install onboarding, relaunch-to-Focus, Insights/Settings surface rendering, notification permission deny/allow behavior, no foreground service before permission grant, waiting-state foreground service start, posted notification with `End Session`, waiting-state `Cancel` returning to idle, background-home/relaunch continuity back into waiting state, force-stop/relaunch recovery back to idle, successful face-down progression through to a completed focus session with correct elapsed-time pickup reporting after the gravity-based flatness fix, notification shade `End Session` action working, and dimming feel working acceptably on-device. `pm clear` was blocked by OEM shell restrictions, so clean-state resets used uninstall/reinstall. PSTN call interruption is still unverified because the test device has no SIM. |
 
 ## Edge Cases Checklist
 
@@ -258,6 +258,35 @@ This file documents bugs discovered during Phase 14 code review and manual devic
 - Notification permission flow worked:
   - denying permission kept the app on idle Focus and did not start the foreground session
   - granting permission allowed session start
+
+## Real Device QA Notes (RMX3686, 2026-05-06)
+
+### Confirmed Passes
+- Fresh uninstall/reinstall reproduced first-run onboarding and advanced through all 3 cards into Focus home.
+- Relaunch after onboarding skipped onboarding and returned directly to Focus.
+- Insights tab rendered correctly with the weekly strip, Today summary, 7 Day Overview, and Pro upsell surface.
+- Settings tab rendered correctly with Focus and Account sections, theme segmented control, toggles, and navigable rows.
+- Notification permission gating behaved correctly:
+  - before grant, `dumpsys activity services phonedown.app` showed no running service
+  - denying permission returned the app to idle Focus and did not start the foreground session
+  - granting permission started the focus runtime and moved the app into the waiting state
+- Waiting-state runtime wiring behaved correctly:
+  - foreground `FocusSessionService` started
+  - `phone_down_focus_runtime` notification was posted with the `End Session` action present in `dumpsys notification`
+  - waiting-state UI showed `Ready to focus?`, `Focused 00:00`, `Remaining 25:00`, `State Waiting`, and `Cancel`
+- Waiting-state `Cancel` returned the app to idle and stopped the foreground service.
+- Background continuity behaved correctly:
+  - pressing Home left the foreground service running
+  - relaunching the app returned it to the same waiting state instead of dropping the session
+- Force-stop recovery behaved predictably:
+  - `am force-stop phonedown.app` removed the service
+  - relaunch returned the app to idle Focus rather than a stuck intermediate state
+
+### Still Pending Direct Physical Interaction
+- Incoming-call interruption handling (currently blocked because the test device has no SIM)
+
+### Notable Observation
+- Session totals increased after waiting-state cancel / force-stop recovery flows. This may be acceptable if abandoned or invalid attempts are intentionally counted in aggregate session metrics, but it should be sanity-checked against the intended product semantics for the `Sessions` counter in Insights and Focus home.
 - Starting focus with permission granted entered the waiting state:
   - heading: `Ready to focus?`
   - body: `Place phone down to begin.`

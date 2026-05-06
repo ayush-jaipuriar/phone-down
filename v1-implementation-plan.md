@@ -1400,3 +1400,12 @@ These are not blockers because product direction has been clarified, but they sh
 - [ ] Exact Play Store privacy/data safety declarations.
 - [ ] Whether export ships as a visible V1 Pro feature or only as a foundation behind settings.
 - [ ] Whether app restart recovery should classify as broken or abandoned in each lifecycle edge case.
+
+### 2026-05-06 - UI Polish And Mockup Alignment Pass
+
+- Changed: Landed the full 16-item UI/UX polish pass to bring Focus, Insights, Settings, navigation, and completion states much closer to the original light/dark mockups.
+- Files modified: `app/`, `feature/focus/`, `feature/insights/`, `feature/settings/`, `core/designsystem/`, `core/charts/`, `domain/insights/`, `gradle/libs.versions.toml`, and Paparazzi snapshot baselines.
+- Functions/classes/components touched: `PhoneDownButton`, `PhoneDownCard`, `PhoneDownProgressRing`, `PhoneDownBottomTab`, `FocusScreen`, `FocusViewModel`, `InsightsContent`, `InsightsViewModel`, `InsightsCalendarStrip`, `PhoneDownHourlyChart`, `SettingsScreen`, `PhoneDownSettingRow`, `GetHourlyFocusUseCase`, and `GetDayInsightsUseCase`.
+- Why: Close the gap between the implemented Compose surfaces and the product mockups while preserving the existing runtime/session architecture and avoiding behavioral regressions.
+- Tests run: `./gradlew :app:assembleDebug`, `./gradlew :domain:insights:test`, `./gradlew :feature:focus:testDebugUnitTest`, `./gradlew :feature:insights:testDebugUnitTest`, `./gradlew :feature:settings:testDebugUnitTest`, `./gradlew :feature:onboarding:testDebugUnitTest`, `./gradlew :app:testDebugUnitTest`, and `./gradlew :feature:*:verifyPaparazziDebug`.
+- Known follow-up: `./scripts/check.sh` still reports the repo's existing ktlint disagreements around PascalCase composables and formatting style; Pause/Add Time are still UI-only and not yet wired into the session engine.

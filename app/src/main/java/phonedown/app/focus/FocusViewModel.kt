@@ -33,6 +33,7 @@ class FocusViewModel
         sessionRepository: SessionRepository,
     ) : ViewModel() {
         private val localViewState = MutableStateFlow(LocalViewState())
+        private var interruptionStartTime: Long? = null
 
         private val startOfDayMillis =
             LocalDate
@@ -56,7 +57,28 @@ class FocusViewModel
 
                 val selectedDurationSeconds = session?.plannedDurationSeconds ?: localView.temporaryDurationSeconds ?: defaultDuration
                 val remainingSeconds =
-                    session?.let { (it.requiredDurationSeconds - it.validFocusSeconds).coerceAtLeast(0L) } ?: selectedDurationSeconds
+                    (session?.let { (it.requiredDurationSeconds - it.validFocusSeconds).coerceAtLeast(0L) } ?: selectedDurationSeconds) +
+                        localView.addTimeSeconds
+
+                // Track grace period for interruption screen
+                val isPausedByPickup = session?.state == SessionState.PausedByPickup
+                if (isPausedByPickup && interruptionStartTime == null) {
+                    interruptionStartTime = System.currentTimeMillis()
+                } else if (!isPausedByPickup) {
+                    interruptionStartTime = null
+                }
+                val graceRemainingSeconds =
+                    if (isPausedByPickup) {
+                        val startMs = interruptionStartTime
+                        if (startMs != null) {
+                            val elapsed = (System.currentTimeMillis() - startMs) / 1000L
+                            (5L - elapsed).coerceAtLeast(0L)
+                        } else {
+                            0L
+                        }
+                    } else {
+                        0L
+                    }
 
                 val todayCleanCount = todaySessions.count { it.clean && it.result != null && it.result != SessionResult.Broken }
                 val todayTotalFocus = todaySessions.sumOf { it.validFocusSeconds }
@@ -70,12 +92,14 @@ class FocusViewModel
                     penaltySeconds = session?.penaltySeconds ?: 0L,
                     interruptionCount = session?.interruptionCount ?: 0,
                     clean = session?.clean ?: true,
+                    graceRemainingSeconds = graceRemainingSeconds,
                     todayTotalFocusSeconds = todayTotalFocus,
                     todaySessionsCount = todayCount,
                     todayCleanCount = todayCleanCount,
                     freeCustomDurationSeconds = settings.freeCustomDurationSeconds,
                     showDurationSelector = localView.showDurationSelector,
                     showEndConfirmation = localView.showEndConfirmation,
+                    showAddTime = localView.showAddTime,
                 )
             }.stateIn(
                 scope = viewModelScope,
@@ -93,8 +117,12 @@ class FocusViewModel
 
             val session = runtimeState.session ?: return FocusPresentationState.Idle
 
+            if (localView.pausedByUser && session.state == SessionState.Active) {
+                return FocusPresentationState.PausedByUser
+            }
+
             return when (session.state) {
-                SessionState.Created -> FocusPresentationState.Idle
+                SessionState.Created -> FocusPresentationState.ReadyToFocus
                 SessionState.WaitingForPhoneDown -> FocusPresentationState.WaitingForPhoneDown
                 SessionState.Arming -> FocusPresentationState.Arming
                 SessionState.Active -> FocusPresentationState.Active
@@ -139,6 +167,21 @@ class FocusViewModel
                     }
                 }
                 FocusEvent.RetrySensorsClicked -> Unit
+                FocusEvent.ReadyBackClicked -> {
+                    viewModelScope.launch { runtimeCoordinator.endSession() }
+                }
+                FocusEvent.PauseClicked -> {
+                    localViewState.update { it.copy(pausedByUser = true) }
+                }
+                FocusEvent.ResumeClicked -> {
+                    localViewState.update { it.copy(pausedByUser = false) }
+                }
+                FocusEvent.AddTimeClicked -> {
+                    localViewState.update { it.copy(showAddTime = !it.showAddTime) }
+                }
+                is FocusEvent.AddTimeSelected -> {
+                    localViewState.update { it.copy(showAddTime = false, addTimeSeconds = it.addTimeSeconds + event.minutes * 60L) }
+                }
                 FocusEvent.BackToHomeClicked -> {
                     viewModelScope.launch {
                         runtimeCoordinator.clearFinishedRuntime()
@@ -151,5 +194,8 @@ class FocusViewModel
             val showDurationSelector: Boolean = false,
             val showEndConfirmation: Boolean = false,
             val temporaryDurationSeconds: Long? = null,
+            val pausedByUser: Boolean = false,
+            val addTimeSeconds: Long = 0,
+            val showAddTime: Boolean = false,
         )
     }

@@ -1,16 +1,15 @@
 package phonedown.core.charts
 
+import android.graphics.Paint
 import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
-import android.graphics.Paint
 import phonedown.core.designsystem.PhoneDownDesign
 
 @Composable
@@ -29,11 +28,12 @@ fun PhoneDownLineChart(
         val chartHeight = size.height - labelAreaHeight
         val chartWidth = size.width
 
-        val points = values.mapIndexed { index, value ->
-            val x = chartWidth * index / (values.size - 1).coerceAtLeast(1)
-            val y = chartHeight - (value / maxValue) * chartHeight
-            Offset(x, y)
-        }
+        val points =
+            values.mapIndexed { index, value ->
+                val x = chartWidth * index / (values.size - 1).coerceAtLeast(1)
+                val y = chartHeight - (value / maxValue) * chartHeight
+                Offset(x, y)
+            }
 
         if (points.size >= 2) {
             val path = Path()
@@ -63,9 +63,11 @@ fun PhoneDownLineChart(
         labels.forEachIndexed { index, label ->
             if (index < values.size) {
                 val x = chartWidth * index / (values.size - 1).coerceAtLeast(1)
-                val textWidth = Paint().apply {
-                    textSize = 10f * density
-                }.measureText(label)
+                val textWidth =
+                    Paint()
+                        .apply {
+                            textSize = 10f * density
+                        }.measureText(label)
 
                 drawContext.canvas.nativeCanvas.drawText(
                     label,

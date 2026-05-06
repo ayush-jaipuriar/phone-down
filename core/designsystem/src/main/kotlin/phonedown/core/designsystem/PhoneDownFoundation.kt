@@ -36,6 +36,40 @@ val PhoneDownShapes =
         extraLarge = RoundedCornerShape(8.dp),
     )
 
+val PhoneDownButtonShape = RoundedCornerShape(percent = 50)
+
+val PhoneDownTimerTextStyle =
+    TextStyle(
+        fontSize = 52.sp,
+        lineHeight = 60.sp,
+        fontWeight = FontWeight.Normal,
+        letterSpacing = (-0.5).sp,
+    )
+
+val PhoneDownScreenTitleTextStyle =
+    TextStyle(
+        fontSize = 18.sp,
+        lineHeight = 24.sp,
+        fontWeight = FontWeight.Bold,
+        letterSpacing = 0.sp,
+    )
+
+val PhoneDownSectionHeaderTextStyle =
+    TextStyle(
+        fontSize = 17.sp,
+        lineHeight = 22.sp,
+        fontWeight = FontWeight.Bold,
+        letterSpacing = 0.sp,
+    )
+
+val PhoneDownCardHeaderTextStyle =
+    TextStyle(
+        fontSize = 13.sp,
+        lineHeight = 18.sp,
+        fontWeight = FontWeight.SemiBold,
+        letterSpacing = 0.sp,
+    )
+
 val PhoneDownTypography =
     Typography(
         displayLarge =

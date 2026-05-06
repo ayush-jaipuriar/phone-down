@@ -17,29 +17,29 @@ class ProViewModel
     constructor(
         private val billingRepository: BillingRepository,
     ) : ViewModel() {
-    val products: StateFlow<List<ProProduct>> =
-        billingRepository.products
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = emptyList(),
-            )
+        val products: StateFlow<List<ProProduct>> =
+            billingRepository.products
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(5_000),
+                    initialValue = emptyList(),
+                )
 
-    init {
-        viewModelScope.launch {
-            billingRepository.loadProducts()
+        init {
+            viewModelScope.launch {
+                billingRepository.loadProducts()
+            }
+        }
+
+        fun purchase(product: ProProduct) {
+            viewModelScope.launch {
+                billingRepository.launchPurchaseFlow(product)
+            }
+        }
+
+        fun restorePurchases() {
+            viewModelScope.launch {
+                billingRepository.restorePurchases()
+            }
         }
     }
-
-    fun purchase(product: ProProduct) {
-        viewModelScope.launch {
-            billingRepository.launchPurchaseFlow(product)
-        }
-    }
-
-    fun restorePurchases() {
-        viewModelScope.launch {
-            billingRepository.restorePurchases()
-        }
-    }
-}

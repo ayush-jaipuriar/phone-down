@@ -20,7 +20,6 @@ import phonedown.core.model.repository.SettingsRepository
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class OnboardingViewModelTest {
-
     private val testDispatcher = StandardTestDispatcher()
 
     @Before
@@ -34,57 +33,62 @@ class OnboardingViewModelTest {
     }
 
     @Test
-    fun `completeOnboarding persists onboardingCompleted true`() = runTest(testDispatcher) {
-        val repo = FakeSettingsRepository()
-        val viewModel = OnboardingViewModel(repo)
+    fun `completeOnboarding persists onboardingCompleted true`() =
+        runTest(testDispatcher) {
+            val repo = FakeSettingsRepository()
+            val viewModel = OnboardingViewModel(repo)
 
-        viewModel.completeOnboarding {}
-        testScheduler.advanceUntilIdle()
+            viewModel.completeOnboarding {}
+            testScheduler.advanceUntilIdle()
 
-        assertTrue(repo.latestSettings().onboardingCompleted)
-    }
-
-    @Test
-    fun `completeOnboarding invokes the onCompleted callback`() = runTest(testDispatcher) {
-        val repo = FakeSettingsRepository()
-        val viewModel = OnboardingViewModel(repo)
-        var callbackInvoked = false
-
-        viewModel.completeOnboarding { callbackInvoked = true }
-        testScheduler.advanceUntilIdle()
-
-        assertTrue(callbackInvoked)
-    }
-
-    @Test
-    fun `persistence write completes before callback executes`() = runTest(testDispatcher) {
-        val repo = FakeSettingsRepository()
-        val viewModel = OnboardingViewModel(repo)
-
-        viewModel.completeOnboarding {
             assertTrue(repo.latestSettings().onboardingCompleted)
         }
-        testScheduler.advanceUntilIdle()
-    }
 
     @Test
-    fun `fresh settings default to onboardingCompleted false`() = runTest(testDispatcher) {
-        val repo = FakeSettingsRepository()
+    fun `completeOnboarding invokes the onCompleted callback`() =
+        runTest(testDispatcher) {
+            val repo = FakeSettingsRepository()
+            val viewModel = OnboardingViewModel(repo)
+            var callbackInvoked = false
 
-        assertFalse(repo.latestSettings().onboardingCompleted)
-    }
+            viewModel.completeOnboarding { callbackInvoked = true }
+            testScheduler.advanceUntilIdle()
+
+            assertTrue(callbackInvoked)
+        }
 
     @Test
-    fun `settings flow reflects onboarding completion`() = runTest(testDispatcher) {
-        val repo = FakeSettingsRepository()
-        val viewModel = OnboardingViewModel(repo)
+    fun `persistence write completes before callback executes`() =
+        runTest(testDispatcher) {
+            val repo = FakeSettingsRepository()
+            val viewModel = OnboardingViewModel(repo)
 
-        viewModel.completeOnboarding {}
-        testScheduler.advanceUntilIdle()
+            viewModel.completeOnboarding {
+                assertTrue(repo.latestSettings().onboardingCompleted)
+            }
+            testScheduler.advanceUntilIdle()
+        }
 
-        val emitted = repo.settings.first()
-        assertTrue(emitted.onboardingCompleted)
-    }
+    @Test
+    fun `fresh settings default to onboardingCompleted false`() =
+        runTest(testDispatcher) {
+            val repo = FakeSettingsRepository()
+
+            assertFalse(repo.latestSettings().onboardingCompleted)
+        }
+
+    @Test
+    fun `settings flow reflects onboarding completion`() =
+        runTest(testDispatcher) {
+            val repo = FakeSettingsRepository()
+            val viewModel = OnboardingViewModel(repo)
+
+            viewModel.completeOnboarding {}
+            testScheduler.advanceUntilIdle()
+
+            val emitted = repo.settings.first()
+            assertTrue(emitted.onboardingCompleted)
+        }
 }
 
 private class FakeSettingsRepository(

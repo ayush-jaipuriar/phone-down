@@ -4,6 +4,8 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -21,26 +24,35 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 import phonedown.core.designsystem.PhoneDownAccent
 import phonedown.core.designsystem.PhoneDownButton
 import phonedown.core.designsystem.PhoneDownCard
+import phonedown.core.designsystem.PhoneDownCardHeaderTextStyle
 import phonedown.core.designsystem.PhoneDownDesign
 import phonedown.core.designsystem.PhoneDownIconButton
 import phonedown.core.designsystem.PhoneDownInlineStatus
 import phonedown.core.designsystem.PhoneDownMetricCard
 import phonedown.core.designsystem.PhoneDownProgressRing
 import phonedown.core.designsystem.PhoneDownScreen
+import phonedown.core.designsystem.PhoneDownSectionHeaderTextStyle
 import phonedown.core.designsystem.PhoneDownSpacing
 import phonedown.core.designsystem.PhoneDownTheme
+import phonedown.core.designsystem.PhoneDownTimerTextStyle
 import phonedown.core.designsystem.PhoneDownTopBar
 import phonedown.core.model.ThemeMode
 import phonedown.feature.focus.state.FocusEvent
@@ -63,7 +75,9 @@ fun FocusScreen(
                 .fillMaxSize()
                 .testTag(FocusTestTags.SCREEN),
     ) {
-        PhoneDownTopBar(title = topBarTitle(uiState.presentationState))
+        PhoneDownTopBar(
+            title = topBarTitle(uiState.presentationState),
+        )
 
         Spacer(modifier = Modifier.height(PhoneDownSpacing.xl))
 
@@ -97,6 +111,12 @@ fun FocusScreen(
                             )
                         }
 
+                        FocusPresentationState.ReadyToFocus -> {
+                            ReadyToFocusContent(
+                                onBackClick = { onEvent(FocusEvent.ReadyBackClicked) },
+                            )
+                        }
+
                         FocusPresentationState.WaitingForPhoneDown -> {
                             GuidanceState(
                                 title = "Place phone down to begin.",
@@ -116,11 +136,35 @@ fun FocusScreen(
                         }
 
                         FocusPresentationState.Active,
-                        FocusPresentationState.PausedByPickup,
                         FocusPresentationState.PausedByCall,
                         -> {
                             InProgressActions(
                                 presentationState = state,
+                                penaltySeconds = uiState.penaltySeconds,
+                                showAddTime = uiState.showAddTime,
+                                onEndClick = { onEvent(FocusEvent.EndClicked) },
+                                onPauseClick = if (state == FocusPresentationState.Active) {
+                                    { onEvent(FocusEvent.PauseClicked) }
+                                } else { null },
+                                onAddTimeClick = if (state == FocusPresentationState.Active) {
+                                    { onEvent(FocusEvent.AddTimeClicked) }
+                                } else { null },
+                                onAddTimeSelected = { onEvent(FocusEvent.AddTimeSelected(it)) },
+                            )
+                        }
+
+                        FocusPresentationState.PausedByUser -> {
+                            InProgressActions(
+                                presentationState = state,
+                                penaltySeconds = uiState.penaltySeconds,
+                                onEndClick = { onEvent(FocusEvent.EndClicked) },
+                                onResumeClick = { onEvent(FocusEvent.ResumeClicked) },
+                            )
+                        }
+
+                        FocusPresentationState.PausedByPickup -> {
+                            PausedByPickupActions(
+                                graceRemainingSeconds = uiState.graceRemainingSeconds,
                                 penaltySeconds = uiState.penaltySeconds,
                                 onEndClick = { onEvent(FocusEvent.EndClicked) },
                             )
@@ -132,9 +176,13 @@ fun FocusScreen(
                         FocusPresentationState.Broken,
                         FocusPresentationState.Invalid,
                         -> {
-                            ResultState(
+                            SessionCompleteContent(
                                 presentationState = state,
+                                selectedDurationSeconds = uiState.selectedDurationSeconds,
+                                remainingSeconds = uiState.remainingSeconds,
+                                penaltySeconds = uiState.penaltySeconds,
                                 interruptionCount = uiState.interruptionCount,
+                                clean = uiState.clean,
                                 onDoneClick = { onEvent(FocusEvent.BackToHomeClicked) },
                             )
                         }
@@ -174,10 +222,12 @@ fun FocusScreen(
 @Composable
 private fun SessionProgressSummary(uiState: FocusUiState) {
     val visible =
-        uiState.presentationState == FocusPresentationState.WaitingForPhoneDown ||
+        uiState.presentationState == FocusPresentationState.ReadyToFocus ||
+            uiState.presentationState == FocusPresentationState.WaitingForPhoneDown ||
             uiState.presentationState == FocusPresentationState.Arming ||
             uiState.presentationState == FocusPresentationState.Active ||
             uiState.presentationState == FocusPresentationState.PausedByPickup ||
+            uiState.presentationState == FocusPresentationState.PausedByUser ||
             uiState.presentationState == FocusPresentationState.PausedByCall
     if (!visible) {
         return
@@ -256,7 +306,7 @@ private fun GuidanceState(
         Text(
             text = title,
             color = PhoneDownDesign.colors.textPrimary,
-            style = MaterialTheme.typography.titleMedium,
+            style = PhoneDownSectionHeaderTextStyle,
             textAlign = TextAlign.Center,
         )
         Text(
@@ -279,11 +329,17 @@ private fun InProgressActions(
     presentationState: FocusPresentationState,
     penaltySeconds: Long,
     onEndClick: () -> Unit,
+    showAddTime: Boolean = false,
+    onPauseClick: (() -> Unit)? = null,
+    onAddTimeClick: (() -> Unit)? = null,
+    onAddTimeSelected: ((Int) -> Unit)? = null,
+    onResumeClick: (() -> Unit)? = null,
 ) {
     val statusText =
         when (presentationState) {
             FocusPresentationState.Active -> "Keep your phone down"
             FocusPresentationState.PausedByCall -> "Focus paused for a call"
+            FocusPresentationState.PausedByUser -> "Focus paused"
             else -> "Keep your phone down to continue"
         }
 
@@ -297,7 +353,7 @@ private fun InProgressActions(
             style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Center,
         )
-        Spacer(modifier = Modifier.height(PhoneDownSpacing.md))
+        Spacer(modifier = Modifier.height(PhoneDownSpacing.sm))
         Row(
             horizontalArrangement = Arrangement.spacedBy(PhoneDownSpacing.lg),
             verticalAlignment = Alignment.CenterVertically,
@@ -307,7 +363,53 @@ private fun InProgressActions(
                 symbol = "■",
                 onClick = onEndClick,
             )
+            onResumeClick?.let { resume ->
+                PhoneDownIconButton(
+                    label = "Resume",
+                    symbol = "▶",
+                    onClick = resume,
+                )
+            }
+            onPauseClick?.let { pause ->
+                PhoneDownIconButton(
+                    label = "Pause",
+                    symbol = "⏸",
+                    onClick = pause,
+                )
+            }
+            onAddTimeClick?.let { addTime ->
+                PhoneDownIconButton(
+                    label = "+Time",
+                    symbol = "+",
+                    onClick = addTime,
+                )
+            }
         }
+
+        if (showAddTime && onAddTimeSelected != null) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(PhoneDownSpacing.sm),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                listOf(1, 5, 15).forEach { minutes ->
+                    androidx.compose.foundation.layout.Box(
+                        modifier =
+                            Modifier
+                                .clip(MaterialTheme.shapes.medium)
+                                .background(PhoneDownDesign.colors.surfaceRaised)
+                                .clickable { onAddTimeSelected(minutes) }
+                                .padding(horizontal = 12.dp, vertical = 8.dp),
+                    ) {
+                        Text(
+                            text = "+${minutes}m",
+                            color = PhoneDownDesign.colors.textPrimary,
+                            style = MaterialTheme.typography.labelMedium,
+                        )
+                    }
+                }
+            }
+        }
+
         if (penaltySeconds > 0L) {
             PhoneDownInlineStatus(
                 text = "+${penaltySeconds / 60L}:00 penalty",
@@ -318,17 +420,135 @@ private fun InProgressActions(
 }
 
 @Composable
-private fun ResultState(
+private fun PausedByPickupActions(
+    graceRemainingSeconds: Long,
+    penaltySeconds: Long,
+    onEndClick: () -> Unit,
+) {
+    val countdownColor = when {
+        graceRemainingSeconds > 2 -> PhoneDownDesign.colors.warning
+        else -> PhoneDownDesign.colors.danger
+    }
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.md),
+    ) {
+        Text(
+            text = "Phone Picked Up",
+            color = PhoneDownDesign.colors.danger,
+            style = PhoneDownSectionHeaderTextStyle,
+            textAlign = TextAlign.Center,
+        )
+
+        PhonePickedUpIllustration()
+
+        Text(
+            text = formatDurationMinsSecs(graceRemainingSeconds),
+            color = countdownColor,
+            style = PhoneDownTimerTextStyle,
+            textAlign = TextAlign.Center,
+        )
+
+        Text(
+            text = "Keep your phone down to continue",
+            color = PhoneDownDesign.colors.textSecondary,
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Center,
+        )
+
+        Spacer(modifier = Modifier.height(PhoneDownSpacing.md))
+
+        PhoneDownIconButton(
+            label = "End",
+            symbol = "■",
+            onClick = onEndClick,
+        )
+
+        if (penaltySeconds > 0L) {
+            PhoneDownInlineStatus(
+                text = "+${penaltySeconds / 60L}:00 penalty",
+                accent = PhoneDownAccent.Danger,
+            )
+        }
+    }
+}
+
+@Composable
+private fun PhonePickedUpIllustration() {
+    val primaryColor = PhoneDownDesign.colors.textPrimary
+    val dangerColor = PhoneDownDesign.colors.danger
+    androidx.compose.foundation.Canvas(
+        modifier = Modifier.size(64.dp),
+    ) {
+        val phoneWidth = size.width * 0.5f
+        val phoneHeight = size.height * 0.7f
+        val phoneLeft = (size.width - phoneWidth) / 2f
+        val phoneTop = size.height * 0.25f
+
+        // Phone body
+        drawRoundRect(
+            color = primaryColor,
+            topLeft = androidx.compose.ui.geometry.Offset(phoneLeft, phoneTop),
+            size = androidx.compose.ui.geometry.Size(phoneWidth, phoneHeight),
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(8f, 8f),
+            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 4f),
+        )
+
+        // Screen
+        drawRoundRect(
+            color = primaryColor.copy(alpha = 0.3f),
+            topLeft = androidx.compose.ui.geometry.Offset(phoneLeft + 4f, phoneTop + 8f),
+            size = androidx.compose.ui.geometry.Size(phoneWidth - 8f, phoneHeight - 16f),
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(4f, 4f),
+        )
+
+        // Upward arrow
+        val arrowCenterX = size.width / 2f
+        val arrowBottom = phoneTop - 8f
+        val arrowTop = arrowBottom - 20f
+        val arrowWidth = 10f
+
+        drawLine(
+            color = dangerColor,
+            start = androidx.compose.ui.geometry.Offset(arrowCenterX, arrowBottom),
+            end = androidx.compose.ui.geometry.Offset(arrowCenterX, arrowTop),
+            strokeWidth = 4f,
+            cap = androidx.compose.ui.graphics.StrokeCap.Round,
+        )
+        drawLine(
+            color = dangerColor,
+            start = androidx.compose.ui.geometry.Offset(arrowCenterX - arrowWidth, arrowTop + arrowWidth),
+            end = androidx.compose.ui.geometry.Offset(arrowCenterX, arrowTop),
+            strokeWidth = 4f,
+            cap = androidx.compose.ui.graphics.StrokeCap.Round,
+        )
+        drawLine(
+            color = dangerColor,
+            start = androidx.compose.ui.geometry.Offset(arrowCenterX + arrowWidth, arrowTop + arrowWidth),
+            end = androidx.compose.ui.geometry.Offset(arrowCenterX, arrowTop),
+            strokeWidth = 4f,
+            cap = androidx.compose.ui.graphics.StrokeCap.Round,
+        )
+    }
+}
+
+@Composable
+private fun SessionCompleteContent(
     presentationState: FocusPresentationState,
+    selectedDurationSeconds: Long,
+    remainingSeconds: Long,
+    penaltySeconds: Long,
     interruptionCount: Int,
+    clean: Boolean,
     onDoneClick: () -> Unit,
 ) {
     val title =
         when (presentationState) {
-            FocusPresentationState.CompletedClean -> "Clean session completed"
-            FocusPresentationState.CompletedInterrupted -> "Session completed"
+            FocusPresentationState.CompletedClean -> "Great focus!"
+            FocusPresentationState.CompletedInterrupted -> "Session complete"
             FocusPresentationState.EndedEarly -> "Session ended early"
-            FocusPresentationState.Invalid -> "Not enough focus time to count."
+            FocusPresentationState.Invalid -> "Not enough focus time to count"
             FocusPresentationState.Broken -> "Session broken"
             else -> ""
         }
@@ -344,11 +564,20 @@ private fun ResultState(
             FocusPresentationState.Broken -> "This session no longer counts as clean focus."
             else -> null
         }
+    val showCircle =
+        presentationState == FocusPresentationState.CompletedClean ||
+            presentationState == FocusPresentationState.CompletedInterrupted
+
+    val focusTimeSeconds = (selectedDurationSeconds - remainingSeconds).coerceAtLeast(0L)
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.md),
     ) {
+        if (showCircle) {
+            CompletionCircle(clean = clean)
+        }
+
         Text(
             text = title,
             color = PhoneDownDesign.colors.textPrimary,
@@ -363,6 +592,57 @@ private fun ResultState(
                 textAlign = TextAlign.Center,
             )
         }
+
+        Spacer(modifier = Modifier.height(PhoneDownSpacing.sm))
+
+        Column(
+            modifier = Modifier.fillMaxWidth(0.7f),
+            verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.sm),
+        ) {
+            TimeBreakdownRow(
+                label = "Focus Time",
+                value = formatDurationMinsSecs(focusTimeSeconds),
+            )
+            TimeBreakdownRow(
+                label = "Penalty Time",
+                value = if (penaltySeconds > 0L) {
+                    "+${formatDurationMinsSecs(penaltySeconds)}"
+                } else {
+                    "+0:00"
+                },
+                valueColor = if (penaltySeconds > 0L) {
+                    PhoneDownDesign.colors.danger
+                } else {
+                    PhoneDownDesign.colors.textTertiary
+                },
+            )
+            TimeBreakdownRow(
+                label = "Total Time",
+                value = formatDurationMinsSecs(selectedDurationSeconds),
+            )
+        }
+
+        if (clean && presentationState == FocusPresentationState.CompletedClean) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(PhoneDownSpacing.xs),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = "✓",
+                    color = PhoneDownDesign.colors.success,
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                )
+                Text(
+                    text = "Clean Session",
+                    color = PhoneDownDesign.colors.success,
+                    style = MaterialTheme.typography.labelMedium,
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(PhoneDownSpacing.md))
+
         PhoneDownButton(
             text = "Done",
             onClick = onDoneClick,
@@ -371,9 +651,200 @@ private fun ResultState(
 }
 
 @Composable
-private fun SensorUnavailableState(
-    onRetryClick: () -> Unit,
+private fun TimeBreakdownRow(
+    label: String,
+    value: String,
+    valueColor: androidx.compose.ui.graphics.Color = PhoneDownDesign.colors.textPrimary,
 ) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = label,
+            color = PhoneDownDesign.colors.textSecondary,
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        Text(
+            text = value,
+            color = valueColor,
+            style = MaterialTheme.typography.bodyMedium,
+        )
+    }
+}
+
+@Composable
+private fun CompletionCircle(clean: Boolean) {
+    val circleColor = if (clean) PhoneDownDesign.colors.success else PhoneDownDesign.colors.surfaceRaised
+    val checkColor = if (clean) PhoneDownDesign.colors.surface else PhoneDownDesign.colors.textPrimary
+
+    androidx.compose.foundation.Canvas(modifier = Modifier.size(96.dp)) {
+        val centerX = size.width / 2f
+        val centerY = size.height / 2f
+        val radius = size.minDimension / 2f
+
+        // Filled circle
+        drawCircle(
+            color = circleColor,
+            radius = radius,
+            center = androidx.compose.ui.geometry.Offset(centerX, centerY),
+        )
+
+        // Checkmark
+        val scale = radius / 48f
+        val path = androidx.compose.ui.graphics.Path().apply {
+            moveTo(centerX - 18f * scale, centerY + 2f * scale)
+            lineTo(centerX - 6f * scale, centerY + 18f * scale)
+            lineTo(centerX + 20f * scale, centerY - 14f * scale)
+        }
+        drawPath(
+            path = path,
+            color = checkColor,
+            style = androidx.compose.ui.graphics.drawscope.Stroke(
+                width = 5f,
+                cap = androidx.compose.ui.graphics.StrokeCap.Round,
+                join = androidx.compose.ui.graphics.StrokeJoin.Round,
+            ),
+        )
+    }
+}
+
+@Composable
+private fun ArmingCountdown() {
+    var countdownValue by remember { mutableIntStateOf(3) }
+
+    LaunchedEffect(Unit) {
+        while (countdownValue > 1) {
+            delay(1000L)
+            countdownValue -= 1
+        }
+    }
+
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        AnimatedContent(
+            targetState = countdownValue,
+            label = "ArmingCountdown",
+            modifier = Modifier.testTag(FocusTestTags.TIMER),
+        ) { value ->
+            Text(
+                text = value.toString(),
+                color = PhoneDownDesign.colors.progress,
+                style = PhoneDownTimerTextStyle,
+                textAlign = TextAlign.Center,
+            )
+        }
+        Text(
+            text = if (countdownValue > 1) "Get ready..." else "Hold still",
+            color = PhoneDownDesign.colors.textSecondary,
+            style = MaterialTheme.typography.bodyMedium,
+        )
+    }
+}
+
+@Composable
+private fun ReadyToFocusContent(onBackClick: () -> Unit) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.md),
+    ) {
+        Text(
+            text = "Ready to focus?",
+            color = PhoneDownDesign.colors.textPrimary,
+            style = PhoneDownSectionHeaderTextStyle,
+            textAlign = TextAlign.Center,
+        )
+
+        PhoneFaceDownIllustration()
+
+        Column(
+            verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.sm),
+            horizontalAlignment = Alignment.Start,
+            modifier = Modifier.fillMaxWidth(0.8f),
+        ) {
+            InstructionStep(number = "1", text = "Tap Start Focus")
+            InstructionStep(number = "2", text = "Place your phone face down")
+            InstructionStep(number = "3", text = "Stay still and focus")
+        }
+
+        Spacer(modifier = Modifier.height(PhoneDownSpacing.md))
+
+        Text(
+            text = "Phone Down to begin",
+            color = PhoneDownDesign.colors.textPrimary,
+            style = PhoneDownCardHeaderTextStyle,
+            textAlign = TextAlign.Center,
+        )
+
+        Spacer(modifier = Modifier.height(PhoneDownSpacing.md))
+
+        PhoneDownButton(
+            text = "Cancel",
+            onClick = onBackClick,
+            quiet = true,
+        )
+    }
+}
+
+@Composable
+private fun InstructionStep(number: String, text: String) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(PhoneDownSpacing.sm),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = number,
+            color = PhoneDownDesign.colors.progress,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+        )
+        Text(
+            text = text,
+            color = PhoneDownDesign.colors.textPrimary,
+            style = MaterialTheme.typography.bodyMedium,
+        )
+    }
+}
+
+@Composable
+private fun PhoneFaceDownIllustration() {
+    val primaryColor = PhoneDownDesign.colors.textPrimary
+    androidx.compose.foundation.Canvas(
+        modifier = Modifier.size(80.dp),
+    ) {
+        val phoneWidth = size.width * 0.6f
+        val phoneHeight = size.height * 0.7f
+        val phoneLeft = (size.width - phoneWidth) / 2f
+        val phoneTop = size.height * 0.2f
+
+        // Phone body
+        drawRoundRect(
+            color = primaryColor,
+            topLeft = androidx.compose.ui.geometry.Offset(phoneLeft, phoneTop),
+            size = androidx.compose.ui.geometry.Size(phoneWidth, phoneHeight),
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(10f, 10f),
+            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 4f),
+        )
+
+        // Screen
+        drawRoundRect(
+            color = primaryColor.copy(alpha = 0.3f),
+            topLeft = androidx.compose.ui.geometry.Offset(phoneLeft + 6f, phoneTop + 10f),
+            size = androidx.compose.ui.geometry.Size(phoneWidth - 12f, phoneHeight - 20f),
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(6f, 6f),
+        )
+
+        // Small dot (home button / camera)
+        drawCircle(
+            color = primaryColor,
+            radius = 4f,
+            center = androidx.compose.ui.geometry.Offset(size.width / 2f, phoneTop + phoneHeight - 10f),
+        )
+    }
+}
+
+@Composable
+private fun SensorUnavailableState(onRetryClick: () -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.md),
@@ -381,7 +852,7 @@ private fun SensorUnavailableState(
         Text(
             text = "Sensors unavailable",
             color = PhoneDownDesign.colors.danger,
-            style = MaterialTheme.typography.titleMedium,
+            style = PhoneDownSectionHeaderTextStyle,
             textAlign = TextAlign.Center,
         )
         Text(
@@ -442,6 +913,7 @@ private fun FocusRingSection(uiState: FocusUiState) {
     val progressTarget =
         when (uiState.presentationState) {
             FocusPresentationState.Idle,
+            FocusPresentationState.ReadyToFocus,
             FocusPresentationState.WaitingForPhoneDown,
             FocusPresentationState.Arming,
             FocusPresentationState.SensorUnavailable,
@@ -449,6 +921,7 @@ private fun FocusRingSection(uiState: FocusUiState) {
 
             FocusPresentationState.Active,
             FocusPresentationState.PausedByPickup,
+            FocusPresentationState.PausedByUser,
             FocusPresentationState.PausedByCall,
             -> {
                 val total = uiState.selectedDurationSeconds.coerceAtLeast(1L)
@@ -476,9 +949,13 @@ private fun FocusRingSection(uiState: FocusUiState) {
                     color = PhoneDownDesign.colors.success,
                     style = MaterialTheme.typography.displayLarge,
                 )
+            } else if (uiState.presentationState == FocusPresentationState.Arming) {
+                ArmingCountdown()
             } else {
                 val displaySeconds =
-                    if (uiState.presentationState == FocusPresentationState.Idle) {
+                    if (uiState.presentationState == FocusPresentationState.Idle ||
+                        uiState.presentationState == FocusPresentationState.ReadyToFocus
+                    ) {
                         uiState.selectedDurationSeconds
                     } else {
                         uiState.remainingSeconds
@@ -488,16 +965,18 @@ private fun FocusRingSection(uiState: FocusUiState) {
                     text = formatDurationMinsSecs(displaySeconds),
                     modifier = Modifier.testTag(FocusTestTags.TIMER),
                     color = PhoneDownDesign.colors.textPrimary,
-                    style = MaterialTheme.typography.displayLarge,
+                    style = PhoneDownTimerTextStyle,
                 )
 
                 val label =
                     when (uiState.presentationState) {
                         FocusPresentationState.Idle -> "Focus"
+                        FocusPresentationState.ReadyToFocus -> "Ready"
                         FocusPresentationState.WaitingForPhoneDown -> "Ready"
                         FocusPresentationState.Arming -> "Hold still"
                         FocusPresentationState.Active -> "Remaining"
                         FocusPresentationState.PausedByPickup -> "Paused"
+                        FocusPresentationState.PausedByUser -> "Paused"
                         FocusPresentationState.PausedByCall -> "Call paused"
                         FocusPresentationState.SensorUnavailable -> "Unavailable"
                         else -> ""
@@ -685,12 +1164,14 @@ private fun EndConfirmationSheet(
 private fun topBarTitle(presentationState: FocusPresentationState): String =
     when (presentationState) {
         FocusPresentationState.Idle -> "Phone Down"
+        FocusPresentationState.ReadyToFocus,
         FocusPresentationState.WaitingForPhoneDown,
         FocusPresentationState.Arming,
         -> "Ready to focus?"
 
         FocusPresentationState.Active -> "Focusing"
-        FocusPresentationState.PausedByPickup -> "Focus paused"
+        FocusPresentationState.PausedByUser -> "Focus paused"
+        FocusPresentationState.PausedByPickup -> "Phone Picked Up"
         FocusPresentationState.PausedByCall -> "Call in progress"
         FocusPresentationState.CompletedClean,
         FocusPresentationState.CompletedInterrupted,
@@ -701,21 +1182,24 @@ private fun topBarTitle(presentationState: FocusPresentationState): String =
 
 private fun progressStateLabel(presentationState: FocusPresentationState): String =
     when (presentationState) {
+        FocusPresentationState.ReadyToFocus -> "Ready"
         FocusPresentationState.WaitingForPhoneDown -> "Waiting"
         FocusPresentationState.Arming -> "Starting"
         FocusPresentationState.Active -> "Active"
         FocusPresentationState.PausedByPickup -> "Paused"
+        FocusPresentationState.PausedByUser -> "Paused"
         FocusPresentationState.PausedByCall -> "Call"
         else -> "-"
     }
 
 private fun progressStateAccent(presentationState: FocusPresentationState): PhoneDownAccent =
     when (presentationState) {
+        FocusPresentationState.ReadyToFocus -> PhoneDownAccent.Progress
         FocusPresentationState.Active -> PhoneDownAccent.Success
         FocusPresentationState.Arming -> PhoneDownAccent.Progress
-        FocusPresentationState.PausedByPickup,
-        FocusPresentationState.PausedByCall,
-        -> PhoneDownAccent.Warning
+        FocusPresentationState.PausedByPickup -> PhoneDownAccent.Danger
+        FocusPresentationState.PausedByUser -> PhoneDownAccent.Warning
+        FocusPresentationState.PausedByCall -> PhoneDownAccent.Warning
         else -> PhoneDownAccent.Neutral
     }
 

@@ -17,9 +17,10 @@ fun AccountRoute(
 
     val isRestoring = restoreState is RestoreState.InProgress
     val restoreError = (restoreState as? RestoreState.Error)?.message
-    val restoreSuccess = (restoreState as? RestoreState.Success)?.let {
-        "Restored ${it.sessionsRestored} sessions successfully."
-    }
+    val restoreSuccess =
+        (restoreState as? RestoreState.Success)?.let {
+            "Restored ${it.sessionsRestored} sessions successfully."
+        }
 
     AccountScreen(
         accountState = uiState.accountState,

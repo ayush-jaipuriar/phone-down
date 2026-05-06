@@ -8,6 +8,7 @@ data class FocusUiState(
     val penaltySeconds: Long = 0,
     val interruptionCount: Int = 0,
     val clean: Boolean = true,
+    val graceRemainingSeconds: Long = 0,
     // Today summary
     val todayTotalFocusSeconds: Long = 0,
     val todaySessionsCount: Int = 0,
@@ -15,14 +16,17 @@ data class FocusUiState(
     val freeCustomDurationSeconds: Long? = null,
     val showDurationSelector: Boolean = false,
     val showEndConfirmation: Boolean = false,
+    val showAddTime: Boolean = false,
 )
 
 enum class FocusPresentationState {
     Idle,
+    ReadyToFocus,
     WaitingForPhoneDown,
     Arming,
     Active,
     PausedByPickup,
+    PausedByUser,
     PausedByCall,
     CompletedClean,
     CompletedInterrupted,

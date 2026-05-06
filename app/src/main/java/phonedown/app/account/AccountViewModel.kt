@@ -25,51 +25,52 @@ class AccountViewModel
         billingRepository: BillingRepository,
         private val backupRepository: BackupRepository,
     ) : ViewModel() {
-    private val _restoreState = MutableStateFlow<RestoreState>(RestoreState.Idle)
-    val restoreState: StateFlow<RestoreState> = _restoreState.asStateFlow()
+        private val _restoreState = MutableStateFlow<RestoreState>(RestoreState.Idle)
+        val restoreState: StateFlow<RestoreState> = _restoreState.asStateFlow()
 
-    val uiState: StateFlow<AccountUiState> =
-        combine(
-            authRepository.accountState,
-            billingRepository.entitlement,
-        ) { accountState, entitlement ->
-            AccountUiState(
-                accountState = accountState,
-                isProUser = entitlement is ProEntitlement.Pro,
+        val uiState: StateFlow<AccountUiState> =
+            combine(
+                authRepository.accountState,
+                billingRepository.entitlement,
+            ) { accountState, entitlement ->
+                AccountUiState(
+                    accountState = accountState,
+                    isProUser = entitlement is ProEntitlement.Pro,
+                )
+            }.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = AccountUiState(),
             )
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = AccountUiState(),
-        )
 
-    fun signIn() {
-        viewModelScope.launch { authRepository.signIn() }
-    }
+        fun signIn() {
+            viewModelScope.launch { authRepository.signIn() }
+        }
 
-    fun signOut() {
-        viewModelScope.launch { authRepository.signOut() }
-    }
+        fun signOut() {
+            viewModelScope.launch { authRepository.signOut() }
+        }
 
-    fun restoreBackup() {
-        viewModelScope.launch {
-            _restoreState.value = RestoreState.InProgress
-            val result = backupRepository.restoreBackup()
-            _restoreState.value = when (result) {
-                is phonedown.core.model.repository.RestoreResult.Success ->
-                    RestoreState.Success(result.sessionsRestored)
-                is phonedown.core.model.repository.RestoreResult.Failure ->
-                    RestoreState.Error(result.reason)
-                phonedown.core.model.repository.RestoreResult.NoBackupFound ->
-                    RestoreState.Error("No backup found")
+        fun restoreBackup() {
+            viewModelScope.launch {
+                _restoreState.value = RestoreState.InProgress
+                val result = backupRepository.restoreBackup()
+                _restoreState.value =
+                    when (result) {
+                        is phonedown.core.model.repository.RestoreResult.Success ->
+                            RestoreState.Success(result.sessionsRestored)
+                        is phonedown.core.model.repository.RestoreResult.Failure ->
+                            RestoreState.Error(result.reason)
+                        phonedown.core.model.repository.RestoreResult.NoBackupFound ->
+                            RestoreState.Error("No backup found")
+                    }
             }
         }
-    }
 
-    fun clearRestoreState() {
-        _restoreState.value = RestoreState.Idle
+        fun clearRestoreState() {
+            _restoreState.value = RestoreState.Idle
+        }
     }
-}
 
 data class AccountUiState(
     val accountState: AccountState = AccountState.SignedOut,
@@ -78,7 +79,14 @@ data class AccountUiState(
 
 sealed class RestoreState {
     data object Idle : RestoreState()
+
     data object InProgress : RestoreState()
-    data class Success(val sessionsRestored: Int) : RestoreState()
-    data class Error(val message: String) : RestoreState()
+
+    data class Success(
+        val sessionsRestored: Int,
+    ) : RestoreState()
+
+    data class Error(
+        val message: String,
+    ) : RestoreState()
 }

@@ -11,6 +11,7 @@ dependencies {
     implementation(project(":core:designsystem"))
     implementation(project(":core:model"))
     implementation(project(":domain:session"))
+    implementation(libs.androidx.compose.material.icons.extended)
 }
 
 tasks.withType<Test>().configureEach {

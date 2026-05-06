@@ -8,13 +8,13 @@ import phonedown.feature.insights.InsightsContent
 
 @Composable
 @Suppress("FunctionName")
-fun InsightsRoute(
-    viewModel: InsightsViewModel = hiltViewModel(),
-) {
+fun InsightsRoute(viewModel: InsightsViewModel = hiltViewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     InsightsContent(
         uiState = uiState,
         onRefresh = viewModel::refresh,
+        onDaySelected = viewModel::onDaySelected,
+        onBackToToday = viewModel::onBackToToday,
     )
 }

@@ -6,9 +6,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.unit.dp
 import phonedown.core.designsystem.PhoneDownDesign
 
 private const val BAR_CORNER_PX = 4f
@@ -54,9 +52,12 @@ fun PhoneDownBarChart(
 
             if (index < labels.size) {
                 val label = labels[index]
-                val textWidth = android.graphics.Paint().apply {
-                    textSize = 10f * density
-                }.measureText(label)
+                val textWidth =
+                    android.graphics
+                        .Paint()
+                        .apply {
+                            textSize = 10f * density
+                        }.measureText(label)
 
                 drawContext.canvas.nativeCanvas.drawText(
                     label,

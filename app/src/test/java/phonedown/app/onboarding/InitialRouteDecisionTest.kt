@@ -5,7 +5,6 @@ import org.junit.Test
 import phonedown.app.navigation.PhoneDownRoute
 
 class InitialRouteDecisionTest {
-
     @Test
     fun `fresh install with no focus extra routes to onboarding`() {
         val route = decideInitialRoute(openFocusExtra = null, onboardingCompleted = false)
@@ -49,7 +48,10 @@ class InitialRouteDecisionTest {
     }
 
     companion object {
-        fun decideInitialRoute(openFocusExtra: Boolean?, onboardingCompleted: Boolean): PhoneDownRoute =
+        fun decideInitialRoute(
+            openFocusExtra: Boolean?,
+            onboardingCompleted: Boolean,
+        ): PhoneDownRoute =
             when {
                 openFocusExtra == true -> PhoneDownRoute.Focus
                 onboardingCompleted -> PhoneDownRoute.Focus

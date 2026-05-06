@@ -89,3 +89,8 @@ data class AdvancedInsights(
     val weekdayFocusSeconds: Long = 0,
     val weekendFocusSeconds: Long = 0,
 )
+
+data class HourFocus(
+    val hour: Int,
+    val focusMinutes: Int,
+)

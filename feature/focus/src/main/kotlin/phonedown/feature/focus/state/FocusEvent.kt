@@ -19,5 +19,17 @@ sealed interface FocusEvent {
 
     data object RetrySensorsClicked : FocusEvent
 
+    data object ReadyBackClicked : FocusEvent
+
+    data object PauseClicked : FocusEvent
+
+    data object ResumeClicked : FocusEvent
+
+    data object AddTimeClicked : FocusEvent
+
+    data class AddTimeSelected(
+        val minutes: Int,
+    ) : FocusEvent
+
     data object BackToHomeClicked : FocusEvent
 }

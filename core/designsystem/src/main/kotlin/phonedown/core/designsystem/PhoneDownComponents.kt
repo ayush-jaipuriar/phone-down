@@ -2,7 +2,6 @@ package phonedown.core.designsystem
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -67,7 +66,7 @@ fun PhoneDownTopBar(
         Text(
             text = title,
             color = PhoneDownDesign.colors.textPrimary,
-            style = MaterialTheme.typography.titleMedium,
+            style = PhoneDownScreenTitleTextStyle,
         )
         Spacer(modifier = Modifier.weight(1f))
         trailing?.invoke()
@@ -92,7 +91,7 @@ fun PhoneDownButton(
                 .height(52.dp)
                 .defaultMinSize(minWidth = 164.dp),
         enabled = enabled,
-        shape = MaterialTheme.shapes.large,
+        shape = PhoneDownButtonShape,
         colors =
             ButtonDefaults.buttonColors(
                 containerColor = if (quiet) colors.surfaceRaised else colors.textPrimary,
@@ -125,7 +124,7 @@ fun PhoneDownIconButton(
             modifier =
                 Modifier
                     .size(48.dp)
-                    .clip(MaterialTheme.shapes.large)
+                    .clip(PhoneDownButtonShape)
                     .background(PhoneDownDesign.colors.surfaceRaised)
                     .clickable(
                         role = Role.Button,
@@ -156,10 +155,7 @@ fun PhoneDownCard(
     content: @Composable () -> Unit,
 ) {
     Surface(
-        modifier =
-            modifier
-                .fillMaxWidth()
-                .border(1.dp, PhoneDownDesign.colors.borderSubtle, MaterialTheme.shapes.large),
+        modifier = modifier.fillMaxWidth(),
         color = PhoneDownDesign.colors.surfaceRaised,
         shape = MaterialTheme.shapes.large,
         tonalElevation = 0.dp,
@@ -227,14 +223,26 @@ fun PhoneDownProgressRing(
                 size = Size(arcSize, arcSize),
                 style = Stroke(width = strokePx, cap = StrokeCap.Round),
             )
+            val sweep = progress.coerceIn(0f, 1f) * 360f
             drawArc(
                 color = progressColor,
                 startAngle = -90f,
-                sweepAngle = progress.coerceIn(0f, 1f) * 360f,
+                sweepAngle = sweep,
                 useCenter = false,
                 topLeft = Offset(diameterOffset, diameterOffset),
                 size = Size(arcSize, arcSize),
                 style = Stroke(width = strokePx, cap = StrokeCap.Round),
+            )
+            // Draw position dot at the tip of the progress arc
+            val radius = arcSize / 2f
+            val centerOffset = diameterOffset + radius
+            val angleRad = Math.toRadians((sweep - 90f).toDouble())
+            val dotX = centerOffset + radius * kotlin.math.cos(angleRad).toFloat()
+            val dotY = centerOffset + radius * kotlin.math.sin(angleRad).toFloat()
+            drawCircle(
+                color = progressColor,
+                radius = strokePx * 0.75f,
+                center = Offset(dotX, dotY),
             )
         }
         content()

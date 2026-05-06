@@ -19,24 +19,26 @@ import phonedown.core.model.repository.BillingRepository
 import phonedown.core.model.repository.SessionRepository
 import phonedown.core.notifications.FocusFeedbackPlayer
 import phonedown.core.notifications.FocusForegroundNotificationManager
-import phonedown.core.sensors.FocusSensorConfig
 import phonedown.core.sensors.AndroidFocusValidityMonitor
+import phonedown.core.sensors.FocusSensorConfig
 import phonedown.core.sensors.FocusValidityMonitor
+import phonedown.domain.insights.GetAdvancedInsightsUseCase
+import phonedown.domain.insights.GetBestHourUseCase
+import phonedown.domain.insights.GetBestWeekdayUseCase
+import phonedown.domain.insights.GetDayInsightsUseCase
+import phonedown.domain.insights.GetFocusQualityUseCase
+import phonedown.domain.insights.GetHeatmapDataUseCase
+import phonedown.domain.insights.GetHistoryUseCase
+import phonedown.domain.insights.GetHourlyFocusUseCase
+import phonedown.domain.insights.GetStreakUseCase
+import phonedown.domain.insights.GetTodayInsightsUseCase
+import phonedown.domain.insights.GetTrendsUseCase
+import phonedown.domain.insights.GetWeeklyInsightsUseCase
 import phonedown.domain.session.EndSessionUseCase
 import phonedown.domain.session.RecoverSessionsUseCase
 import phonedown.domain.session.SessionEngine
 import phonedown.domain.session.SessionRecoveryClassifier
 import phonedown.domain.session.StartSessionUseCase
-import phonedown.domain.insights.GetTodayInsightsUseCase
-import phonedown.domain.insights.GetWeeklyInsightsUseCase
-import phonedown.domain.insights.GetFocusQualityUseCase
-import phonedown.domain.insights.GetStreakUseCase
-import phonedown.domain.insights.GetBestHourUseCase
-import phonedown.domain.insights.GetBestWeekdayUseCase
-import phonedown.domain.insights.GetTrendsUseCase
-import phonedown.domain.insights.GetAdvancedInsightsUseCase
-import phonedown.domain.insights.GetHeatmapDataUseCase
-import phonedown.domain.insights.GetHistoryUseCase
 import java.util.UUID
 import javax.inject.Singleton
 
@@ -189,22 +191,19 @@ object AppRuntimeModule {
 
     @Provides
     @Singleton
-    fun providesGetHistoryUseCase(
-        sessionRepository: SessionRepository,
-    ): GetHistoryUseCase = GetHistoryUseCase(sessionRepository)
+    fun providesGetHistoryUseCase(sessionRepository: SessionRepository): GetHistoryUseCase = GetHistoryUseCase(sessionRepository)
 
     @Provides
     @Singleton
     fun providesEntitlementCache(
         dataStore: androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences>,
     ): phonedown.core.model.repository.EntitlementCache =
-        phonedown.core.datastore.cache.ProEntitlementCache(dataStore)
+        phonedown.core.datastore.cache
+            .ProEntitlementCache(dataStore)
 
     @Provides
     @Singleton
-    fun providesBillingRepository(
-        cache: phonedown.core.model.repository.EntitlementCache,
-    ): BillingRepository = FakeBillingRepository(cache)
+    fun providesBillingRepository(cache: phonedown.core.model.repository.EntitlementCache): BillingRepository = FakeBillingRepository(cache)
 
     @Provides
     @Singleton
@@ -213,4 +212,18 @@ object AppRuntimeModule {
     @Provides
     @Singleton
     fun providesBackupRepository(): phonedown.core.model.repository.BackupRepository = FakeBackupRepository()
+
+    @Provides
+    @Singleton
+    fun providesGetHourlyFocusUseCase(
+        sessionRepository: SessionRepository,
+        clock: Clock,
+    ): GetHourlyFocusUseCase = GetHourlyFocusUseCase(sessionRepository, clock)
+
+    @Provides
+    @Singleton
+    fun providesGetDayInsightsUseCase(
+        sessionRepository: SessionRepository,
+        clock: Clock,
+    ): GetDayInsightsUseCase = GetDayInsightsUseCase(sessionRepository, clock)
 }

@@ -29,11 +29,9 @@ import phonedown.core.model.repository.BillingRepository
 import phonedown.core.model.repository.RestoreResult
 import phonedown.core.model.repository.SessionRepository
 import phonedown.core.model.repository.SettingsRepository
-import phonedown.feature.settings.SettingsUiState
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SettingsViewModelTest {
-
     private val testDispatcher = StandardTestDispatcher()
 
     @Before
@@ -52,172 +50,186 @@ class SettingsViewModelTest {
         authRepo: AuthRepository = FakeAuthRepository(),
         backupRepo: BackupRepository = FakeBackupRepository(),
         sessionRepo: SessionRepository = FakeSessionRepository(),
-    ): SettingsViewModel = SettingsViewModel(
-        settingsRepository = settingsRepo,
-        billingRepository = billingRepo,
-        authRepository = authRepo,
-        backupRepository = backupRepo,
-        sessionRepository = sessionRepo,
-    )
+    ): SettingsViewModel =
+        SettingsViewModel(
+            settingsRepository = settingsRepo,
+            billingRepository = billingRepo,
+            authRepository = authRepo,
+            backupRepository = backupRepo,
+            sessionRepository = sessionRepo,
+        )
 
     @Test
-    fun `initial uiState reflects repository defaults`() = runTest(testDispatcher) {
-        val viewModel = createViewModel()
-        testScheduler.advanceUntilIdle()
+    fun `initial uiState reflects repository defaults`() =
+        runTest(testDispatcher) {
+            val viewModel = createViewModel()
+            testScheduler.advanceUntilIdle()
 
-        val state = viewModel.uiState.value
-        assertEquals(1500, state.defaultDurationSeconds)
-        assertTrue(state.soundEnabled)
-        assertTrue(state.hapticsEnabled)
-        assertEquals(ThemeMode.System, state.themeMode)
-        assertFalse(state.autoBackupEnabled)
-        assertNull(state.lastBackupEpochMillis)
-        assertFalse(state.backupOptIn)
-        assertFalse(state.isProUser)
-        assertFalse(state.isSignedIn)
-    }
-
-    @Test
-    fun `setSoundEnabled updates repository and uiState`() = runTest(testDispatcher) {
-        val repo = FakeSettingsRepository()
-        val viewModel = createViewModel(settingsRepo = repo)
-
-        viewModel.setSoundEnabled(false)
-        testScheduler.advanceUntilIdle()
-
-        assertFalse(viewModel.uiState.value.soundEnabled)
-        assertFalse(repo.latestSettings().soundEnabled)
-    }
+            val state = viewModel.uiState.value
+            assertEquals(1500, state.defaultDurationSeconds)
+            assertTrue(state.soundEnabled)
+            assertTrue(state.hapticsEnabled)
+            assertEquals(ThemeMode.System, state.themeMode)
+            assertFalse(state.autoBackupEnabled)
+            assertNull(state.lastBackupEpochMillis)
+            assertFalse(state.backupOptIn)
+            assertFalse(state.isProUser)
+            assertFalse(state.isSignedIn)
+        }
 
     @Test
-    fun `setHapticsEnabled updates repository and uiState`() = runTest(testDispatcher) {
-        val repo = FakeSettingsRepository()
-        val viewModel = createViewModel(settingsRepo = repo)
+    fun `setSoundEnabled updates repository and uiState`() =
+        runTest(testDispatcher) {
+            val repo = FakeSettingsRepository()
+            val viewModel = createViewModel(settingsRepo = repo)
 
-        viewModel.setHapticsEnabled(false)
-        testScheduler.advanceUntilIdle()
+            viewModel.setSoundEnabled(false)
+            testScheduler.advanceUntilIdle()
 
-        assertFalse(viewModel.uiState.value.hapticsEnabled)
-        assertFalse(repo.latestSettings().hapticsEnabled)
-    }
-
-    @Test
-    fun `setThemeMode updates repository and uiState`() = runTest(testDispatcher) {
-        val repo = FakeSettingsRepository()
-        val viewModel = createViewModel(settingsRepo = repo)
-
-        viewModel.setThemeMode(ThemeMode.Dark)
-        testScheduler.advanceUntilIdle()
-
-        assertEquals(ThemeMode.Dark, viewModel.uiState.value.themeMode)
-        assertEquals(ThemeMode.Dark, repo.latestSettings().themeMode)
-    }
+            assertFalse(viewModel.uiState.value.soundEnabled)
+            assertFalse(repo.latestSettings().soundEnabled)
+        }
 
     @Test
-    fun `setDefaultDuration updates repository and uiState`() = runTest(testDispatcher) {
-        val repo = FakeSettingsRepository()
-        val viewModel = createViewModel(settingsRepo = repo)
+    fun `setHapticsEnabled updates repository and uiState`() =
+        runTest(testDispatcher) {
+            val repo = FakeSettingsRepository()
+            val viewModel = createViewModel(settingsRepo = repo)
 
-        viewModel.setDefaultDuration(1800)
-        testScheduler.advanceUntilIdle()
+            viewModel.setHapticsEnabled(false)
+            testScheduler.advanceUntilIdle()
 
-        assertEquals(1800, viewModel.uiState.value.defaultDurationSeconds)
-        assertEquals(1800, repo.latestSettings().defaultDurationSeconds)
-    }
-
-    @Test
-    fun `repository flow emission updates uiState`() = runTest(testDispatcher) {
-        val repo = FakeSettingsRepository()
-        val viewModel = createViewModel(settingsRepo = repo)
-
-        repo.setSoundEnabled(false)
-        testScheduler.advanceUntilIdle()
-
-        assertFalse(viewModel.uiState.value.soundEnabled)
-    }
+            assertFalse(viewModel.uiState.value.hapticsEnabled)
+            assertFalse(repo.latestSettings().hapticsEnabled)
+        }
 
     @Test
-    fun `settings flow emits updated values`() = runTest(testDispatcher) {
-        val repo = FakeSettingsRepository()
-        val viewModel = createViewModel(settingsRepo = repo)
+    fun `setThemeMode updates repository and uiState`() =
+        runTest(testDispatcher) {
+            val repo = FakeSettingsRepository()
+            val viewModel = createViewModel(settingsRepo = repo)
 
-        viewModel.setHapticsEnabled(false)
-        testScheduler.advanceUntilIdle()
+            viewModel.setThemeMode(ThemeMode.Dark)
+            testScheduler.advanceUntilIdle()
 
-        val emitted = repo.settings.first()
-        assertFalse(emitted.hapticsEnabled)
-    }
-
-    @Test
-    fun `auth state reflected in uiState`() = runTest(testDispatcher) {
-        val authRepo = FakeAuthRepository(AccountState.SignedIn("Test", "test@test.com", null))
-        val viewModel = createViewModel(authRepo = authRepo)
-
-        testScheduler.advanceUntilIdle()
-
-        assertTrue(viewModel.uiState.value.isSignedIn)
-    }
+            assertEquals(ThemeMode.Dark, viewModel.uiState.value.themeMode)
+            assertEquals(ThemeMode.Dark, repo.latestSettings().themeMode)
+        }
 
     @Test
-    fun `pro entitlement reflected in uiState`() = runTest(testDispatcher) {
-        val billingRepo = FakeBillingRepository(ProEntitlement.Pro())
-        val viewModel = createViewModel(billingRepo = billingRepo)
+    fun `setDefaultDuration updates repository and uiState`() =
+        runTest(testDispatcher) {
+            val repo = FakeSettingsRepository()
+            val viewModel = createViewModel(settingsRepo = repo)
 
-        testScheduler.advanceUntilIdle()
+            viewModel.setDefaultDuration(1800)
+            testScheduler.advanceUntilIdle()
 
-        assertTrue(viewModel.uiState.value.isProUser)
-    }
-
-    @Test
-    fun `showDeleteConfirmation sets showDeleteConfirmation true`() = runTest(testDispatcher) {
-        val viewModel = createViewModel()
-        testScheduler.advanceUntilIdle()
-
-        viewModel.showDeleteConfirmation()
-
-        assertTrue(viewModel.uiState.value.showDeleteConfirmation)
-    }
+            assertEquals(1800, viewModel.uiState.value.defaultDurationSeconds)
+            assertEquals(1800, repo.latestSettings().defaultDurationSeconds)
+        }
 
     @Test
-    fun `dismissDeleteConfirmation resets delete state`() = runTest(testDispatcher) {
-        val viewModel = createViewModel()
-        testScheduler.advanceUntilIdle()
+    fun `repository flow emission updates uiState`() =
+        runTest(testDispatcher) {
+            val repo = FakeSettingsRepository()
+            val viewModel = createViewModel(settingsRepo = repo)
 
-        viewModel.showDeleteConfirmation()
-        viewModel.setDeleteConfirmationText("DELETE")
-        viewModel.dismissDeleteConfirmation()
+            repo.setSoundEnabled(false)
+            testScheduler.advanceUntilIdle()
 
-        assertFalse(viewModel.uiState.value.showDeleteConfirmation)
-        assertEquals("", viewModel.uiState.value.deleteConfirmationText)
-        assertTrue(viewModel.uiState.value.deleteIncludeBackup)
-    }
+            assertFalse(viewModel.uiState.value.soundEnabled)
+        }
 
     @Test
-    fun `deleteAllData clears sessions and penalties and resets settings`() = runTest(testDispatcher) {
-        val sessionRepo = FakeSessionRepository()
-        val settingsRepo = FakeSettingsRepository()
-        val viewModel = createViewModel(sessionRepo = sessionRepo, settingsRepo = settingsRepo)
-        testScheduler.advanceUntilIdle()
+    fun `settings flow emits updated values`() =
+        runTest(testDispatcher) {
+            val repo = FakeSettingsRepository()
+            val viewModel = createViewModel(settingsRepo = repo)
 
-        viewModel.deleteAllData()
-        testScheduler.advanceUntilIdle()
+            viewModel.setHapticsEnabled(false)
+            testScheduler.advanceUntilIdle()
 
-        assertTrue(viewModel.uiState.value.deleteSuccess)
-        assertFalse(viewModel.uiState.value.isDeleting)
-    }
+            val emitted = repo.settings.first()
+            assertFalse(emitted.hapticsEnabled)
+        }
 
     @Test
-    fun `deleteAllData with signed in and include backup deletes backup and signs out`() = runTest(testDispatcher) {
-        val authRepo = FakeAuthRepository(AccountState.SignedIn("Test", "test@test.com", null))
-        val backupRepo = FakeBackupRepository()
-        val viewModel = createViewModel(authRepo = authRepo, backupRepo = backupRepo)
-        testScheduler.advanceUntilIdle()
+    fun `auth state reflected in uiState`() =
+        runTest(testDispatcher) {
+            val authRepo = FakeAuthRepository(AccountState.SignedIn("Test", "test@test.com", null))
+            val viewModel = createViewModel(authRepo = authRepo)
 
-        viewModel.deleteAllData()
-        testScheduler.advanceUntilIdle()
+            testScheduler.advanceUntilIdle()
 
-        assertTrue(viewModel.uiState.value.deleteSuccess)
-    }
+            assertTrue(viewModel.uiState.value.isSignedIn)
+        }
+
+    @Test
+    fun `pro entitlement reflected in uiState`() =
+        runTest(testDispatcher) {
+            val billingRepo = FakeBillingRepository(ProEntitlement.Pro())
+            val viewModel = createViewModel(billingRepo = billingRepo)
+
+            testScheduler.advanceUntilIdle()
+
+            assertTrue(viewModel.uiState.value.isProUser)
+        }
+
+    @Test
+    fun `showDeleteConfirmation sets showDeleteConfirmation true`() =
+        runTest(testDispatcher) {
+            val viewModel = createViewModel()
+            testScheduler.advanceUntilIdle()
+
+            viewModel.showDeleteConfirmation()
+
+            assertTrue(viewModel.uiState.value.showDeleteConfirmation)
+        }
+
+    @Test
+    fun `dismissDeleteConfirmation resets delete state`() =
+        runTest(testDispatcher) {
+            val viewModel = createViewModel()
+            testScheduler.advanceUntilIdle()
+
+            viewModel.showDeleteConfirmation()
+            viewModel.setDeleteConfirmationText("DELETE")
+            viewModel.dismissDeleteConfirmation()
+
+            assertFalse(viewModel.uiState.value.showDeleteConfirmation)
+            assertEquals("", viewModel.uiState.value.deleteConfirmationText)
+            assertTrue(viewModel.uiState.value.deleteIncludeBackup)
+        }
+
+    @Test
+    fun `deleteAllData clears sessions and penalties and resets settings`() =
+        runTest(testDispatcher) {
+            val sessionRepo = FakeSessionRepository()
+            val settingsRepo = FakeSettingsRepository()
+            val viewModel = createViewModel(sessionRepo = sessionRepo, settingsRepo = settingsRepo)
+            testScheduler.advanceUntilIdle()
+
+            viewModel.deleteAllData()
+            testScheduler.advanceUntilIdle()
+
+            assertTrue(viewModel.uiState.value.deleteSuccess)
+            assertFalse(viewModel.uiState.value.isDeleting)
+        }
+
+    @Test
+    fun `deleteAllData with signed in and include backup deletes backup and signs out`() =
+        runTest(testDispatcher) {
+            val authRepo = FakeAuthRepository(AccountState.SignedIn("Test", "test@test.com", null))
+            val backupRepo = FakeBackupRepository()
+            val viewModel = createViewModel(authRepo = authRepo, backupRepo = backupRepo)
+            testScheduler.advanceUntilIdle()
+
+            viewModel.deleteAllData()
+            testScheduler.advanceUntilIdle()
+
+            assertTrue(viewModel.uiState.value.deleteSuccess)
+        }
 }
 
 private class FakeBillingRepository(
@@ -228,8 +240,11 @@ private class FakeBillingRepository(
     override val entitlement: Flow<ProEntitlement> = MutableStateFlow(initialEntitlement)
 
     override suspend fun loadProducts() {}
+
     override suspend fun launchPurchaseFlow(product: phonedown.core.model.ProProduct) {}
+
     override suspend fun restorePurchases() {}
+
     override suspend fun acknowledgePurchase(purchaseToken: String) {}
 }
 
@@ -239,7 +254,9 @@ private class FakeAuthRepository(
     override val accountState: Flow<AccountState> = MutableStateFlow(initialState)
 
     override suspend fun signIn() {}
+
     override suspend fun signOut() {}
+
     override fun getAuthToken(): String? = null
 }
 
@@ -251,24 +268,45 @@ private class FakeBackupRepository : BackupRepository {
     ): BackupResult = BackupResult.Success("backup_1", System.currentTimeMillis())
 
     override suspend fun restoreBackup(): RestoreResult = RestoreResult.NoBackupFound
+
     override suspend fun getLastBackupTime(): Long? = null
+
     override suspend fun deleteBackup(): Boolean = true
 }
 
 private class FakeSessionRepository : SessionRepository {
     override suspend fun upsertSession(session: FocusSession) {}
+
     override fun observeSession(id: String): Flow<FocusSession?> = MutableStateFlow(null)
+
     override suspend fun getSession(id: String): FocusSession? = null
+
     override fun observeLatestSessions(limit: Int): Flow<List<FocusSession>> = MutableStateFlow(emptyList())
-    override fun observeSessionsInWindow(startEpochMillis: Long, endEpochMillis: Long): Flow<List<FocusSession>> = MutableStateFlow(emptyList())
+
+    override fun observeSessionsInWindow(
+        startEpochMillis: Long,
+        endEpochMillis: Long,
+    ): Flow<List<FocusSession>> = MutableStateFlow(emptyList())
+
     override suspend fun getRecoverableSessions(): List<FocusSession> = emptyList()
+
     override suspend fun recordPenaltyEvent(event: PenaltyEvent) {}
-    override suspend fun upsertSessionWithPenaltyEvent(session: FocusSession, event: PenaltyEvent) {}
+
+    override suspend fun upsertSessionWithPenaltyEvent(
+        session: FocusSession,
+        event: PenaltyEvent,
+    ) {}
+
     override fun observePenaltyEvents(sessionId: String): Flow<List<PenaltyEvent>> = MutableStateFlow(emptyList())
+
     override suspend fun getPenaltyEvents(sessionId: String): List<PenaltyEvent> = emptyList()
+
     override suspend fun getAllSessions(): List<FocusSession> = emptyList()
+
     override suspend fun getAllPenaltyEvents(): List<PenaltyEvent> = emptyList()
+
     override suspend fun clearAllSessions() {}
+
     override suspend fun clearAllPenaltyEvents() {}
 }
 

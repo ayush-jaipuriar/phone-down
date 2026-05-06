@@ -3,6 +3,7 @@
 package phonedown.app.navigation
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
@@ -155,7 +156,12 @@ private fun PhoneDownBottomBar(
             NavigationBarItem(
                 selected = selected,
                 onClick = { onTabSelected(tab.route) },
-                icon = { Text(tab.label.take(1)) },
+                icon = {
+                    Icon(
+                        imageVector = tab.icon,
+                        contentDescription = tab.label,
+                    )
+                },
                 label = { Text(tab.label) },
                 colors =
                     NavigationBarItemDefaults.colors(

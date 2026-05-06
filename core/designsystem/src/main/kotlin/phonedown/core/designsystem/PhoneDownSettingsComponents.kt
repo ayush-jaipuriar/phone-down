@@ -33,6 +33,8 @@ fun PhoneDownSettingRow(
     supportingText: String? = null,
     trailing: String? = null,
     onClick: (() -> Unit)? = null,
+    showChevron: Boolean = false,
+    destructive: Boolean = false,
 ) {
     val clickableModifier =
         if (onClick == null) {
@@ -55,8 +57,8 @@ fun PhoneDownSettingRow(
         ) {
             Text(
                 text = title,
-                color = PhoneDownDesign.colors.textPrimary,
-                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                color = if (destructive) PhoneDownDesign.colors.danger else PhoneDownDesign.colors.textPrimary,
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
             )
             if (supportingText != null) {
                 Text(
@@ -69,8 +71,16 @@ fun PhoneDownSettingRow(
         if (trailing != null) {
             Text(
                 text = trailing,
-                color = PhoneDownDesign.colors.textSecondary,
+                color = if (destructive) PhoneDownDesign.colors.danger else PhoneDownDesign.colors.textSecondary,
                 style = MaterialTheme.typography.labelMedium,
+            )
+        }
+        if (showChevron) {
+            Text(
+                text = "\u2192",
+                color = PhoneDownDesign.colors.textTertiary,
+                style = MaterialTheme.typography.labelMedium,
+                modifier = Modifier.padding(start = PhoneDownSpacing.xs),
             )
         }
     }
@@ -99,7 +109,7 @@ fun PhoneDownSwitchRow(
             Text(
                 text = title,
                 color = PhoneDownDesign.colors.textPrimary,
-                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
             )
             if (supportingText != null) {
                 Text(
