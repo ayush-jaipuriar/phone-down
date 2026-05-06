@@ -76,6 +76,7 @@ fun FocusScreen(
             Modifier
                 .fillMaxSize()
                 .testTag(FocusTestTags.SCREEN),
+        topPadding = PhoneDownSpacing.lg,
     ) {
         Column(
             modifier =

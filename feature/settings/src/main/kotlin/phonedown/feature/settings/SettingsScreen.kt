@@ -28,7 +28,6 @@ import phonedown.core.designsystem.PhoneDownSpacing
 import phonedown.core.designsystem.PhoneDownSwitchRow
 import phonedown.core.designsystem.PhoneDownTheme
 import phonedown.core.designsystem.PhoneDownThemeControl
-import phonedown.core.designsystem.PhoneDownTopBar
 import phonedown.core.designsystem.PhoneDownSectionHeaderTextStyle
 import phonedown.core.model.ThemeMode
 import java.text.SimpleDateFormat
@@ -63,11 +62,8 @@ fun SettingsScreen(
             Modifier
                 .fillMaxSize()
                 .testTag(SettingsTestTags.SCREEN),
+        topPadding = PhoneDownSpacing.lg,
     ) {
-        PhoneDownTopBar(title = "Settings")
-
-        Spacer(modifier = Modifier.height(PhoneDownSpacing.md))
-
         FocusSection(
             uiState = uiState,
             onProClick = onProClick,

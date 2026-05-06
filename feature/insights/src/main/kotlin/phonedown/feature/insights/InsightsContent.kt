@@ -37,7 +37,6 @@ import phonedown.core.designsystem.PhoneDownMetricCard
 import phonedown.core.designsystem.PhoneDownScreen
 import phonedown.core.designsystem.PhoneDownSpacing
 import phonedown.core.designsystem.PhoneDownTheme
-import phonedown.core.designsystem.PhoneDownTopBar
 import phonedown.core.model.ThemeMode
 import phonedown.domain.insights.AdvancedInsights
 import phonedown.domain.insights.BestDayResult
@@ -92,9 +91,8 @@ fun InsightsContent(
             Modifier
                 .fillMaxSize()
                 .testTag(InsightsTestTags.SCREEN),
+        topPadding = PhoneDownSpacing.lg,
     ) {
-        PhoneDownTopBar(title = "Insights")
-
         if (uiState.isLoading) {
             Box(
                 modifier = Modifier.fillMaxSize(),

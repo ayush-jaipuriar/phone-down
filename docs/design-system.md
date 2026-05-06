@@ -65,6 +65,7 @@ Current reusable components:
 
 Component updates from the UI polish pass:
 
+- `PhoneDownScreen` now supports a configurable top inset so headerless primary-tab screens can sit higher without affecting detail pages.
 - `PhoneDownButton` now uses a pill silhouette to match the mockups.
 - `PhoneDownCard` relies on surface contrast rather than explicit borders.
 - `PhoneDownProgressRing` now includes a moving tip dot for active progress.
@@ -92,6 +93,7 @@ Latest hierarchy refinement from the updated mockup:
 - Settings section headers now use primary text color instead of reading like muted captions.
 - Insights card headers use stronger label styling so the cards scan more like the updated mock.
 - These adjustments are token-driven, so light and dark mode inherit the same hierarchy without maintaining separate style branches.
+- Primary tab roots now intentionally avoid redundant top bars when bottom navigation already provides location context.
 
 Intentional current limits:
 

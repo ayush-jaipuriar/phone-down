@@ -269,3 +269,23 @@ Do NOT expand scope or implement new features without asking the user. Follow th
 - Next manual check needed from the user:
   - confirm the stray beep is gone and only the intended premium cue remains
   - confirm rotating the device no longer rotates the app UI
+
+## 15. 2026-05-06 Headerless Tab Shell Refinement
+
+- Removed the redundant top header bars from the primary tab-root screens:
+  - Focus already had its top header removed in the earlier pass
+  - Insights no longer renders a duplicate `Insights` title above the content
+  - Settings no longer renders a duplicate `Settings` title above the content
+- To keep the result feeling intentional rather than abruptly cropped, generalized `PhoneDownScreen`:
+  - added a `topPadding` parameter with a default value so secondary/detail screens can keep the fuller header-led spacing
+  - tab-root screens (`Focus`, `Insights`, `Settings`) now opt into a slightly tighter top inset for a smoother, more modern feel
+- Files touched for this pass:
+  - `core/designsystem/src/main/kotlin/phonedown/core/designsystem/PhoneDownComponents.kt`
+  - `feature/focus/src/main/kotlin/phonedown/feature/focus/FocusScreen.kt`
+  - `feature/insights/src/main/kotlin/phonedown/feature/insights/InsightsContent.kt`
+  - `feature/settings/src/main/kotlin/phonedown/feature/settings/SettingsScreen.kt`
+- Verification completed:
+  - `./gradlew --no-configuration-cache :app:assembleDebug`
+  - `./gradlew --no-configuration-cache :feature:focus:recordPaparazziDebug :feature:insights:recordPaparazziDebug :feature:settings:recordPaparazziDebug`
+  - `./gradlew --no-configuration-cache :feature:focus:verifyPaparazziDebug :feature:insights:verifyPaparazziDebug :feature:settings:verifyPaparazziDebug`
+  - `git diff --check`

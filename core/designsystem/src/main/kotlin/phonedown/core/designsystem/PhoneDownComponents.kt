@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 @Suppress("FunctionName")
 fun PhoneDownScreen(
     modifier: Modifier = Modifier,
+    topPadding: Dp = PhoneDownSpacing.xl,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Column(
@@ -44,7 +45,7 @@ fun PhoneDownScreen(
             modifier
                 .background(PhoneDownDesign.colors.background)
                 .padding(horizontal = PhoneDownSpacing.screen)
-                .padding(top = PhoneDownSpacing.xl),
+                .padding(top = topPadding),
         content = content,
     )
 }
