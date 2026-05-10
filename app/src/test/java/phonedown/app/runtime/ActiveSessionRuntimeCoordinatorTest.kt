@@ -120,6 +120,30 @@ class ActiveSessionRuntimeCoordinatorTest {
         }
 
     @Test
+    fun manualPauseAndAddTimePersistThroughRuntimeCoordinator() =
+        runTest {
+            val sessionRepository = FakeSessionRepository()
+            val settingsRepository = FakeSettingsRepository()
+            val coordinator = createCoordinator(sessionRepository, settingsRepository)
+
+            coordinator.ensureSessionStarted(plannedDurationSeconds = 60L)
+            coordinator.onSensorValidityChanged(faceDownStable())
+            clock.advanceBy(3_000L)
+            coordinator.onTick()
+
+            val extended = coordinator.addTime(60L).state.session ?: error("extended session")
+            assertEquals(120L, extended.requiredDurationSeconds)
+
+            val paused = coordinator.pauseSession().state.session ?: error("paused session")
+            assertEquals(SessionState.PausedByUser, paused.state)
+            assertFalse(paused.clean)
+
+            val resumed = coordinator.resumeSession().state.session ?: error("resumed session")
+            assertEquals(SessionState.WaitingForPhoneDown, resumed.state)
+            assertTrue(sessionRepository.recordedEvents.any { it.sessionId == resumed.id })
+        }
+
+    @Test
     fun endSessionFromWaitingStateInvalidatesSessionAndRequestsShutdown() =
         runTest {
             val sessionRepository = FakeSessionRepository()

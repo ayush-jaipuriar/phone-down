@@ -18,6 +18,18 @@ sealed class RestoreResult {
     data object NoBackupFound : RestoreResult()
 }
 
+sealed class RestorePayloadResult {
+    data class Success(val payload: RestorePayload) : RestorePayloadResult()
+    data class Failure(val reason: String) : RestorePayloadResult()
+    data object NoBackupFound : RestorePayloadResult()
+}
+
+data class RestorePayload(
+    val sessions: List<FocusSession>,
+    val penaltyEvents: List<PenaltyEvent>,
+    val settings: UserSettings,
+)
+
 interface BackupRepository {
     suspend fun createBackup(
         sessions: List<FocusSession>,
@@ -26,6 +38,14 @@ interface BackupRepository {
     ): BackupResult
 
     suspend fun restoreBackup(): RestoreResult
+
+    suspend fun fetchRestorePayload(): RestorePayloadResult =
+        when (val result = restoreBackup()) {
+            is RestoreResult.Success ->
+                RestorePayloadResult.Failure("Backup payload is unavailable from this repository")
+            is RestoreResult.Failure -> RestorePayloadResult.Failure(result.reason)
+            RestoreResult.NoBackupFound -> RestorePayloadResult.NoBackupFound
+        }
 
     suspend fun getLastBackupTime(): Long?
 

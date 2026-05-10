@@ -5,11 +5,12 @@ import kotlinx.serialization.json.Json
 import phonedown.core.backup.dto.BackupData
 
 object BackupSerializer {
-    private val json = Json {
-        prettyPrint = true
-        ignoreUnknownKeys = true
-        encodeDefaults = true
-    }
+    private val json =
+        Json {
+            prettyPrint = true
+            ignoreUnknownKeys = true
+            encodeDefaults = true
+        }
 
     const val CURRENT_SCHEMA_VERSION = 1
 
@@ -17,6 +18,5 @@ object BackupSerializer {
 
     fun deserialize(jsonString: String): BackupData = json.decodeFromString(jsonString)
 
-    fun validateSchemaVersion(data: BackupData): Boolean =
-        data.schemaVersion == CURRENT_SCHEMA_VERSION
+    fun validateSchemaVersion(data: BackupData): Boolean = data.schemaVersion == CURRENT_SCHEMA_VERSION
 }

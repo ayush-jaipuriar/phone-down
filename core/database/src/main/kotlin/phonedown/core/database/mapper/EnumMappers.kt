@@ -17,6 +17,7 @@ fun SessionState.toStorageString(): String =
         SessionState.Active -> "active"
         SessionState.PausedByPickup -> "paused_by_pickup"
         SessionState.PausedByCall -> "paused_by_call"
+        SessionState.PausedByUser -> "paused_by_user"
         SessionState.Completed -> "completed"
         SessionState.EndedEarly -> "ended_early"
         SessionState.Invalidated -> "invalidated"
@@ -32,6 +33,7 @@ fun String.toSessionState(): SessionState =
         "active" -> SessionState.Active
         "paused_by_pickup" -> SessionState.PausedByPickup
         "paused_by_call" -> SessionState.PausedByCall
+        "paused_by_user" -> SessionState.PausedByUser
         "completed" -> SessionState.Completed
         "ended_early" -> SessionState.EndedEarly
         "invalidated" -> SessionState.Invalidated
@@ -72,6 +74,7 @@ fun PenaltyEventType.toStorageString(): String =
         PenaltyEventType.ForceClose -> "force_close"
         PenaltyEventType.DeviceRestart -> "device_restart"
         PenaltyEventType.ManualEnd -> "manual_end"
+        PenaltyEventType.ManualPause -> "manual_pause"
     }
 
 fun String.toPenaltyEventType(): PenaltyEventType =
@@ -83,5 +86,6 @@ fun String.toPenaltyEventType(): PenaltyEventType =
         "force_close" -> PenaltyEventType.ForceClose
         "device_restart" -> PenaltyEventType.DeviceRestart
         "manual_end" -> PenaltyEventType.ManualEnd
+        "manual_pause" -> PenaltyEventType.ManualPause
         else -> FALLBACK_PENALTY
     }

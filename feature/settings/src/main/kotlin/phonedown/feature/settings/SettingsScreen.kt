@@ -14,21 +14,24 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import phonedown.core.designsystem.PhoneDownCard
 import phonedown.core.designsystem.PhoneDownDesign
 import phonedown.core.designsystem.PhoneDownProBadge
 import phonedown.core.designsystem.PhoneDownScreen
 import phonedown.core.designsystem.PhoneDownSettingRow
+import phonedown.core.designsystem.PhoneDownSectionHeaderTextStyle
 import phonedown.core.designsystem.PhoneDownSpacing
 import phonedown.core.designsystem.PhoneDownSwitchRow
 import phonedown.core.designsystem.PhoneDownTheme
 import phonedown.core.designsystem.PhoneDownThemeControl
-import phonedown.core.designsystem.PhoneDownSectionHeaderTextStyle
 import phonedown.core.model.ThemeMode
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -44,6 +47,8 @@ fun SettingsScreen(
     onProClick: () -> Unit,
     onBackupClick: () -> Unit,
     onPrivacyPolicyClick: () -> Unit,
+    callPausePermissionGranted: Boolean = false,
+    onCallPausePermissionRequested: () -> Unit = {},
     onTermsOfServiceClick: () -> Unit = {},
     onSupportClick: () -> Unit = {},
     onDeleteRequested: () -> Unit,
@@ -56,6 +61,7 @@ fun SettingsScreen(
     onThemeModeSelected: (ThemeMode) -> Unit,
     onDefaultDurationClick: () -> Unit = {},
 ) {
+    var showCallPauseEducation by remember { mutableStateOf(false) }
 
     PhoneDownScreen(
         modifier =
@@ -71,6 +77,8 @@ fun SettingsScreen(
             onHapticsToggled = onHapticsToggled,
             onThemeModeSelected = onThemeModeSelected,
             onDefaultDurationClick = onDefaultDurationClick,
+            callPausePermissionGranted = callPausePermissionGranted,
+            onCallPausePermissionClick = { showCallPauseEducation = true },
         )
 
         Spacer(modifier = Modifier.height(PhoneDownSpacing.sm))
@@ -86,8 +94,6 @@ fun SettingsScreen(
 
         AboutSection(
             onPrivacyPolicyClick = onPrivacyPolicyClick,
-            onTermsOfServiceClick = onTermsOfServiceClick,
-            onSupportClick = onSupportClick,
             onDeleteRequested = onDeleteRequested,
         )
 
@@ -98,6 +104,16 @@ fun SettingsScreen(
                 onDismiss = onDeleteDismissed,
                 onConfirmationTextChanged = onDeleteConfirmationTextChanged,
                 onIncludeBackupChanged = onDeleteIncludeBackupChanged,
+            )
+        }
+
+        if (showCallPauseEducation) {
+            CallPausePermissionDialog(
+                onConfirm = {
+                    showCallPauseEducation = false
+                    onCallPausePermissionRequested()
+                },
+                onDismiss = { showCallPauseEducation = false },
             )
         }
     }
@@ -111,6 +127,8 @@ private fun FocusSection(
     onHapticsToggled: (Boolean) -> Unit,
     onThemeModeSelected: (ThemeMode) -> Unit,
     onDefaultDurationClick: () -> Unit,
+    callPausePermissionGranted: Boolean,
+    onCallPausePermissionClick: () -> Unit,
 ) {
     SettingsSectionHeader(title = "Focus") {
         PhoneDownSettingRow(
@@ -121,7 +139,7 @@ private fun FocusSection(
         )
         PhoneDownSettingRow(
             title = "Duration Presets",
-            trailing = DURATION_PRESETS.joinToString(", ") { "${it} min" },
+            trailing = DURATION_PRESETS.joinToString(", ") { "$it min" },
         )
         PhoneDownSettingRow(
             title = "Custom Duration",
@@ -142,6 +160,13 @@ private fun FocusSection(
             onCheckedChange = onHapticsToggled,
             modifier = Modifier.testTag(SettingsTestTags.HAPTICS_SWITCH),
         )
+        PhoneDownSettingRow(
+            title = "Pause for calls",
+            supportingText = "Let Phone Down pause automatically during phone calls",
+            trailing = if (callPausePermissionGranted) "On" else "Permission needed",
+            showChevron = !callPausePermissionGranted,
+            onClick = if (callPausePermissionGranted) null else onCallPausePermissionClick,
+        )
         Column(verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.xs)) {
             PhoneDownSettingRow(title = "Theme")
             PhoneDownThemeControl(
@@ -155,6 +180,32 @@ private fun FocusSection(
             trailing = "3 seconds",
         )
     }
+}
+
+@Composable
+private fun CallPausePermissionDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Allow call pause?") },
+        text = {
+            Text(
+                "Phone Down can pause your focus timer when a phone call starts. Android requires phone-state permission for this, but the app does not read call audio, contacts, numbers, or call contents.",
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text("Allow")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Not now")
+            }
+        },
+    )
 }
 
 @Composable
@@ -230,29 +281,12 @@ private fun AccountSection(
             }
         }
 
-        if (uiState.isProUser && uiState.isSignedIn) {
-            PhoneDownSettingRow(
-                title = "Auto Backup",
-                supportingText = "Daily automatic backup to Google Drive",
-                trailing = if (uiState.autoBackupEnabled) "On" else "Off",
-            )
-        }
-
-        PhoneDownSettingRow(
-            title = "Export Data",
-            supportingText = "Export your session history as a file",
-            trailing = if (!uiState.isProUser) "Pro" else null,
-            showChevron = uiState.isProUser,
-            onClick = if (uiState.isProUser) onBackupClick else onProClick,
-        )
     }
 }
 
 @Composable
 private fun AboutSection(
     onPrivacyPolicyClick: () -> Unit,
-    onTermsOfServiceClick: () -> Unit,
-    onSupportClick: () -> Unit,
     onDeleteRequested: () -> Unit,
 ) {
     SettingsSectionHeader(title = "About") {
@@ -260,16 +294,6 @@ private fun AboutSection(
             title = "Privacy Policy",
             showChevron = true,
             onClick = onPrivacyPolicyClick,
-        )
-        PhoneDownSettingRow(
-            title = "Terms of Service",
-            showChevron = true,
-            onClick = onTermsOfServiceClick,
-        )
-        PhoneDownSettingRow(
-            title = "Support",
-            showChevron = true,
-            onClick = onSupportClick,
         )
         PhoneDownSettingRow(
             title = "Version",
@@ -366,7 +390,12 @@ private fun DeleteConfirmationDialog(
             ) {
                 Text(
                     if (uiState.isDeleting) "Deleting..." else "Delete",
-                    color = if (uiState.deleteConfirmationText == "DELETE") PhoneDownDesign.colors.danger else PhoneDownDesign.colors.textTertiary,
+                    color =
+                        if (uiState.deleteConfirmationText == "DELETE") {
+                            PhoneDownDesign.colors.danger
+                        } else {
+                            PhoneDownDesign.colors.textTertiary
+                        },
                 )
             }
         },

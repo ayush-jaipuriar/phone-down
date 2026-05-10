@@ -25,6 +25,9 @@ enum class SessionState {
     /** Session is paused because an incoming call was detected. */
     PausedByCall,
 
+    /** Session is paused because the user explicitly tapped pause. */
+    PausedByUser,
+
     /** Session reached its required duration and ended cleanly. */
     Completed,
 

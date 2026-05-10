@@ -25,5 +25,17 @@ interface SettingsRepository {
 
     suspend fun setFreeCustomDurationSeconds(seconds: Long?)
 
+    suspend fun restoreSettings(settings: UserSettings) {
+        setDefaultDurationSeconds(settings.defaultDurationSeconds)
+        setSoundEnabled(settings.soundEnabled)
+        setHapticsEnabled(settings.hapticsEnabled)
+        setThemeMode(settings.themeMode)
+        setOnboardingCompleted(settings.onboardingCompleted)
+        setBackupOptIn(settings.backupOptIn)
+        setAutoBackupEnabled(settings.autoBackupEnabled)
+        setLastBackupEpochMillis(settings.lastBackupEpochMillis)
+        setFreeCustomDurationSeconds(settings.freeCustomDurationSeconds)
+    }
+
     suspend fun resetToDefaults()
 }

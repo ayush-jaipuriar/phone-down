@@ -289,3 +289,69 @@ Do NOT expand scope or implement new features without asking the user. Follow th
   - `./gradlew --no-configuration-cache :feature:focus:recordPaparazziDebug :feature:insights:recordPaparazziDebug :feature:settings:recordPaparazziDebug`
   - `./gradlew --no-configuration-cache :feature:focus:verifyPaparazziDebug :feature:insights:verifyPaparazziDebug :feature:settings:verifyPaparazziDebug`
   - `git diff --check`
+
+## 16. 2026-05-10 Product QA Audit And Phase 15 Trust Hotfix Plan
+
+- Completed a PM/QA-style audit of the current Phone Down codebase and captured the findings in `docs/product-qa-audit-2026-05-10.md`.
+- Highest-priority trust gaps identified:
+  - Pause and Add Time are currently UI-only and do not affect the session engine.
+  - Restore reports success after deserializing/counting backup data but does not write restored sessions/settings locally.
+  - Call interruption support silently no-ops without `READ_PHONE_STATE` permission.
+  - Notification open-to-Focus routing only works reliably for cold start, not warm `onNewIntent` cases.
+  - Some Settings rows are tappable but not backed by real behavior.
+  - Focus and Insights can use different "today sessions" counting rules.
+- User clarified Phase 15 decisions:
+  - Make Pause/Add Time real end to end.
+  - Restore should fully replace local data.
+  - Request call permission only after educating the user.
+  - Notification taps should always route to Focus.
+  - Hide or disable dead Settings rows unless they are real.
+  - Count completed, ended early, invalidated, and broken sessions; exclude abandoned and pre-start waiting sessions.
+- Created `phase-15-trust-hotfix-plan.md` with detailed workstreams, checklists, verification plan, risks, and acceptance criteria.
+- User approved the plan and Phase 15 implementation is now complete.
+- Implementation highlights:
+  - real Pause/Add Time in `SessionEngine`, `ActiveSessionRuntimeCoordinator`, and `FocusViewModel`
+  - persisted `PausedByUser` session state and `ManualPause` event type with stable storage strings
+  - real full-replace restore through `RestoreBackupUseCase`, `RestorePayload`, Room bulk replacement, and `SettingsRepository.restoreSettings`
+  - backup JSON enum storage switched from Kotlin enum names to stable strings
+  - notification taps now route to Focus for warm-start intents via `MainActivity.onNewIntent()` and a Compose flow
+  - Settings now educates before requesting `READ_PHONE_STATE`
+  - dead Settings rows for Terms, Support, Export Data, and Auto Backup were removed
+  - Focus today's metrics now reuse `GetTodayInsightsUseCase.summarize()`
+- Verification passed:
+  - `./gradlew --no-configuration-cache :domain:session:test :domain:insights:test :core:backup:testDebugUnitTest :core:database:testDebugUnitTest :app:testDebugUnitTest :feature:focus:testDebugUnitTest :feature:settings:testDebugUnitTest :app:assembleDebug`
+  - `./gradlew --no-configuration-cache :feature:settings:verifyPaparazziDebug :feature:focus:verifyPaparazziDebug`
+  - `git diff --check`
+- Verification blocked:
+  - `./gradlew --no-configuration-cache :feature:settings:connectedDebugAndroidTest` could not run because Gradle reported `No connected devices!`.
+  - `./scripts/check.sh` still fails on existing ktlint policy disagreements and PascalCase Compose naming conventions documented earlier in the project.
+- Next step: install on a real attached device and manually test Pause/Add Time, full restore, notification tap-to-Focus, and call-permission education.
+
+## 17. 2026-05-10 Phase 16 Android Production Readiness Plan
+
+- User requested a plan to complete all fake/deferred production items and reach Android Play Store production readiness.
+- User confirmed Phase 16 should include:
+  - real Google Sign-In
+  - real Google Drive backup/restore
+  - real Google Play Billing for monthly, yearly, and lifetime Pro
+  - release signing and Play Store upload readiness
+  - certificate pin/security cleanup
+  - production privacy/security cleanup
+  - final Play Store metadata/assets review
+- Research completed against current official/commercial references:
+  - Play Console has a one-time US$25 registration fee.
+  - New personal Play developer accounts may require closed testing with at least 12 opted-in testers for 14 continuous days before production access.
+  - Drive `appDataFolder` is the recommended hidden app-specific backup store and requires the narrow `drive.appdata` scope.
+  - Play Billing supports recurring subscriptions and one-time products.
+  - Comparable focus pricing supports an India launch recommendation of INR 99/month, INR 799/year, and INR 1,999 lifetime.
+- Created `phase-16-android-production-readiness-plan.md`.
+- Key recommendations in the plan:
+  - create a dedicated Google Cloud/Firebase project for Phone Down rather than reusing `only-yours`
+  - use Drive `appDataFolder`
+  - implement once-daily auto-backup with WorkManager
+  - keep Room database unencrypted for V1
+  - add Firebase Crashlytics with minimal disclosed diagnostics
+  - keep 24-hour entitlement cache
+  - use internal testing first, then closed testing, then production rollout
+- No production implementation has started yet.
+- Next step: user should review and approve `phase-16-android-production-readiness-plan.md`; after approval, begin Sprint 16.1 with Play Console/Firebase/OAuth/signing setup docs and account handholding.

@@ -122,16 +122,19 @@ class FocusSessionDaoTest {
                 )
             val completed = createSessionEntity(id = "completed", state = SessionState.Completed.toStorageString())
             val broken = createSessionEntity(id = "broken", state = SessionState.Broken.toStorageString())
+            val userPaused = createSessionEntity(id = "user-paused", state = SessionState.PausedByUser.toStorageString())
 
             sessionDao.upsertSession(active)
             sessionDao.upsertSession(waiting)
             sessionDao.upsertSession(completed)
             sessionDao.upsertSession(broken)
+            sessionDao.upsertSession(userPaused)
 
             val recoverable = sessionDao.getRecoverableSessions()
-            assertEquals(2, recoverable.size)
+            assertEquals(3, recoverable.size)
             assertEquals("active", recoverable[0].id)
             assertEquals("waiting", recoverable[1].id)
+            assertEquals("user-paused", recoverable[2].id)
         }
 
     @Test

@@ -14,6 +14,9 @@ interface FocusSessionDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertSession(entity: FocusSessionEntity)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertSessions(entities: List<FocusSessionEntity>)
+
     @Query("SELECT * FROM focus_sessions WHERE id = :id")
     fun getSession(id: String): Flow<FocusSessionEntity?>
 
@@ -38,7 +41,7 @@ interface FocusSessionDao {
     @Query(
         """
         SELECT * FROM focus_sessions 
-        WHERE state IN ('created', 'waiting_for_phone_down', 'arming', 'active', 'paused_by_pickup', 'paused_by_call')
+        WHERE state IN ('created', 'waiting_for_phone_down', 'arming', 'active', 'paused_by_pickup', 'paused_by_call', 'paused_by_user')
     """,
     )
     suspend fun getRecoverableSessions(): List<FocusSessionEntity>

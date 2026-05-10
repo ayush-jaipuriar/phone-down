@@ -18,9 +18,7 @@ import org.junit.Test
 import phonedown.core.model.AccountState
 import phonedown.core.model.ProEntitlement
 import phonedown.core.model.repository.AuthRepository
-import phonedown.core.model.repository.BackupRepository
 import phonedown.core.model.repository.BillingRepository
-import phonedown.core.model.repository.RestoreResult
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AccountViewModelTest {
@@ -102,8 +100,8 @@ class AccountViewModelTest {
     @Test
     fun `restoreBackup success updates restoreState`() =
         runTest(testDispatcher) {
-            val backupRepo = FakeBackupRepository(RestoreResult.Success(5, true))
-            val viewModel = createViewModel(backupRepo = backupRepo)
+            val restorer = FakeBackupRestorer(RestoreBackupOutcome.Success(5, true))
+            val viewModel = createViewModel(backupRestorer = restorer)
 
             viewModel.restoreBackup()
             testScheduler.advanceUntilIdle()
@@ -116,8 +114,8 @@ class AccountViewModelTest {
     @Test
     fun `restoreBackup failure updates restoreState`() =
         runTest(testDispatcher) {
-            val backupRepo = FakeBackupRepository(RestoreResult.Failure("Network error"))
-            val viewModel = createViewModel(backupRepo = backupRepo)
+            val restorer = FakeBackupRestorer(RestoreBackupOutcome.Failure("Network error"))
+            val viewModel = createViewModel(backupRestorer = restorer)
 
             viewModel.restoreBackup()
             testScheduler.advanceUntilIdle()
@@ -130,8 +128,8 @@ class AccountViewModelTest {
     @Test
     fun `restoreBackup no backup found shows error`() =
         runTest(testDispatcher) {
-            val backupRepo = FakeBackupRepository(RestoreResult.NoBackupFound)
-            val viewModel = createViewModel(backupRepo = backupRepo)
+            val restorer = FakeBackupRestorer(RestoreBackupOutcome.NoBackupFound)
+            val viewModel = createViewModel(backupRestorer = restorer)
 
             viewModel.restoreBackup()
             testScheduler.advanceUntilIdle()
@@ -144,8 +142,8 @@ class AccountViewModelTest {
     @Test
     fun `clearRestoreState resets to idle`() =
         runTest(testDispatcher) {
-            val backupRepo = FakeBackupRepository(RestoreResult.Success(5, true))
-            val viewModel = createViewModel(backupRepo = backupRepo)
+            val restorer = FakeBackupRestorer(RestoreBackupOutcome.Success(5, true))
+            val viewModel = createViewModel(backupRestorer = restorer)
 
             viewModel.restoreBackup()
             testScheduler.advanceUntilIdle()
@@ -159,12 +157,12 @@ class AccountViewModelTest {
     private fun createViewModel(
         authRepo: AuthRepository = FakeAuthRepository(),
         billingRepo: BillingRepository = FakeBillingRepository(ProEntitlement.Free),
-        backupRepo: BackupRepository = FakeBackupRepository(RestoreResult.NoBackupFound),
+        backupRestorer: BackupRestorer = FakeBackupRestorer(RestoreBackupOutcome.NoBackupFound),
     ): AccountViewModel =
         AccountViewModel(
             authRepository = authRepo,
             billingRepository = billingRepo,
-            backupRepository = backupRepo,
+            restoreBackupUseCase = backupRestorer,
         )
 }
 
@@ -206,20 +204,8 @@ private class FakeBillingRepository(
     override suspend fun acknowledgePurchase(purchaseToken: String) {}
 }
 
-private class FakeBackupRepository(
-    private val result: RestoreResult,
-) : BackupRepository {
-    override suspend fun createBackup(
-        sessions: List<phonedown.core.model.FocusSession>,
-        penaltyEvents: List<phonedown.core.model.PenaltyEvent>,
-        settings: phonedown.core.model.UserSettings,
-    ): phonedown.core.model.repository.BackupResult =
-        phonedown.core.model.repository.BackupResult
-            .Success("backup_1", System.currentTimeMillis())
-
-    override suspend fun restoreBackup(): RestoreResult = result
-
-    override suspend fun getLastBackupTime(): Long? = null
-
-    override suspend fun deleteBackup(): Boolean = true
+private class FakeBackupRestorer(
+    private val outcome: RestoreBackupOutcome,
+) : BackupRestorer {
+    override suspend fun invoke(): RestoreBackupOutcome = outcome
 }

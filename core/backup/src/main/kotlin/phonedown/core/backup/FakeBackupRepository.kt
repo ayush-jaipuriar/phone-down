@@ -1,7 +1,6 @@
 package phonedown.core.backup
 
 import kotlinx.coroutines.delay
-import phonedown.core.backup.dto.BackupData
 import phonedown.core.backup.mapper.BackupDataMapper
 import phonedown.core.backup.serializer.BackupSerializer
 import phonedown.core.model.FocusSession
@@ -9,6 +8,8 @@ import phonedown.core.model.PenaltyEvent
 import phonedown.core.model.UserSettings
 import phonedown.core.model.repository.BackupRepository
 import phonedown.core.model.repository.BackupResult
+import phonedown.core.model.repository.RestorePayload
+import phonedown.core.model.repository.RestorePayloadResult
 import phonedown.core.model.repository.RestoreResult
 
 /**
@@ -18,7 +19,6 @@ import phonedown.core.model.repository.RestoreResult
  * Not for production use.
  */
 class FakeBackupRepository : BackupRepository {
-
     private var storedJson: String? = null
     private var lastBackupTime: Long? = null
 
@@ -40,21 +40,35 @@ class FakeBackupRepository : BackupRepository {
         }
     }
 
-    override suspend fun restoreBackup(): RestoreResult {
+    override suspend fun restoreBackup(): RestoreResult =
+        when (val result = fetchRestorePayload()) {
+            is RestorePayloadResult.Success ->
+                RestoreResult.Success(
+                    sessionsRestored = result.payload.sessions.size,
+                    settingsRestored = true,
+                )
+            is RestorePayloadResult.Failure -> RestoreResult.Failure(result.reason)
+            RestorePayloadResult.NoBackupFound -> RestoreResult.NoBackupFound
+        }
+
+    override suspend fun fetchRestorePayload(): RestorePayloadResult {
         delay(1_000)
-        val json = storedJson ?: return RestoreResult.NoBackupFound
+        val json = storedJson ?: return RestorePayloadResult.NoBackupFound
         return try {
             val backupData = BackupSerializer.deserialize(json)
             if (!BackupSerializer.validateSchemaVersion(backupData)) {
-                return RestoreResult.Failure("Unsupported backup version: ${backupData.schemaVersion}")
+                return RestorePayloadResult.Failure("Unsupported backup version: ${backupData.schemaVersion}")
             }
-            val (sessions, _, _) = BackupDataMapper.fromBackupData(backupData)
-            RestoreResult.Success(
-                sessionsRestored = sessions.size,
-                settingsRestored = true,
+            val (sessions, penaltyEvents, settings) = BackupDataMapper.fromBackupData(backupData)
+            RestorePayloadResult.Success(
+                RestorePayload(
+                    sessions = sessions,
+                    penaltyEvents = penaltyEvents,
+                    settings = settings,
+                ),
             )
         } catch (e: Exception) {
-            RestoreResult.Failure(e.message ?: "Unknown error")
+            RestorePayloadResult.Failure(e.message ?: "Unknown error")
         }
     }
 

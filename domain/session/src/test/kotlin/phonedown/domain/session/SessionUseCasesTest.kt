@@ -146,4 +146,16 @@ private class FakeSessionRepository : SessionRepository {
         flowOf(recordedEvents.filter { it.sessionId == sessionId })
 
     override suspend fun getPenaltyEvents(sessionId: String): List<PenaltyEvent> = recordedEvents.filter { it.sessionId == sessionId }
+
+    override suspend fun getAllSessions(): List<FocusSession> = sessionsById.values.toList()
+
+    override suspend fun getAllPenaltyEvents(): List<PenaltyEvent> = recordedEvents
+
+    override suspend fun clearAllSessions() {
+        sessionsById.clear()
+    }
+
+    override suspend fun clearAllPenaltyEvents() {
+        recordedEvents.clear()
+    }
 }

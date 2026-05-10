@@ -5,16 +5,16 @@ import phonedown.core.backup.dto.BackupPenaltyEvent
 import phonedown.core.backup.dto.BackupSession
 import phonedown.core.backup.dto.BackupSettings
 import phonedown.core.backup.serializer.BackupSerializer
+import phonedown.core.database.mapper.toPenaltyEventType
+import phonedown.core.database.mapper.toSessionResult
+import phonedown.core.database.mapper.toSessionState
+import phonedown.core.database.mapper.toStorageString
 import phonedown.core.model.FocusSession
 import phonedown.core.model.PenaltyEvent
-import phonedown.core.model.PenaltyEventType
-import phonedown.core.model.SessionResult
-import phonedown.core.model.SessionState
 import phonedown.core.model.ThemeMode
 import phonedown.core.model.UserSettings
 
 object BackupDataMapper {
-
     fun toBackupData(
         sessions: List<FocusSession>,
         penaltyEvents: List<PenaltyEvent>,
@@ -50,8 +50,8 @@ object BackupDataMapper {
             endedAtEpochMillis = session.endedAtEpochMillis,
             startElapsedRealtime = session.startElapsedRealtime,
             endElapsedRealtime = session.endElapsedRealtime,
-            state = session.state.name,
-            result = session.result?.name,
+            state = session.state.toStorageString(),
+            result = session.result?.toStorageString(),
             clean = session.clean,
             broken = session.broken,
             callInterrupted = session.callInterrupted,
@@ -74,8 +74,8 @@ object BackupDataMapper {
             endedAtEpochMillis = dto.endedAtEpochMillis,
             startElapsedRealtime = dto.startElapsedRealtime,
             endElapsedRealtime = dto.endElapsedRealtime,
-            state = SessionState.valueOf(dto.state),
-            result = dto.result?.let { SessionResult.valueOf(it) },
+            state = dto.state.toSessionState(),
+            result = dto.result?.toSessionResult(),
             clean = dto.clean,
             broken = dto.broken,
             callInterrupted = dto.callInterrupted,
@@ -87,7 +87,7 @@ object BackupDataMapper {
         BackupPenaltyEvent(
             id = event.id,
             sessionId = event.sessionId,
-            type = event.type.name,
+            type = event.type.toStorageString(),
             startedAtEpochMillis = event.startedAtEpochMillis,
             endedAtEpochMillis = event.endedAtEpochMillis,
             durationSeconds = event.durationSeconds,
@@ -98,7 +98,7 @@ object BackupDataMapper {
         PenaltyEvent(
             id = dto.id,
             sessionId = dto.sessionId,
-            type = PenaltyEventType.valueOf(dto.type),
+            type = dto.type.toPenaltyEventType(),
             startedAtEpochMillis = dto.startedAtEpochMillis,
             endedAtEpochMillis = dto.endedAtEpochMillis,
             durationSeconds = dto.durationSeconds,
@@ -110,7 +110,7 @@ object BackupDataMapper {
             defaultDurationSeconds = settings.defaultDurationSeconds,
             soundEnabled = settings.soundEnabled,
             hapticsEnabled = settings.hapticsEnabled,
-            themeMode = settings.themeMode.name,
+            themeMode = settings.themeMode.toBackupString(),
             onboardingCompleted = settings.onboardingCompleted,
             backupOptIn = settings.backupOptIn,
             autoBackupEnabled = settings.autoBackupEnabled,
@@ -122,10 +122,25 @@ object BackupDataMapper {
             defaultDurationSeconds = dto.defaultDurationSeconds,
             soundEnabled = dto.soundEnabled,
             hapticsEnabled = dto.hapticsEnabled,
-            themeMode = ThemeMode.valueOf(dto.themeMode),
+            themeMode = dto.themeMode.toThemeMode(),
             onboardingCompleted = dto.onboardingCompleted,
             backupOptIn = dto.backupOptIn,
             autoBackupEnabled = dto.autoBackupEnabled,
             freeCustomDurationSeconds = dto.freeCustomDurationSeconds,
         )
+
+    private fun ThemeMode.toBackupString(): String =
+        when (this) {
+            ThemeMode.System -> "system"
+            ThemeMode.Light -> "light"
+            ThemeMode.Dark -> "dark"
+        }
+
+    private fun String.toThemeMode(): ThemeMode =
+        when (this) {
+            "system", "System" -> ThemeMode.System
+            "light", "Light" -> ThemeMode.Light
+            "dark", "Dark" -> ThemeMode.Dark
+            else -> ThemeMode.System
+        }
 }

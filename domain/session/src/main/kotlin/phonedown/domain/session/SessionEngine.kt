@@ -65,6 +65,9 @@ class SessionEngine(
             SessionInput.Tick -> onTick(runtime)
             SessionInput.CallStarted -> onCallStarted(runtime)
             SessionInput.CallEnded -> onCallEnded(runtime)
+            SessionInput.ManualPauseRequested -> onManualPauseRequested(runtime)
+            SessionInput.ManualResumeRequested -> onManualResumeRequested(runtime)
+            is SessionInput.AddTimeRequested -> onAddTimeRequested(runtime, input.additionalSeconds)
             SessionInput.ManualEndRequested -> onManualEndRequested(runtime)
         }
     }
@@ -208,6 +211,18 @@ class SessionEngine(
                         ),
                 )
 
+            SessionState.PausedByUser ->
+                SessionTransition(
+                    runtime =
+                        runtime.copy(
+                            session =
+                                runtime.session.withTimestamps(
+                                    nowWall = nowWall,
+                                    nowElapsed = nowElapsed,
+                                ),
+                        ),
+                )
+
             else ->
                 SessionTransition(
                     runtime =
@@ -220,6 +235,122 @@ class SessionEngine(
                         ),
                 )
         }
+    }
+
+    private fun onManualPauseRequested(runtime: SessionRuntime): SessionTransition {
+        val nowWall = clock.currentTimeMillis()
+        val nowElapsed = clock.elapsedRealtimeMillis()
+        var workingRuntime = runtime
+
+        if (workingRuntime.session.state == SessionState.Active) {
+            workingRuntime = applyActiveProgress(workingRuntime, nowWall, nowElapsed)
+            if (workingRuntime.session.validFocusSeconds >= workingRuntime.session.requiredDurationSeconds) {
+                return SessionTransition(runtime = completeSession(workingRuntime, nowWall, nowElapsed))
+            }
+        }
+
+        return when (workingRuntime.session.state) {
+            SessionState.WaitingForPhoneDown,
+            SessionState.Arming,
+            SessionState.Active,
+            -> {
+                SessionTransition(
+                    runtime =
+                        workingRuntime.copy(
+                            session =
+                                workingRuntime.session.withTimestamps(
+                                    nowWall = nowWall,
+                                    nowElapsed = nowElapsed,
+                                    state = SessionState.PausedByUser,
+                                    clean = false,
+                                ),
+                            activeStartedAtElapsedMillis = null,
+                            activeBaseFocusSeconds = workingRuntime.session.validFocusSeconds,
+                            armingStartedAtElapsedMillis = null,
+                            manualPauseStartedAtElapsedMillis = nowElapsed,
+                        ),
+                )
+            }
+
+            else -> SessionTransition(runtime)
+        }
+    }
+
+    private fun onManualResumeRequested(runtime: SessionRuntime): SessionTransition {
+        val nowWall = clock.currentTimeMillis()
+        val nowElapsed = clock.elapsedRealtimeMillis()
+
+        if (runtime.session.state != SessionState.PausedByUser) {
+            return SessionTransition(runtime)
+        }
+
+        val pauseStartedAt = runtime.manualPauseStartedAtElapsedMillis ?: nowElapsed
+        val event =
+            buildPenaltyEvent(
+                sessionId = runtime.session.id,
+                type = PenaltyEventType.ManualPause,
+                startedAtElapsedMillis = pauseStartedAt,
+                endedAtElapsedMillis = nowElapsed,
+            )
+
+        return SessionTransition(
+            runtime =
+                runtime.copy(
+                    session =
+                        runtime.session.withTimestamps(
+                            nowWall = nowWall,
+                            nowElapsed = nowElapsed,
+                            state = SessionState.WaitingForPhoneDown,
+                        ),
+                    phoneIsValid = false,
+                    armingStartedAtElapsedMillis = null,
+                    activeStartedAtElapsedMillis = null,
+                    manualPauseStartedAtElapsedMillis = null,
+                ),
+            penaltyEvents = listOf(event),
+        )
+    }
+
+    private fun onAddTimeRequested(
+        runtime: SessionRuntime,
+        additionalSeconds: Long,
+    ): SessionTransition {
+        if (additionalSeconds <= 0L || runtime.session.result != null) {
+            return SessionTransition(runtime)
+        }
+
+        val nowWall = clock.currentTimeMillis()
+        val nowElapsed = clock.elapsedRealtimeMillis()
+        val workingRuntime =
+            if (runtime.session.state == SessionState.Active) {
+                applyActiveProgress(runtime, nowWall, nowElapsed)
+            } else {
+                runtime
+            }
+
+        return SessionTransition(
+            runtime =
+                workingRuntime.copy(
+                    session =
+                        workingRuntime.session.withTimestamps(
+                            nowWall = nowWall,
+                            nowElapsed = nowElapsed,
+                            requiredDurationSeconds = workingRuntime.session.requiredDurationSeconds + additionalSeconds,
+                        ),
+                    activeBaseFocusSeconds =
+                        if (workingRuntime.session.state == SessionState.Active) {
+                            workingRuntime.session.validFocusSeconds
+                        } else {
+                            workingRuntime.activeBaseFocusSeconds
+                        },
+                    activeStartedAtElapsedMillis =
+                        if (workingRuntime.session.state == SessionState.Active) {
+                            nowElapsed
+                        } else {
+                            workingRuntime.activeStartedAtElapsedMillis
+                        },
+                ),
+        )
     }
 
     private fun onCallStarted(runtime: SessionRuntime): SessionTransition {
@@ -251,6 +382,7 @@ class SessionEngine(
 
             SessionState.WaitingForPhoneDown,
             SessionState.Arming,
+            SessionState.PausedByUser,
             ->
                 SessionTransition(
                     runtime =
@@ -352,6 +484,17 @@ class SessionEngine(
                 )
         }
 
+        if (workingRuntime.session.state == SessionState.PausedByUser) {
+            val pauseStartedAt = workingRuntime.manualPauseStartedAtElapsedMillis ?: nowElapsed
+            events +=
+                buildPenaltyEvent(
+                    sessionId = workingRuntime.session.id,
+                    type = PenaltyEventType.ManualPause,
+                    startedAtElapsedMillis = pauseStartedAt,
+                    endedAtElapsedMillis = nowElapsed,
+                )
+        }
+
         events +=
             buildPenaltyEvent(
                 sessionId = workingRuntime.session.id,
@@ -381,6 +524,7 @@ class SessionEngine(
                     activeStartedAtElapsedMillis = null,
                     interruptionStartedAtElapsedMillis = null,
                     callStartedAtElapsedMillis = null,
+                    manualPauseStartedAtElapsedMillis = null,
                 ),
             penaltyEvents = events,
         )
@@ -432,6 +576,7 @@ class SessionEngine(
                     activeStartedAtElapsedMillis = null,
                     activeBaseFocusSeconds = session.validFocusSeconds,
                     interruptionStartedAtElapsedMillis = null,
+                    manualPauseStartedAtElapsedMillis = null,
                     penaltyAppliedForCurrentInterruption = false,
                     longInterruptionRecorded = false,
                 ),

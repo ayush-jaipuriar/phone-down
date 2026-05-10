@@ -1409,3 +1409,14 @@ These are not blockers because product direction has been clarified, but they sh
 - Why: Close the gap between the implemented Compose surfaces and the product mockups while preserving the existing runtime/session architecture and avoiding behavioral regressions.
 - Tests run: `./gradlew :app:assembleDebug`, `./gradlew :domain:insights:test`, `./gradlew :feature:focus:testDebugUnitTest`, `./gradlew :feature:insights:testDebugUnitTest`, `./gradlew :feature:settings:testDebugUnitTest`, `./gradlew :feature:onboarding:testDebugUnitTest`, `./gradlew :app:testDebugUnitTest`, and `./gradlew :feature:*:verifyPaparazziDebug`.
 - Known follow-up: `./scripts/check.sh` still reports the repo's existing ktlint disagreements around PascalCase composables and formatting style; Pause/Add Time are still UI-only and not yet wired into the session engine.
+
+### 2026-05-10 - Phase 15 Trust Hotfix Pass
+
+- Changed: Implemented the approved trust hotfix plan covering real Pause/Add Time, full-replace restore, call-permission education, notification Focus routing, Settings cleanup, and shared today-metric semantics.
+- Files modified: `core/model/`, `core/database/`, `core/datastore/`, `core/backup/`, `domain/session/`, `domain/insights/`, `app/`, `feature/settings/`, `docs/`, and `phase-15-trust-hotfix-plan.md`.
+- Functions/classes/components touched: `SessionState`, `PenaltyEventType`, `SessionInput`, `SessionRuntime`, `SessionEngine`, `ActiveSessionRuntimeCoordinator`, `FocusViewModel`, `BackupRepository`, `SessionRepository`, `SettingsRepository`, `FakeBackupRepository`, `BackupDataMapper`, `RoomSessionRepository`, `RestoreBackupUseCase`, `AccountViewModel`, `MainActivity`, `PhoneDownApp`, `SettingsRoute`, `SettingsScreen`, and `GetTodayInsightsUseCase`.
+- Why: Remove user-trust gaps where the UI promised behavior that was local-only, fake-success, unavailable without explanation, or inconsistent across tabs.
+- Tests run: `./gradlew --no-configuration-cache :domain:session:test :domain:insights:test :core:backup:testDebugUnitTest :core:database:testDebugUnitTest :app:testDebugUnitTest :feature:focus:testDebugUnitTest :feature:settings:testDebugUnitTest :app:assembleDebug`, `./gradlew --no-configuration-cache :feature:settings:verifyPaparazziDebug :feature:focus:verifyPaparazziDebug`, and `git diff --check`.
+- Blocked verification: `./gradlew --no-configuration-cache :feature:settings:connectedDebugAndroidTest` could not run because Gradle reported no connected devices.
+- Known quality-gate limitation: `./scripts/check.sh` still fails on existing ktlint policy disagreements and PascalCase Compose naming conventions documented earlier in the project.
+- Next steps: Run manual device QA for Pause/Add Time, restore, notification tap routing, and call-permission education; then decide whether to tune any UX copy based on the device pass.

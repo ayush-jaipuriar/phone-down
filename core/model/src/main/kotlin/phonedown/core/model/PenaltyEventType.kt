@@ -27,4 +27,7 @@ enum class PenaltyEventType {
 
     /** User tapped "End session" manually. */
     ManualEnd,
+
+    /** User manually paused the focus session. */
+    ManualPause,
 }

@@ -74,6 +74,18 @@ class RoomSessionRepository
         override suspend fun getAllPenaltyEvents(): List<PenaltyEvent> =
             penaltyEventDao.getAllPenaltyEvents().map { it.toDomainModel() }
 
+        override suspend fun replaceAllData(
+            sessions: List<FocusSession>,
+            penaltyEvents: List<PenaltyEvent>,
+        ) {
+            database.withTransaction {
+                penaltyEventDao.deleteAllPenaltyEvents()
+                sessionDao.deleteAllSessions()
+                sessionDao.upsertSessions(sessions.map { it.toEntity() })
+                penaltyEventDao.upsertPenaltyEvents(penaltyEvents.map { it.toEntity() })
+            }
+        }
+
         override suspend fun clearAllSessions() = sessionDao.deleteAllSessions()
 
         override suspend fun clearAllPenaltyEvents() = penaltyEventDao.deleteAllPenaltyEvents()

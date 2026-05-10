@@ -13,7 +13,6 @@ import kotlinx.coroutines.launch
 import phonedown.core.model.AccountState
 import phonedown.core.model.ProEntitlement
 import phonedown.core.model.repository.AuthRepository
-import phonedown.core.model.repository.BackupRepository
 import phonedown.core.model.repository.BillingRepository
 import javax.inject.Inject
 
@@ -23,7 +22,7 @@ class AccountViewModel
     constructor(
         private val authRepository: AuthRepository,
         billingRepository: BillingRepository,
-        private val backupRepository: BackupRepository,
+        private val restoreBackupUseCase: BackupRestorer,
     ) : ViewModel() {
         private val _restoreState = MutableStateFlow<RestoreState>(RestoreState.Idle)
         val restoreState: StateFlow<RestoreState> = _restoreState.asStateFlow()
@@ -54,14 +53,14 @@ class AccountViewModel
         fun restoreBackup() {
             viewModelScope.launch {
                 _restoreState.value = RestoreState.InProgress
-                val result = backupRepository.restoreBackup()
+                val result = restoreBackupUseCase()
                 _restoreState.value =
                     when (result) {
-                        is phonedown.core.model.repository.RestoreResult.Success ->
+                        is RestoreBackupOutcome.Success ->
                             RestoreState.Success(result.sessionsRestored)
-                        is phonedown.core.model.repository.RestoreResult.Failure ->
+                        is RestoreBackupOutcome.Failure ->
                             RestoreState.Error(result.reason)
-                        phonedown.core.model.repository.RestoreResult.NoBackupFound ->
+                        RestoreBackupOutcome.NoBackupFound ->
                             RestoreState.Error("No backup found")
                     }
             }

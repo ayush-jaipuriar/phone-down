@@ -12,4 +12,5 @@ data class SessionRuntime(
     val penaltyAppliedForCurrentInterruption: Boolean = false,
     val longInterruptionRecorded: Boolean = false,
     val callStartedAtElapsedMillis: Long? = null,
+    val manualPauseStartedAtElapsedMillis: Long? = null,
 )

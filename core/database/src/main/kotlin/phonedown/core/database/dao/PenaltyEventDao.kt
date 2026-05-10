@@ -17,6 +17,9 @@ interface PenaltyEventDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertPenaltyEvent(entity: PenaltyEventEntity)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertPenaltyEvents(entities: List<PenaltyEventEntity>)
+
     @Query("SELECT * FROM penalty_events WHERE session_id = :sessionId ORDER BY started_at_epoch_millis ASC")
     fun observePenaltyEventsForSession(sessionId: String): Flow<List<PenaltyEventEntity>>
 

@@ -68,11 +68,11 @@ class BackupDataMapperTest {
         assertEquals(1, backupData.schemaVersion)
         assertEquals(1, backupData.sessions.size)
         assertEquals("session-1", backupData.sessions.first().id)
-        assertEquals("Completed", backupData.sessions.first().state)
-        assertEquals("CleanCompleted", backupData.sessions.first().result)
+        assertEquals("completed", backupData.sessions.first().state)
+        assertEquals("clean_completed", backupData.sessions.first().result)
         assertEquals(1, backupData.penaltyEvents.size)
-        assertEquals("MinorPickup", backupData.penaltyEvents.first().type)
-        assertEquals("Dark", backupData.settings.themeMode)
+        assertEquals("minor_pickup", backupData.penaltyEvents.first().type)
+        assertEquals("dark", backupData.settings.themeMode)
         assertEquals(1800, backupData.settings.defaultDurationSeconds)
     }
 

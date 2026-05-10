@@ -11,6 +11,7 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -22,6 +23,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 import phonedown.app.account.AccountRoute
 import phonedown.app.focus.FocusRoute
@@ -41,6 +44,9 @@ fun PhoneDownApp(
     onThemeModeSelected: suspend (ThemeMode) -> Unit = {},
     onStartFocusClick: (Long) -> Unit = {},
     onRetrySensorsClick: (Long) -> Unit = {},
+    openFocusRequests: Flow<Unit> = emptyFlow(),
+    callPausePermissionGranted: Boolean = false,
+    onCallPausePermissionRequested: () -> Unit = {},
 ) {
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -49,6 +55,18 @@ fun PhoneDownApp(
     val coroutineScope = rememberCoroutineScope()
 
     PhoneDownTheme(themeMode = themeMode) {
+        LaunchedEffect(navController, openFocusRequests) {
+            openFocusRequests.collect {
+                navController.navigate(PhoneDownRoute.Focus.path) {
+                    popUpTo(navController.graph.findStartDestination().id) {
+                        saveState = true
+                    }
+                    launchSingleTop = true
+                    restoreState = true
+                }
+            }
+        }
+
         Scaffold(
             containerColor = PhoneDownDesign.colors.background,
             bottomBar = {
@@ -79,6 +97,8 @@ fun PhoneDownApp(
                 },
                 onStartFocusClick = onStartFocusClick,
                 onRetrySensorsClick = onRetrySensorsClick,
+                callPausePermissionGranted = callPausePermissionGranted,
+                onCallPausePermissionRequested = onCallPausePermissionRequested,
                 modifier = Modifier.padding(innerPadding),
             )
         }
@@ -94,6 +114,8 @@ private fun PhoneDownNavHost(
     onThemeModeSelected: (ThemeMode) -> Unit,
     onStartFocusClick: (Long) -> Unit,
     onRetrySensorsClick: (Long) -> Unit,
+    callPausePermissionGranted: Boolean,
+    onCallPausePermissionRequested: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     NavHost(
@@ -127,6 +149,8 @@ private fun PhoneDownNavHost(
                 onProClick = { navController.navigate(PhoneDownRoute.Pro.path) },
                 onPrivacyPolicyClick = { navController.navigate(PhoneDownRoute.PrivacyPolicy.path) },
                 onThemeModeSelected = onThemeModeSelected,
+                callPausePermissionGranted = callPausePermissionGranted,
+                onCallPausePermissionRequested = onCallPausePermissionRequested,
             )
         }
         composable(PhoneDownRoute.Account.path) {

@@ -35,6 +35,16 @@ interface SessionRepository {
 
     suspend fun getAllPenaltyEvents(): List<PenaltyEvent>
 
+    suspend fun replaceAllData(
+        sessions: List<FocusSession>,
+        penaltyEvents: List<PenaltyEvent>,
+    ) {
+        clearAllPenaltyEvents()
+        clearAllSessions()
+        sessions.forEach { upsertSession(it) }
+        penaltyEvents.forEach { recordPenaltyEvent(it) }
+    }
+
     suspend fun clearAllSessions()
 
     suspend fun clearAllPenaltyEvents()

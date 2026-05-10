@@ -35,7 +35,6 @@ class SettingsScreenTest {
                     onDeleteDismissed = {},
                     onDeleteConfirmationTextChanged = {},
                     onDeleteIncludeBackupChanged = {},
-                    onPrivacyPolicyClick = {},
                     onSoundToggled = {},
                     onHapticsToggled = {},
                     onThemeModeSelected = {},

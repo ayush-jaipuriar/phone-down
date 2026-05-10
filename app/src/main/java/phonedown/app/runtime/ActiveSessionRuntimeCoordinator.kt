@@ -109,6 +109,24 @@ class ActiveSessionRuntimeCoordinator
             return applyTransition(runtime, transition, forcePersist = true)
         }
 
+        suspend fun pauseSession(): RuntimeStepResult {
+            val runtime = currentRuntime ?: return RuntimeStepResult(state = _state.value)
+            val transition = sessionEngine.processInput(runtime, SessionInput.ManualPauseRequested)
+            return applyTransition(runtime, transition, forcePersist = true)
+        }
+
+        suspend fun resumeSession(): RuntimeStepResult {
+            val runtime = currentRuntime ?: return RuntimeStepResult(state = _state.value)
+            val transition = sessionEngine.processInput(runtime, SessionInput.ManualResumeRequested)
+            return applyTransition(runtime, transition, forcePersist = true)
+        }
+
+        suspend fun addTime(additionalSeconds: Long): RuntimeStepResult {
+            val runtime = currentRuntime ?: return RuntimeStepResult(state = _state.value)
+            val transition = sessionEngine.processInput(runtime, SessionInput.AddTimeRequested(additionalSeconds))
+            return applyTransition(runtime, transition, forcePersist = true)
+        }
+
         suspend fun onCallStateChanged(isInCall: Boolean): RuntimeStepResult {
             val runtime = currentRuntime ?: return RuntimeStepResult(state = _state.value)
             val input = if (isInCall) SessionInput.CallStarted else SessionInput.CallEnded
@@ -224,7 +242,8 @@ class ActiveSessionRuntimeCoordinator
                     shouldKeepScreenAwake =
                         session.state == SessionState.WaitingForPhoneDown ||
                             session.state == SessionState.Arming ||
-                            session.state == SessionState.Active,
+                            session.state == SessionState.Active ||
+                            session.state == SessionState.PausedByUser,
                     shouldDimScreen = session.state == SessionState.Arming || session.state == SessionState.Active,
                     shouldStopService =
                         session.result != null ||
@@ -244,6 +263,7 @@ class ActiveSessionRuntimeCoordinator
                 SessionState.Active -> "Focus active - ${remainingMinutes(session)} min left"
                 SessionState.PausedByPickup,
                 SessionState.PausedByCall,
+                SessionState.PausedByUser,
                 -> "Focus paused - return phone down"
                 SessionState.Broken -> "Session broken - continue honestly"
                 SessionState.Completed -> "Session completed"

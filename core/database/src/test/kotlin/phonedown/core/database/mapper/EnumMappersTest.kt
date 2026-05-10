@@ -23,6 +23,7 @@ class EnumMappersTest {
         assertEquals("active", SessionState.Active.toStorageString())
         assertEquals("paused_by_pickup", SessionState.PausedByPickup.toStorageString())
         assertEquals("paused_by_call", SessionState.PausedByCall.toStorageString())
+        assertEquals("paused_by_user", SessionState.PausedByUser.toStorageString())
         assertEquals("completed", SessionState.Completed.toStorageString())
         assertEquals("ended_early", SessionState.EndedEarly.toStorageString())
         assertEquals("invalidated", SessionState.Invalidated.toStorageString())
@@ -79,6 +80,7 @@ class EnumMappersTest {
         assertEquals("force_close", PenaltyEventType.ForceClose.toStorageString())
         assertEquals("device_restart", PenaltyEventType.DeviceRestart.toStorageString())
         assertEquals("manual_end", PenaltyEventType.ManualEnd.toStorageString())
+        assertEquals("manual_pause", PenaltyEventType.ManualPause.toStorageString())
     }
 
     @Test

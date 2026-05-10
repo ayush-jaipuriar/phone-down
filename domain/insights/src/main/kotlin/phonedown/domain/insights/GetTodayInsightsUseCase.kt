@@ -29,7 +29,7 @@ class GetTodayInsightsUseCase(
         }
 
         fun summarize(sessions: List<FocusSession>): InsightSummary {
-            val meaningful = sessions.filter { it.result != SessionResult.Abandoned }
+            val meaningful = sessions.filter { it.result != null && it.result != SessionResult.Abandoned }
             var totalFocus = 0L
             var cleanCount = 0
             var interruptionCount = 0
@@ -40,6 +40,9 @@ class GetTodayInsightsUseCase(
             var abandonedCount = 0
 
             for (s in sessions) {
+                if (s.result == null) {
+                    continue
+                }
                 if (s.result == SessionResult.Abandoned) {
                     abandonedCount++
                     continue

@@ -13,6 +13,8 @@ fun SettingsRoute(
     onProClick: () -> Unit,
     onPrivacyPolicyClick: () -> Unit,
     onThemeModeSelected: (phonedown.core.model.ThemeMode) -> Unit,
+    callPausePermissionGranted: Boolean,
+    onCallPausePermissionRequested: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -23,6 +25,8 @@ fun SettingsRoute(
         onProClick = onProClick,
         onBackupClick = viewModel::triggerBackup,
         onPrivacyPolicyClick = onPrivacyPolicyClick,
+        callPausePermissionGranted = callPausePermissionGranted,
+        onCallPausePermissionRequested = onCallPausePermissionRequested,
         onDeleteRequested = viewModel::showDeleteConfirmation,
         onDeleteConfirmed = viewModel::deleteAllData,
         onDeleteDismissed = viewModel::dismissDeleteConfirmation,

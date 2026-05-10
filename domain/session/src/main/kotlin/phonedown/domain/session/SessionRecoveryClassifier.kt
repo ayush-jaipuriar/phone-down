@@ -22,6 +22,7 @@ class SessionRecoveryClassifier(
             SessionState.Arming,
             SessionState.PausedByPickup,
             SessionState.PausedByCall,
+            SessionState.PausedByUser,
             ->
                 session.copy(
                     state = SessionState.Abandoned,

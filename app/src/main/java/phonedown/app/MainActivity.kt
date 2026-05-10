@@ -3,6 +3,7 @@
 package phonedown.app
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -12,10 +13,13 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import phonedown.app.navigation.PhoneDownApp
 import phonedown.app.navigation.PhoneDownRoute
@@ -34,6 +38,8 @@ class MainActivity : ComponentActivity() {
     lateinit var runtimeCoordinator: ActiveSessionRuntimeCoordinator
 
     private var pendingStartDurationSeconds: Long? = null
+    private val openFocusRequests = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    private var callPermissionGranted by mutableStateOf(false)
 
     private val notificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -44,11 +50,17 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+    private val callPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            callPermissionGranted = granted
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         lifecycleScope.launch {
             runtimeCoordinator.recoverFromAppLaunch()
         }
+        callPermissionGranted = hasCallPermission()
         setContent {
             val settings by settingsRepository.settings
                 .collectAsStateWithLifecycle(initialValue = phonedown.core.model.UserSettings())
@@ -97,6 +109,9 @@ class MainActivity : ComponentActivity() {
                 onRetrySensorsClick = { durationSeconds ->
                     retrySensors(durationSeconds)
                 },
+                openFocusRequests = openFocusRequests,
+                callPausePermissionGranted = callPermissionGranted,
+                onCallPausePermissionRequested = ::requestCallPermission,
             )
         }
     }
@@ -114,6 +129,25 @@ class MainActivity : ComponentActivity() {
 
     private fun retrySensors(durationSeconds: Long) {
         FocusSessionService.retrySensors(this, durationSeconds)
+    }
+
+    private fun requestCallPermission() {
+        if (!hasCallPermission()) {
+            callPermissionLauncher.launch(Manifest.permission.READ_PHONE_STATE)
+        } else {
+            callPermissionGranted = true
+        }
+    }
+
+    private fun hasCallPermission(): Boolean =
+        checkSelfPermission(Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        if (intent.getBooleanExtra(FocusSessionServiceContract.EXTRA_OPEN_FOCUS, false)) {
+            openFocusRequests.tryEmit(Unit)
+        }
     }
 
     override fun onDestroy() {

@@ -11,5 +11,13 @@ sealed interface SessionInput {
 
     data object CallEnded : SessionInput
 
+    data object ManualPauseRequested : SessionInput
+
+    data object ManualResumeRequested : SessionInput
+
+    data class AddTimeRequested(
+        val additionalSeconds: Long,
+    ) : SessionInput
+
     data object ManualEndRequested : SessionInput
 }

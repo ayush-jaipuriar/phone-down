@@ -10,6 +10,7 @@ This document lists all Android permissions requested by Phone Down, their purpo
 | `FOREGROUND_SERVICE` | Yes | Keep focus session running when app is backgrounded | App functionality |
 | `RECEIVE_BOOT_COMPLETED` | Yes | Recover interrupted sessions after device reboot | App functionality |
 | `VIBRATE` | Yes | Haptic feedback during session start/end and interruptions | App functionality |
+| `READ_PHONE_STATE` | Optional | Pause active focus sessions during phone calls after user opt-in | App functionality |
 | `INTERNET` | Yes | Play Billing verification, optional cloud backup | App functionality |
 | `ACCESS_NETWORK_STATE` | No | Check network availability before backup operations | App functionality |
 | `WAKE_LOCK` | No | Keep CPU awake during active focus sessions | App functionality |
@@ -36,6 +37,12 @@ This document lists all Android permissions requested by Phone Down, their purpo
 **Purpose**: Provide haptic feedback during sessions.
 **Why**: Optional haptic feedback when starting a session, detecting interruptions, or completing a session. Can be disabled in app settings.
 **Data Access**: No personal data accessed.
+
+### `READ_PHONE_STATE`
+**Purpose**: Detect whether a phone call is currently active.
+**Why**: If the user opts in from Settings, Phone Down can pause the focus timer while a call is in progress instead of treating the call like a broken focus interruption.
+**User Control**: Requested only after an in-app explanation. Users can deny it and continue using focus sessions normally.
+**Data Access**: The app does not read call audio, contacts, phone numbers, call logs, or call contents.
 
 ### `INTERNET`
 **Purpose**: Network connectivity for optional features.
@@ -66,7 +73,6 @@ Phone Down does NOT request the following permissions:
 | `READ_EXTERNAL_STORAGE` / `WRITE_EXTERNAL_STORAGE` | App uses internal storage only; exports use Sharesheet |
 | `CAMERA` | No camera features |
 | `RECORD_AUDIO` | No audio recording features |
-| `READ_PHONE_STATE` | Call detection uses system broadcasts, not phone state |
 | `SEND_SMS` / `READ_SMS` | No messaging features |
 
 ## Play Store Data Safety Form Mapping
@@ -122,5 +128,6 @@ Users can delete their data through:
 
 When Android requests dangerous permissions, the app shows:
 - **POST_NOTIFICATIONS**: "Phone Down needs notification permission to show your active focus session status."
+- **READ_PHONE_STATE**: The Settings screen explains that call-state access is used only to pause sessions during phone calls and does not read call contents, numbers, contacts, or call logs.
 
 All other permissions are normal permissions that don't require runtime user approval.

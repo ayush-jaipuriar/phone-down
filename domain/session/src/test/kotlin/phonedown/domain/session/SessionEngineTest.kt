@@ -148,6 +148,57 @@ class SessionEngineTest {
         assertEquals(PenaltyEventType.CallPause, transition.penaltyEvents.single().type)
     }
 
+    @Test
+    fun manualPauseStopsProgressAndResumeRequiresPhoneDownAgain() {
+        var runtime = engine.startSession(plannedDurationSeconds = 600L)
+        runtime = engine.processInput(runtime, SessionInput.PhoneBecameValid).runtime
+        clock.advanceBy(3_000L)
+        runtime = engine.processInput(runtime, SessionInput.Tick).runtime
+        clock.advanceBy(30_000L)
+        runtime = engine.processInput(runtime, SessionInput.Tick).runtime
+
+        runtime = engine.processInput(runtime, SessionInput.ManualPauseRequested).runtime
+        val pausedFocusSeconds = runtime.session.validFocusSeconds
+
+        assertEquals(SessionState.PausedByUser, runtime.session.state)
+        assertFalse(runtime.session.clean)
+
+        clock.advanceBy(30_000L)
+        runtime = engine.processInput(runtime, SessionInput.Tick).runtime
+
+        assertEquals(pausedFocusSeconds, runtime.session.validFocusSeconds)
+
+        val resumeTransition = engine.processInput(runtime, SessionInput.ManualResumeRequested)
+        runtime = resumeTransition.runtime
+
+        assertEquals(SessionState.WaitingForPhoneDown, runtime.session.state)
+        assertEquals(PenaltyEventType.ManualPause, resumeTransition.penaltyEvents.single().type)
+
+        runtime = engine.processInput(runtime, SessionInput.PhoneBecameValid).runtime
+        assertEquals(SessionState.Arming, runtime.session.state)
+    }
+
+    @Test
+    fun addTimeExtendsRequiredDurationAndCompletionThreshold() {
+        var runtime = engine.startSession(plannedDurationSeconds = 60L)
+        runtime = engine.processInput(runtime, SessionInput.PhoneBecameValid).runtime
+        clock.advanceBy(3_000L)
+        runtime = engine.processInput(runtime, SessionInput.Tick).runtime
+
+        runtime = engine.processInput(runtime, SessionInput.AddTimeRequested(additionalSeconds = 60L)).runtime
+
+        assertEquals(60L, runtime.session.plannedDurationSeconds)
+        assertEquals(120L, runtime.session.requiredDurationSeconds)
+
+        clock.advanceBy(60_000L)
+        runtime = engine.processInput(runtime, SessionInput.Tick).runtime
+        assertEquals(SessionState.Active, runtime.session.state)
+
+        clock.advanceBy(60_000L)
+        runtime = engine.processInput(runtime, SessionInput.Tick).runtime
+        assertEquals(SessionState.Completed, runtime.session.state)
+    }
+
     private fun manualEndResultAfterValidFocusSeconds(validFocusSeconds: Long): SessionResult {
         var runtime = engine.startSession(plannedDurationSeconds = 1_000L)
         runtime = engine.processInput(runtime, SessionInput.PhoneBecameValid).runtime

@@ -99,7 +99,7 @@ class DataStoreSettingsRepository
             }
         }
 
-        suspend fun restoreSettings(settings: UserSettings) {
+        override suspend fun restoreSettings(settings: UserSettings) {
             dataStore.edit { prefs ->
                 prefs[DEFAULT_DURATION_SECONDS_KEY] = settings.defaultDurationSeconds
                 prefs[SOUND_ENABLED_KEY] = settings.soundEnabled

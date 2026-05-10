@@ -9,6 +9,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import phonedown.app.BuildConfig
+import phonedown.app.account.BackupRestorer
+import phonedown.app.account.RestoreBackupUseCase
 import phonedown.core.auth.FakeAuthRepository
 import phonedown.core.backup.FakeBackupRepository
 import phonedown.core.billing.FakeBillingRepository
@@ -68,6 +70,10 @@ object AppRuntimeModule {
     @Provides
     @Singleton
     fun providesSessionRecoveryClassifier(clock: Clock): SessionRecoveryClassifier = SessionRecoveryClassifier(clock)
+
+    @Provides
+    @Singleton
+    fun providesBackupRestorer(restoreBackupUseCase: RestoreBackupUseCase): BackupRestorer = restoreBackupUseCase
 
     @Provides
     @Singleton
