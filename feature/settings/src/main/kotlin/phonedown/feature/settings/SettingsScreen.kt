@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -67,6 +69,7 @@ fun SettingsScreen(
         modifier =
             Modifier
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
                 .testTag(SettingsTestTags.SCREEN),
         topPadding = PhoneDownSpacing.lg,
     ) {
@@ -96,6 +99,8 @@ fun SettingsScreen(
             onPrivacyPolicyClick = onPrivacyPolicyClick,
             onDeleteRequested = onDeleteRequested,
         )
+
+        Spacer(modifier = Modifier.height(PhoneDownSpacing.xxl))
 
         if (uiState.showDeleteConfirmation) {
             DeleteConfirmationDialog(
@@ -303,6 +308,7 @@ private fun AboutSection(
             title = "Delete All Data",
             supportingText = "Permanently remove all sessions and settings from this device",
             destructive = true,
+            modifier = Modifier.testTag(SettingsTestTags.DELETE_ROW),
             onClick = onDeleteRequested,
         )
     }

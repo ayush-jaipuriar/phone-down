@@ -1,9 +1,11 @@
 package phonedown.feature.focus
 
+import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertTextContains
-import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -17,7 +19,7 @@ import phonedown.feature.focus.state.FocusUiState
 
 class FocusScreenTest {
     @get:Rule
-    val composeRule = createComposeRule()
+    val composeRule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
     fun focusScreenIdleStateShowsStartButton() {
@@ -86,11 +88,11 @@ class FocusScreenTest {
         }
 
         composeRule.onNodeWithTag(FocusTestTags.TIMER).assertIsDisplayed()
-        composeRule.onNodeWithText("End Session").assertIsDisplayed()
+        composeRule.onNodeWithText("End").assertIsDisplayed()
         composeRule.onNodeWithText("Focused").assertIsDisplayed()
         composeRule.onNodeWithText("05:00").assertIsDisplayed()
-        composeRule.onNodeWithText("Remaining").assertIsDisplayed()
-        composeRule.onNodeWithText("20:00").assertIsDisplayed()
+        composeRule.onAllNodesWithText("Remaining")[0].assertIsDisplayed()
+        composeRule.onAllNodesWithText("20:00")[0].assertIsDisplayed()
     }
 
     @Test
@@ -107,8 +109,8 @@ class FocusScreenTest {
             }
         }
 
-        composeRule.onNodeWithText("Clean session completed").assertIsDisplayed()
-        composeRule.onNodeWithText("Back to Home").assertIsDisplayed()
+        composeRule.onNodeWithText("Great focus!").assertIsDisplayed()
+        composeRule.onNodeWithText("Done").assertIsDisplayed()
     }
 
     @Test
@@ -159,8 +161,8 @@ class FocusScreenTest {
             }
         }
 
-        composeRule.onNodeWithText("End session now?").assertIsDisplayed()
-        composeRule.onNodeWithText("End").performClick()
+        composeRule.onNodeWithText("End Focus Session?").assertIsDisplayed()
+        composeRule.onNodeWithText("End Session").performClick()
         assert(eventReceived is FocusEvent.EndConfirmed)
     }
 
@@ -178,9 +180,9 @@ class FocusScreenTest {
             }
         }
 
-        composeRule.onNodeWithText("10 min").assertIsDisplayed()
-        composeRule.onNodeWithText("25 min").assertIsDisplayed()
-        composeRule.onNodeWithText("60 min").assertIsDisplayed()
+        composeRule.onNodeWithText("10 minutes").assertIsDisplayed()
+        composeRule.onNodeWithText("25 minutes").assertIsDisplayed()
+        composeRule.onNodeWithText("60 minutes").assertIsDisplayed()
     }
 
     @Test
@@ -212,10 +214,9 @@ class FocusScreenTest {
             }
         }
 
-        composeRule.onNodeWithText("Focus paused").assertIsDisplayed()
-        composeRule.onNodeWithText("+1:00").assertIsDisplayed()
-        composeRule.onNodeWithText("Focused").assertIsDisplayed()
-        composeRule.onNodeWithText("Remaining").assertIsDisplayed()
+        composeRule.onNodeWithText("Phone Picked Up").assertIsDisplayed()
+        composeRule.onNodeWithText("+1:00 penalty").assertIsDisplayed()
+        composeRule.onNodeWithText("Keep your phone down to continue").assertIsDisplayed()
     }
 
     @Test

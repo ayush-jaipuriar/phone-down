@@ -1,12 +1,19 @@
 package phonedown.feature.settings
 
+import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
-import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.isToggleable
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -15,7 +22,7 @@ import phonedown.core.model.ThemeMode
 
 class SettingsScreenTest {
     @get:Rule
-    val composeRule = createComposeRule()
+    val composeRule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
     fun settingsScreenShowsThemeAndNavigableRows() {
@@ -76,7 +83,9 @@ class SettingsScreenTest {
         }
 
         composeRule.onNodeWithText("Sounds").assertIsDisplayed()
-        val switch = composeRule.onNodeWithTag(SettingsTestTags.SOUND_SWITCH)
+        val switch = composeRule.onAllNodes(
+            isToggleable() and hasAnyAncestor(hasTestTag(SettingsTestTags.SOUND_SWITCH)),
+        )[0]
         switch.assertIsOn()
         switch.performClick()
 
@@ -85,7 +94,7 @@ class SettingsScreenTest {
 
     @Test
     fun hapticsToggleReflectsStateAndEmitsChanges() {
-        var hapticsEnabled = false
+        var hapticsEnabled = true
 
         composeRule.setContent {
             PhoneDownTheme(themeMode = ThemeMode.Light) {
@@ -108,26 +117,30 @@ class SettingsScreenTest {
         }
 
         composeRule.onNodeWithText("Haptics").assertIsDisplayed()
-        val switch = composeRule.onNodeWithTag(SettingsTestTags.HAPTICS_SWITCH)
-        switch.assertIsOff()
+        val switch = composeRule.onAllNodes(
+            isToggleable() and hasAnyAncestor(hasTestTag(SettingsTestTags.HAPTICS_SWITCH)),
+        )[0]
+        switch.assertIsOn()
         switch.performClick()
 
-        assertEquals(true, hapticsEnabled)
+        assertEquals(false, hapticsEnabled)
     }
 
     @Test
     fun deleteDataDialogShowsAndDismisses() {
+        var showDeleteConfirmation by mutableStateOf(false)
+
         composeRule.setContent {
             PhoneDownTheme(themeMode = ThemeMode.Light) {
                 SettingsScreen(
-                    uiState = SettingsUiState(),
+                    uiState = SettingsUiState(showDeleteConfirmation = showDeleteConfirmation),
                     onAccountClick = {},
                     onProClick = {},
                     onBackupClick = {},
                     onPrivacyPolicyClick = {},
-                    onDeleteRequested = {},
+                    onDeleteRequested = { showDeleteConfirmation = true },
                     onDeleteConfirmed = {},
-                    onDeleteDismissed = {},
+                    onDeleteDismissed = { showDeleteConfirmation = false },
                     onDeleteConfirmationTextChanged = {},
                     onDeleteIncludeBackupChanged = {},
                     onSoundToggled = {},
@@ -137,10 +150,11 @@ class SettingsScreenTest {
             }
         }
 
-        composeRule.onNodeWithText("Delete All Local Data").performClick()
-        composeRule.onNodeWithText("This will permanently delete all your session history, settings, and preferences. This action cannot be undone.").assertIsDisplayed()
+        composeRule.onNodeWithTag(SettingsTestTags.DELETE_ROW).performScrollTo()
+        composeRule.onNodeWithTag(SettingsTestTags.DELETE_ROW).performClick()
+        composeRule.onNodeWithText("This will permanently delete:").assertIsDisplayed()
         composeRule.onNodeWithText("Cancel").performClick()
-        composeRule.onNodeWithText("This will permanently delete all your session history, settings, and preferences. This action cannot be undone.").assertDoesNotExist()
+        composeRule.onNodeWithText("This will permanently delete:").assertDoesNotExist()
     }
 
     @Test

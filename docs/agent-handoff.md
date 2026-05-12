@@ -353,5 +353,47 @@ Do NOT expand scope or implement new features without asking the user. Follow th
   - add Firebase Crashlytics with minimal disclosed diagnostics
   - keep 24-hour entitlement cache
   - use internal testing first, then closed testing, then production rollout
-- No production implementation has started yet.
-- Next step: user should review and approve `phase-16-android-production-readiness-plan.md`; after approval, begin Sprint 16.1 with Play Console/Firebase/OAuth/signing setup docs and account handholding.
+- User approved `phase-16-android-production-readiness-plan.md` and Sprint 16.1 has started.
+- Repo-side Sprint 16.1 documentation completed:
+  - created `docs/play-console-release-guide.md`
+  - created `docs/phase-16-manual-qa.md`
+  - created `docs/phase-16-console-setup-info.md` with non-secret setup fields and local debug SHA fingerprints
+  - updated `docs/architecture-guide.md` so the real/deferred matrix marks auth, billing, Drive, Crashlytics, auto-backup, and release signing as Phase 16 targets
+  - updated `phase-16-android-production-readiness-plan.md` progress checklists
+- `.gitignore` already contains the key release-safety ignores for keystores, Google service config, env files, backups, private keys, service-account JSON, and OAuth/client-secret exports.
+- No production integration code has started yet.
+- Next step: user should follow `docs/play-console-release-guide.md` and fill only safe values in `docs/phase-16-console-setup-info.md` after creating the Play Console account, Phone Down app shell, dedicated Google Cloud/Firebase project, OAuth consent setup, Drive API enablement, Firebase Android app, and upload keystore outside the repo.
+
+## 18. 2026-05-12 Physical Device Automated QA And Connected Test Harness Repair
+
+- User connected a physical Android device over wireless debugging:
+  - device model: RMX3686
+  - Android version: 15
+  - adb serial used: `192.168.1.14:44625`
+- Latest debug build was installed successfully on the device.
+- Automated adb-driven smoke QA verified:
+  - app launch into `phonedown.app/.MainActivity`
+  - Focus idle screen
+  - Start Focus to waiting state
+  - Cancel back to Focus idle
+  - Insights tab showing the canceled session as invalidated `0m`
+  - Settings tab rendering main settings rows
+- Initial connected Android tests were broken:
+  - library modules were falling back to the legacy platform instrumentation runner
+  - feature tests did not launch a real Compose host Activity
+  - Android 15 showed deprecated-target behavior for library test APKs
+  - some tests had stale copy/visibility expectations from earlier UI versions
+- Harness and test fixes completed:
+  - `build-logic/convention/src/main/kotlin/phonedown.android.library.gradle.kts` now sets `testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"`
+  - library modules now target SDK 36 for Android 15 test APK behavior
+  - `build-logic/convention/src/main/kotlin/phonedown.android.compose.library.gradle.kts` adds Activity dependency for android tests
+  - Focus, Insights, and Settings connected tests now use `createAndroidComposeRule<ComponentActivity>()`
+  - stale Focus and Insights test fixtures/assertions were updated to match the current polished UI
+  - Settings tests now model stateless recomposition for delete confirmation
+  - `SettingsScreen` is now vertically scrollable and has a tagged delete row so lower About actions are reachable/testable on real phone screens
+- Verification passed:
+  - `ANDROID_SERIAL='192.168.1.14:44625' ./gradlew --no-configuration-cache :feature:focus:connectedDebugAndroidTest :feature:insights:connectedDebugAndroidTest :feature:settings:connectedDebugAndroidTest`
+  - `ANDROID_SERIAL='192.168.1.14:44625' ./gradlew --no-configuration-cache :app:assembleDebug :app:installDebug`
+  - `git diff --check`
+- Remaining limitation:
+  - adb automation cannot truthfully validate the physical face-down/stable sensor promise by itself; that still needs a short human-in-the-loop sensor QA pass.

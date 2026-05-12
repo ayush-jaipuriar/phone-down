@@ -3,8 +3,8 @@
 ## Status
 
 - Planning status: Drafted
-- Implementation status: Not started
-- Approval required before implementation: Required
+- Implementation status: Sprint 16.1 in progress
+- Approval required before implementation: Completed
 - Scope owner: Phone Down Android V1 production release
 - Target outcome: Replace fake/deferred production dependencies and prepare the app for Google Play production release
 
@@ -754,9 +754,10 @@ The order matters because some pieces depend on console setup.
 
 ### Sprint 16.1 - Release Infrastructure and Docs
 
-- [ ] Create `docs/play-console-release-guide.md`.
-- [ ] Create `docs/phase-16-manual-qa.md`.
-- [ ] Update `docs/architecture-guide.md` real/deferred matrix for Phase 16 target.
+- [x] Create `docs/play-console-release-guide.md`.
+- [x] Create `docs/phase-16-manual-qa.md`.
+- [x] Create `docs/phase-16-console-setup-info.md`.
+- [x] Update `docs/architecture-guide.md` real/deferred matrix for Phase 16 target.
 - [ ] Set up Play Console account and app shell.
 - [ ] Set up dedicated Google Cloud/Firebase project.
 - [ ] Configure package, SHA fingerprints, OAuth consent, Drive API, Firebase app.
@@ -904,11 +905,19 @@ Recommended choices for V1 production:
 
 ## 19. Immediate Next Step After Approval
 
-If this plan is approved, start with Sprint 16.1:
+Sprint 16.1 has started after approval. Repo-side setup documentation is now in place:
 
-1. create `docs/play-console-release-guide.md`
-2. create `docs/phase-16-manual-qa.md`
-3. update production-readiness docs and `.gitignore` safety checks
-4. guide the user through creating the Play Console account, dedicated Google Cloud project, Firebase project, OAuth consent screen, and app shell
+1. `docs/play-console-release-guide.md`
+2. `docs/phase-16-manual-qa.md`
+3. `docs/phase-16-console-setup-info.md`
+4. `docs/architecture-guide.md` Phase 16 target matrix
+
+The next hands-on step is user/browser-side console setup:
+
+1. create the Play Console developer account
+2. create the Phone Down app shell
+3. create the dedicated Google Cloud/Firebase project
+4. configure OAuth, Drive API, Firebase Android app, and fingerprints
+5. generate the upload keystore outside the repo
 
 No production code should be started until the console/account foundation is clear, because auth, Drive, Billing, signing, and Crashlytics all depend on correct project/package/fingerprint setup.

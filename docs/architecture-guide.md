@@ -847,6 +847,8 @@ The app currently favors honesty over optimistic auto-resume. This may feel stri
 
 Fake auth/billing/backup keep development moving, but the team must stay sharp about what is and is not production-ready.
 
+Phase 16 is the production-readiness phase that replaces these fake integrations in release builds.
+
 ### 24.4 Local Persistence vs Cross-Device Continuity
 
 Local-first storage is great for reliability and privacy, but it means cross-device sync remains limited until real cloud integrations are completed.
@@ -867,11 +869,22 @@ This section is especially useful for onboarding and release planning.
 | Insights aggregation | Real |
 | Backup schema + serializer | Real |
 | Local restore application path | Real |
-| Google Drive transport | Deferred / fake |
-| Google Sign-In | Deferred / fake |
-| Play Billing integration | Deferred / fake |
-| Production certificate pins | Deferred |
-| Full database encryption | Deferred |
+| Google Drive transport | Phase 16 target |
+| Google Sign-In | Phase 16 target |
+| Play Billing integration | Phase 16 target |
+| Firebase Crashlytics | Phase 16 target |
+| WorkManager daily auto-backup | Phase 16 target |
+| Release signing / Play upload readiness | Phase 16 target |
+| Production certificate pins | Phase 16 security decision |
+| Full database encryption | Deferred beyond V1 unless risk posture changes |
+
+Phase 16 should keep the same boundaries:
+
+- real auth lives behind `AuthRepository`
+- real billing lives behind `BillingRepository`
+- real Drive backup lives behind `BackupRepository`
+- app-layer routes and ViewModels coordinate Android launchers and user flows
+- feature modules remain UI-focused
 
 ## 26. Recommended Engineering Workflow in This Repo
 

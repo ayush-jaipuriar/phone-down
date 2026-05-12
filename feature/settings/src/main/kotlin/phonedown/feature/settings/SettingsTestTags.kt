@@ -7,4 +7,5 @@ object SettingsTestTags {
     const val PRO_ROW = "settings_pro_row"
     const val SOUND_SWITCH = "settings_sound_switch"
     const val HAPTICS_SWITCH = "settings_haptics_switch"
+    const val DELETE_ROW = "settings_delete_row"
 }

@@ -1,0 +1,524 @@
+# Phase 16 Console Setup Info
+
+## 1. Purpose
+
+This file is the safe bridge between browser-console setup and app implementation.
+
+As we wire real Google Sign-In, Google Drive backup, Play Billing, Crashlytics, and release signing into Phone Down, we need certain public configuration facts. This file is where we collect those facts in one place.
+
+The idea is simple:
+
+- we need a few configuration values from Google/Play
+- we do not want secrets in the repo
+- we do not want you to wonder what is safe to send back
+
+So this file records only non-secret values and statuses.
+
+## 1.1 How To Use This While You Learn
+
+Treat this file like a release lab notebook.
+
+For each field you fill, ask:
+
+1. which system gave me this value?
+2. what future app behavior depends on it?
+
+That habit turns setup from rote clicking into understanding.
+
+## 2. What This File Is For
+
+Use this file to record:
+
+- project IDs
+- package names
+- public SHA fingerprints
+- product IDs
+- setup yes/no statuses
+- test-user and testing-track status
+
+Use this file to avoid recording:
+
+- passwords
+- private keys
+- service-account credentials
+- OAuth client secrets
+- access tokens
+- recovery codes
+
+Why this matters:
+
+- we need enough information to wire the app correctly
+- we do not need anything sensitive to do that work
+
+## 2.1 Mental Model
+
+This file is the public configuration map of Phone Down’s production identity.
+
+It tells us:
+
+- how Google knows the app
+- how Play knows the app
+- what purchase IDs the app expects
+- which test environments are truly ready
+
+## 3. Safe vs Unsafe Information
+
+### Safe To Record Here
+
+- package name
+- application ID
+- project ID
+- SHA-1 fingerprint
+- SHA-256 fingerprint
+- product IDs
+- tester group names
+- whether Play App Signing is enabled
+- whether OAuth consent is configured
+
+### Not Safe To Record Here
+
+- keystore password
+- key password
+- `.jks` or `.keystore` file contents
+- service-account JSON
+- OAuth client secret
+- access token
+- refresh token
+- identity verification docs
+- recovery codes
+
+Theory:
+
+Public certificate fingerprints are like a public label for a key. They help Google identify the app, but they do not let anyone sign as you.
+
+Passwords, key files, and tokens are different. They are actual secrets that can give someone control or access.
+
+## 4. App Identity
+
+These values define the technical Android identity of Phone Down.
+
+| Field | Value | Why It Matters |
+|---|---|---|
+| App name | Phone Down | User-facing app name in Play and consent screens |
+| Android package / application ID | `phonedown.app` | Permanent Android identity used by Play, Firebase, and Google APIs |
+| Android namespace | `phonedown.app` | Build/config namespace in the app module |
+| Version name | `1.0.0` | Human-readable release version |
+| Version code | `1` | Internal monotonically increasing Android release number |
+| App type | Free app with in-app purchases | Tells Play we monetize via Billing, not paid install |
+| Ads | No ads | Must match Play Console declaration and app behavior |
+
+### Theory
+
+The package name is one of the most important identities in Android. Google services often trust the combination of:
+
+- package name
+- signing certificate fingerprint
+
+That is why we treat `phonedown.app` as stable.
+
+### Study Note
+
+If you remember only one Android identity rule, remember this:
+
+`package name + signing certificate` is one of the most important trust combinations in the Android ecosystem.
+
+## 5. Local Debug Certificate
+
+These fingerprints are safe to use in Firebase and Google Cloud for local debug testing.
+
+| Fingerprint | Value |
+|---|---|
+| Debug SHA-1 | `6F:55:47:BF:27:95:9E:D4:5E:34:BE:54:5B:8C:4A:E3:C8:C9:97:39` |
+| Debug SHA-256 | `A3:4D:4C:62:AF:41:1A:4E:EF:5A:BE:86:6E:54:E3:EB:59:41:B9:4C:17:DD:2C:34:E5:46:87:68:78:5A:EC:81` |
+
+Command used:
+
+```bash
+keytool -list -v \
+  -alias androiddebugkey \
+  -keystore "$HOME/.android/debug.keystore" \
+  -storepass android \
+  -keypass android
+```
+
+### Why These Matter
+
+When we test Google Sign-In locally, the installed app is signed with the Android debug certificate, not the Play certificate.
+
+If these fingerprints are not added in Firebase/Google config:
+
+- local sign-in can fail even though the app code is correct
+
+### Why These Are Safe
+
+These fingerprints are public identifiers, not secrets.
+
+### Study Note
+
+A fingerprint is like the public label on a lock. It helps identify the lock, but it does not let someone unlock it.
+
+## 6. Play Console Setup
+
+Fill these after creating the Play Console account and Phone Down app.
+
+| Field | Value | Why It Matters |
+|---|---|---|
+| Developer account type | TODO: Personal / Organization | Affects verification and sometimes release requirements |
+| Developer name | TODO | User-facing publisher name |
+| Play Console app created | TODO: Yes / No | Confirms Play-side app identity exists |
+| Play app package | `phonedown.app` | Must exactly match Android application ID |
+| Play App Signing enabled | TODO: Yes / No | Needed for recommended release flow |
+| Internal testing track created | TODO: Yes / No | Needed for early Play-distributed testing |
+| Closed testing required by Google | TODO: Yes / No / Unknown | Determines whether 12 testers / 14 days is part of the release path |
+| Closed testing track created | TODO: Yes / No | Needed if required by Google or useful for broader testing |
+| 12 tester list started | TODO: Yes / No | Helps avoid release delays if production access requires it |
+
+### Theory
+
+These values tell us where you are in the Play release lifecycle. They are not just admin details; they affect what engineering can test next.
+
+For example:
+
+- if Play App Signing is enabled, we later need Play signing SHA fingerprints
+- if internal testing exists, we can test Billing and Play-installed Sign-In properly
+
+### What To Watch For
+
+If the Play app exists but the testing tracks do not, we are still not ready for realistic Play-distributed behavior testing.
+
+## 7. Upload Keystore
+
+Keep the keystore outside this repo.
+
+Recommended location:
+
+```text
+$HOME/.android/phone-down-release/phone-down-upload.jks
+```
+
+Recommended alias:
+
+```text
+phone-down-upload
+```
+
+### What This Is
+
+This is the key you use to upload builds to Play Console.
+
+It is not the same thing as the Play App Signing key. Think of it as “your upload identity,” while Google Play uses its own managed signing identity to deliver builds to users.
+
+### Why We Need It
+
+Without an upload key:
+
+- you cannot upload signed release bundles properly
+- we cannot get the upload SHA fingerprints
+- Google/Firebase setup stays incomplete for release-side testing
+
+### Record Only These Public Values
+
+| Fingerprint | Value | Why It Matters |
+|---|---|---|
+| Upload key SHA-1 | TODO | Needed for Google/Firebase app trust configuration |
+| Upload key SHA-256 | TODO | Needed for stronger certificate matching and some API config |
+
+### Generation Command
+
+```bash
+mkdir -p "$HOME/.android/phone-down-release"
+
+keytool -genkeypair \
+  -v \
+  -keystore "$HOME/.android/phone-down-release/phone-down-upload.jks" \
+  -alias phone-down-upload \
+  -keyalg RSA \
+  -keysize 2048 \
+  -validity 10000
+```
+
+### Fingerprint Command
+
+```bash
+keytool -list -v \
+  -keystore "$HOME/.android/phone-down-release/phone-down-upload.jks" \
+  -alias phone-down-upload
+```
+
+### Do Not Record
+
+- keystore password
+- key password
+- keystore file contents
+
+### Study Note
+
+The upload keystore is not an ordinary project file. It is long-lived release infrastructure.
+
+## 8. Play App Signing Certificate
+
+Fill these after Play App Signing is enabled and the values become visible in Play Console.
+
+| Fingerprint | Value | Why It Matters |
+|---|---|---|
+| Play App Signing SHA-1 | TODO | Needed because Play-distributed installs are signed by Google |
+| Play App Signing SHA-256 | TODO | Same reason, stronger fingerprint |
+
+### Theory
+
+This is the part many Android beginners miss.
+
+A debug-installed build and a Play-installed build can both be “the same app” from your perspective but appear different to Google APIs because they are signed differently.
+
+If we forget to add Play App Signing fingerprints:
+
+- Google Sign-In may work locally
+- then fail on internal testing or production
+
+### Shortcut Memory Aid
+
+Debug install:
+
+- debug SHA
+
+Your upload artifact:
+
+- upload SHA
+
+Play-installed build:
+
+- Play signing SHA
+
+## 9. Google Cloud / Firebase Project
+
+Recommendation: use a dedicated project for Phone Down.
+
+| Field | Value | Why It Matters |
+|---|---|---|
+| Google Cloud project name | TODO: `phone-down` recommended | Human-readable project identity |
+| Google Cloud project ID | TODO | Technical project identifier used in config and APIs |
+| Firebase project created | TODO: Yes / No | Needed for Crashlytics and app config |
+| Firebase Android app package | `phonedown.app` | Must match the app exactly |
+| Firebase Android app nickname | TODO: `Phone Down Android` recommended | Helps distinguish the app in Firebase |
+| `google-services.json` downloaded locally | TODO: Yes / No | Needed later when we wire Firebase into the Android app |
+| Drive API enabled | TODO: Yes / No | Required for cloud backup/restore |
+
+### Theory
+
+Google Cloud is the API/security identity layer. Firebase is the mobile-app convenience layer on top of it.
+
+We care about both because:
+
+- Google Sign-In and Drive permissions depend on Cloud/OAuth config
+- Crashlytics and Android app registration depend on Firebase
+
+### Important Safety Note
+
+`google-services.json` is currently ignored by `.gitignore`.
+
+That is good for now because it reduces the chance of accidental configuration drift or secret confusion while we are still setting things up.
+
+Also:
+
+- do not download service-account private key JSON
+- do not create or share OAuth client secrets for this mobile-app flow unless we explicitly add a server-side feature later
+
+### Practical Rule
+
+If a downloaded file or console action mentions `secret`, `private key`, or `service account`, pause and double-check before using it in this mobile-app release flow.
+
+## 10. OAuth Consent Screen
+
+| Field | Value | Why It Matters |
+|---|---|---|
+| OAuth app name | Phone Down | User-visible name during Google consent |
+| User type | TODO: External / Internal | Should usually be `External` for a consumer app |
+| Support email | TODO | User-facing trust and support contact |
+| Developer contact email | TODO | Google’s contact path for issues or verification |
+| Privacy policy URL | TODO | Required trust and review document |
+| Authorized domain | TODO | Needed if domain-backed links are used |
+| Test users added | TODO: Yes / No | Required while the app is in testing mode |
+
+### Required Scopes
+
+| Scope | Purpose | Why We Need It |
+|---|---|---|
+| `openid` | identity foundation | standard Google identity flow |
+| `email` | account email display | show signed-in account in UI |
+| `profile` | account profile display | show name/avatar if desired |
+| `https://www.googleapis.com/auth/drive.appdata` | hidden app-specific backup storage | backup/restore without broad Drive access |
+
+### Theory
+
+The OAuth consent screen is not just bureaucracy. It is the exact moment a user decides whether your app looks trustworthy enough to connect to their Google account.
+
+Using the smallest necessary scopes helps because:
+
+- consent looks cleaner
+- users feel safer
+- review risk stays lower
+
+### What Not To Do
+
+Do not request broad Drive scopes unless the product truly needs file-browser-style access. Phone Down does not.
+
+### Study Note
+
+Scope choice is both a security decision and a product-trust decision. Asking for less access usually makes review and user trust easier.
+
+## 11. Play Billing Products
+
+Recommended product setup:
+
+| Plan | Product ID / Base Plan | India Price | Default International Price | Status |
+|---|---|---:|---:|---|
+| Monthly Pro | `pro` / `pro-monthly` | INR 99/month | USD 1.99/month | TODO |
+| Yearly Pro | `pro` / `pro-yearly` | INR 799/year | USD 14.99/year | TODO |
+| Lifetime Pro | `pro_lifetime` | INR 1,999 | USD 39.99 | TODO |
+
+Fallback if separate subscription products are easier:
+
+| Plan | Product ID | Why This Might Be Used |
+|---|---|---|
+| Monthly Pro | `pro_monthly` | Simpler implementation if base-plan structure becomes awkward |
+| Yearly Pro | `pro_yearly` | Same reason |
+| Lifetime Pro | `pro_lifetime` | One-time product remains separate either way |
+
+### Theory
+
+Product IDs are effectively API identifiers. Once code depends on them, changing them later is annoying.
+
+That is why we want to choose clean, stable names now.
+
+These product entries also matter for testing because:
+
+- the app queries them from Play
+- the Pro screen shows their real prices/details
+- entitlement restoration depends on the same IDs
+
+### What Makes A Good Product ID
+
+A good product ID is:
+
+- stable
+- readable
+- boring
+
+That is a compliment. Boring IDs age well.
+
+## 12. Tester Setup
+
+| Group | Status | Why It Exists |
+|---|---|---|
+| Internal testers | TODO | Needed for quick Play-distributed app testing |
+| License testers | TODO | Needed for Play Billing test purchases |
+| OAuth test users | TODO | Needed while Google OAuth app is still in testing mode |
+| Closed testers | TODO | Needed if Google requires 12 testers / 14 days before production |
+
+### Theory
+
+Testing in Google ecosystems is not one single thing.
+
+Different tester roles unlock different systems:
+
+- internal testers test Play distribution
+- license testers test billing safely
+- OAuth test users test Google sign-in before the app is broadly published
+
+## 13. Status Tracker
+
+Use this section as a quick human-readable checkpoint.
+
+| Area | Status | Notes |
+|---|---|---|
+| Play Console account | TODO | |
+| Phone Down Play app shell | TODO | |
+| Play App Signing | TODO | |
+| Upload keystore generated | TODO | |
+| Firebase project | TODO | |
+| Firebase Android app | TODO | |
+| Google Drive API enabled | TODO | |
+| OAuth consent configured | TODO | |
+| Billing products created | TODO | |
+| Internal track created | TODO | |
+| Closed testing requirement known | TODO | |
+
+### How To Read This Tracker
+
+If something is still `TODO`, ask:
+
+- does this block real code integration now?
+- or does it only block later release submission?
+
+That helps us move forward without pretending every release task has to be finished before any implementation can start.
+
+## 14. Exactly What To Send Back
+
+After you finish the console work, send back only this safe information:
+
+```text
+Play Console:
+- Developer account type:
+- Developer name:
+- Play app created: yes/no
+- Play App Signing enabled: yes/no
+- Internal testing track created: yes/no
+- Closed testing required: yes/no/unknown
+
+Google Cloud/Firebase:
+- Project ID:
+- Firebase project created: yes/no
+- Firebase Android app added for phonedown.app: yes/no
+- Drive API enabled: yes/no
+- OAuth consent configured: yes/no
+- Test users added: yes/no
+
+Fingerprints:
+- Upload key SHA-1:
+- Upload key SHA-256:
+- Play App Signing SHA-1, if available:
+- Play App Signing SHA-256, if available:
+
+Billing:
+- Product IDs chosen:
+- Products created/active: yes/no
+
+Files:
+- google-services.json downloaded locally: yes/no
+```
+
+## 15. What Not To Send Back
+
+Do not send:
+
+- keystore password
+- key password
+- keystore file
+- service-account JSON
+- OAuth client secret
+- access tokens
+- refresh tokens
+- private identity documents
+
+## 16. Why This File Helps The Code Phase
+
+Once you send back the safe values above, I can move into real implementation with much less friction.
+
+Specifically, I can:
+
+- wire Firebase using the correct project identity
+- implement Google Sign-In knowing which SHA contexts are already configured
+- implement Drive backup against the right OAuth scope
+- wire Play Billing against stable product IDs
+- reason about whether we are testing local-debug installs or Play-distributed installs
+
+That is why this file exists. It turns a vague “I think I set the consoles up” feeling into a concrete, implementation-ready handoff.
+
+## 17. Reflection Questions
+
+Use these as mini study prompts while filling the sheet:
+
+- Why is the package name recorded here even though it already exists in code?
+- Why can the same app need multiple SHA fingerprints?
+- Why do Billing product IDs belong in release setup rather than only in code?
+- Why is `drive.appdata` enough for Phone Down’s backup goal?
