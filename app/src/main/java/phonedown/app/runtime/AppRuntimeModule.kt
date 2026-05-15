@@ -3,6 +3,8 @@
 package phonedown.app.runtime
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -11,7 +13,7 @@ import dagger.hilt.components.SingletonComponent
 import phonedown.app.BuildConfig
 import phonedown.app.account.BackupRestorer
 import phonedown.app.account.RestoreBackupUseCase
-import phonedown.core.auth.FakeAuthRepository
+import phonedown.core.auth.DataStoreAuthRepository
 import phonedown.core.backup.FakeBackupRepository
 import phonedown.core.billing.FakeBillingRepository
 import phonedown.core.common.Clock
@@ -213,7 +215,7 @@ object AppRuntimeModule {
 
     @Provides
     @Singleton
-    fun providesAuthRepository(): AuthRepository = FakeAuthRepository()
+    fun providesAuthRepository(dataStore: DataStore<Preferences>): AuthRepository = DataStoreAuthRepository(dataStore)
 
     @Provides
     @Singleton

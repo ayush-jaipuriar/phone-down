@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import phonedown.core.model.AccountState
+import phonedown.core.model.GoogleAccount
 import phonedown.core.model.ProEntitlement
 import phonedown.core.model.repository.AuthRepository
 import phonedown.core.model.repository.BillingRepository
@@ -26,6 +27,8 @@ class AccountViewModel
     ) : ViewModel() {
         private val _restoreState = MutableStateFlow<RestoreState>(RestoreState.Idle)
         val restoreState: StateFlow<RestoreState> = _restoreState.asStateFlow()
+        private val _signInState = MutableStateFlow<SignInState>(SignInState.Idle)
+        val signInState: StateFlow<SignInState> = _signInState.asStateFlow()
 
         val uiState: StateFlow<AccountUiState> =
             combine(
@@ -42,8 +45,27 @@ class AccountViewModel
                 initialValue = AccountUiState(),
             )
 
-        fun signIn() {
-            viewModelScope.launch { authRepository.signIn() }
+        fun beginSignIn() {
+            _signInState.value = SignInState.InProgress
+        }
+
+        fun completeSignIn(account: GoogleAccount) {
+            viewModelScope.launch {
+                authRepository.applyGoogleAccount(account)
+                _signInState.value = SignInState.Idle
+            }
+        }
+
+        fun failSignIn(message: String) {
+            _signInState.value = SignInState.Error(message)
+        }
+
+        fun cancelSignIn() {
+            _signInState.value = SignInState.Idle
+        }
+
+        fun clearSignInState() {
+            _signInState.value = SignInState.Idle
         }
 
         fun signOut() {
@@ -75,6 +97,16 @@ data class AccountUiState(
     val accountState: AccountState = AccountState.SignedOut,
     val isProUser: Boolean = false,
 )
+
+sealed class SignInState {
+    data object Idle : SignInState()
+
+    data object InProgress : SignInState()
+
+    data class Error(
+        val message: String,
+    ) : SignInState()
+}
 
 sealed class RestoreState {
     data object Idle : RestoreState()

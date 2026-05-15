@@ -21,11 +21,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import phonedown.core.charts.FocusHeatmap
 import phonedown.core.charts.PhoneDownBarChart
 import phonedown.core.charts.PhoneDownHourlyChart
@@ -33,7 +35,6 @@ import phonedown.core.charts.PhoneDownLineChart
 import phonedown.core.designsystem.PhoneDownCard
 import phonedown.core.designsystem.PhoneDownCardHeaderTextStyle
 import phonedown.core.designsystem.PhoneDownDesign
-import phonedown.core.designsystem.PhoneDownMetricCard
 import phonedown.core.designsystem.PhoneDownScreen
 import phonedown.core.designsystem.PhoneDownSpacing
 import phonedown.core.designsystem.PhoneDownTheme
@@ -222,23 +223,19 @@ private fun TodaySection(
     }
     PhoneDownCard {
         Column(verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.md)) {
-            Text(
-                text = label,
-                color = PhoneDownDesign.colors.textPrimary,
-                style = PhoneDownCardHeaderTextStyle,
-            )
+            InsightsCardTitle(text = label)
             Row(horizontalArrangement = Arrangement.spacedBy(PhoneDownSpacing.md)) {
-                PhoneDownMetricCard(
+                InsightsMetricCard(
                     label = "Total Focus",
                     value = formatDuration(summary.totalFocusSeconds),
                     modifier = Modifier.weight(1f),
                 )
-                PhoneDownMetricCard(
+                InsightsMetricCard(
                     label = "Sessions",
                     value = summary.sessionCount.toString(),
                     modifier = Modifier.weight(1f),
                 )
-                PhoneDownMetricCard(
+                InsightsMetricCard(
                     label = "Clean",
                     value = summary.cleanSessionCount.toString(),
                     modifier = Modifier.weight(1f),
@@ -246,6 +243,114 @@ private fun TodaySection(
             }
         }
     }
+}
+
+@Composable
+private fun InsightsCardTitle(
+    text: String,
+    modifier: Modifier = Modifier,
+) {
+    Text(
+        text = text,
+        color = PhoneDownDesign.colors.textPrimary,
+        style =
+            PhoneDownCardHeaderTextStyle.copy(
+                fontSize = 14.sp,
+                lineHeight = 19.sp,
+            ),
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun InsightsMetricCard(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.xxs),
+    ) {
+        Text(
+            text = value,
+            color = PhoneDownDesign.colors.textPrimary,
+            style =
+                MaterialTheme.typography.titleMedium.copy(
+                    fontSize = 17.sp,
+                    lineHeight = 23.sp,
+                    fontWeight = FontWeight.Bold,
+                ),
+            textAlign = TextAlign.Center,
+        )
+        Text(
+            text = label,
+            color = PhoneDownDesign.colors.textSecondary,
+            style =
+                MaterialTheme.typography.labelMedium.copy(
+                    fontSize = 12.5.sp,
+                    lineHeight = 17.sp,
+                ),
+            textAlign = TextAlign.Center,
+        )
+    }
+}
+
+@Composable
+private fun InsightsHeroValue(
+    text: String,
+    color: Color = PhoneDownDesign.colors.textPrimary,
+    modifier: Modifier = Modifier,
+) {
+    Text(
+        text = text,
+        color = color,
+        style =
+            MaterialTheme.typography.headlineMedium.copy(
+                fontSize = 24.sp,
+                lineHeight = 30.sp,
+                fontWeight = FontWeight.SemiBold,
+            ),
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun InsightsEmphasisValue(
+    text: String,
+    color: Color = PhoneDownDesign.colors.textPrimary,
+    modifier: Modifier = Modifier,
+) {
+    Text(
+        text = text,
+        color = color,
+        style =
+            MaterialTheme.typography.titleMedium.copy(
+                fontSize = 17.sp,
+                lineHeight = 23.sp,
+                fontWeight = FontWeight.SemiBold,
+            ),
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun InsightsPrimaryBody(
+    text: String,
+    color: Color = PhoneDownDesign.colors.textPrimary,
+    modifier: Modifier = Modifier,
+) {
+    Text(
+        text = text,
+        color = color,
+        style =
+            MaterialTheme.typography.bodyMedium.copy(
+                fontSize = 14.sp,
+                lineHeight = 20.sp,
+            ),
+        modifier = modifier,
+    )
 }
 
 @Composable
@@ -257,7 +362,11 @@ private fun BackToTodayButton(onClick: () -> Unit) {
         Text(
             text = "\u2190 Back to Today",
             color = PhoneDownDesign.colors.progress,
-            style = MaterialTheme.typography.labelMedium,
+            style =
+                MaterialTheme.typography.labelMedium.copy(
+                    fontSize = 13.sp,
+                    lineHeight = 18.sp,
+                ),
             modifier = Modifier.clickable(onClick = onClick),
         )
     }
@@ -267,11 +376,7 @@ private fun BackToTodayButton(onClick: () -> Unit) {
 private fun HourlyChartSection(hourlyFocus: List<HourFocus>) {
     PhoneDownCard {
         Column(verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.md)) {
-        Text(
-            text = "Focus by Hour",
-            color = PhoneDownDesign.colors.textPrimary,
-            style = PhoneDownCardHeaderTextStyle,
-        )
+            InsightsCardTitle(text = "Focus by Hour")
             PhoneDownHourlyChart(
                 values = hourlyFocus.map { it.focusMinutes },
                 modifier =
@@ -289,15 +394,9 @@ private fun WeeklyChartSection(weekly: WeeklyInsight) {
         Column(verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.md)) {
             Row(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "7 Day Overview",
-                        color = PhoneDownDesign.colors.textPrimary,
-                        style = PhoneDownCardHeaderTextStyle,
-                    )
-                    Text(
+                    InsightsCardTitle(text = "7 Day Overview")
+                    InsightsHeroValue(
                         text = formatDuration(weekly.totalFocusSeconds),
-                        color = PhoneDownDesign.colors.textPrimary,
-                        style = MaterialTheme.typography.headlineMedium,
                     )
                 }
                 weekly.changePercent?.let { pct ->
@@ -334,12 +433,8 @@ private fun FocusQualitySection(quality: FocusQualityResult) {
     PhoneDownCard(modifier = Modifier.testTag(InsightsTestTags.QUALITY_CARD)) {
         Row(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = "Focus Quality",
-                    color = PhoneDownDesign.colors.textPrimary,
-                    style = PhoneDownCardHeaderTextStyle,
-                )
-                Text(
+                InsightsCardTitle(text = "Focus Quality")
+                InsightsEmphasisValue(
                     text = quality.label.name,
                     color =
                         when (quality.label) {
@@ -347,13 +442,10 @@ private fun FocusQualitySection(quality: FocusQualityResult) {
                             FocusQualityLabel.Steady -> PhoneDownDesign.colors.progress
                             else -> PhoneDownDesign.colors.textSecondary
                         },
-                    style = MaterialTheme.typography.titleMedium,
                 )
             }
-            Text(
+            InsightsHeroValue(
                 text = quality.score.toString(),
-                color = PhoneDownDesign.colors.textPrimary,
-                style = MaterialTheme.typography.headlineMedium,
             )
         }
     }
@@ -364,21 +456,14 @@ private fun StreakSection(streak: StreakResult) {
     PhoneDownCard {
         Row(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = "Streak",
-                    color = PhoneDownDesign.colors.textPrimary,
-                    style = PhoneDownCardHeaderTextStyle,
-                )
-                Text(
+                InsightsCardTitle(text = "Streak")
+                InsightsEmphasisValue(
                     text = "${streak.currentStreakDays} days",
-                    color = PhoneDownDesign.colors.textPrimary,
-                    style = MaterialTheme.typography.titleMedium,
                 )
             }
-            Text(
+            InsightsPrimaryBody(
                 text = "Best: ${streak.longestStreakDays}d",
                 color = PhoneDownDesign.colors.textSecondary,
-                style = MaterialTheme.typography.bodyMedium,
             )
         }
     }
@@ -388,11 +473,7 @@ private fun StreakSection(streak: StreakResult) {
 private fun HistorySection(history: List<SessionHistoryItem>) {
     PhoneDownCard(modifier = Modifier.testTag(InsightsTestTags.SESSION_SUMMARY)) {
         Column(verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.md)) {
-            Text(
-                text = "Session History",
-                color = PhoneDownDesign.colors.textPrimary,
-                style = PhoneDownCardHeaderTextStyle,
-            )
+            InsightsCardTitle(text = "Session History")
             history.forEach { item ->
                 HistoryRow(item = item)
             }
@@ -407,10 +488,8 @@ private fun HistoryRow(item: SessionHistoryItem) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            Text(
+            InsightsPrimaryBody(
                 text = formatDate(item.startedAtEpochMillis),
-                color = PhoneDownDesign.colors.textPrimary,
-                style = MaterialTheme.typography.bodyMedium,
             )
             Text(
                 text = formatDuration(item.validFocusSeconds),
@@ -447,10 +526,8 @@ private fun ProHeader() {
                 .padding(horizontal = PhoneDownSpacing.screen),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(
+        InsightsCardTitle(
             text = "Advanced Insights",
-            color = PhoneDownDesign.colors.textPrimary,
-            style = PhoneDownCardHeaderTextStyle,
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
@@ -466,11 +543,7 @@ private fun ProHeader() {
 private fun HeatmapSection(days: List<HeatmapDay>) {
     PhoneDownCard {
         Column(verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.sm)) {
-            Text(
-                text = "Focus Heatmap",
-                color = PhoneDownDesign.colors.textPrimary,
-                style = PhoneDownCardHeaderTextStyle,
-            )
+            InsightsCardTitle(text = "Focus Heatmap")
             FocusHeatmap(
                 days = days,
                 modifier = Modifier.fillMaxWidth(),
@@ -486,18 +559,12 @@ private fun BestTimeSection(
 ) {
     PhoneDownCard {
         Column(verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.md)) {
-            Text(
-                text = "Best Focus Time",
-                color = PhoneDownDesign.colors.textPrimary,
-                style = PhoneDownCardHeaderTextStyle,
-            )
+            InsightsCardTitle(text = "Best Focus Time")
             Row(horizontalArrangement = Arrangement.spacedBy(PhoneDownSpacing.md)) {
                 bestHour?.let { hour ->
                     Column(modifier = Modifier.weight(1f)) {
-                        Text(
+                        InsightsEmphasisValue(
                             text = formatHour(hour.hour),
-                            color = PhoneDownDesign.colors.textPrimary,
-                            style = MaterialTheme.typography.titleMedium,
                         )
                         Text(
                             text = formatDuration(hour.focusSeconds),
@@ -508,10 +575,8 @@ private fun BestTimeSection(
                 }
                 bestDay?.let { day ->
                     Column(modifier = Modifier.weight(1f)) {
-                        Text(
+                        InsightsEmphasisValue(
                             text = dayOfWeekName(day.dayOfWeekValue),
-                            color = PhoneDownDesign.colors.textPrimary,
-                            style = MaterialTheme.typography.titleMedium,
                         )
                         Text(
                             text = formatDuration(day.focusSeconds),
@@ -532,11 +597,7 @@ private fun TrendSection(
 ) {
     PhoneDownCard {
         Column(verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.md)) {
-            Text(
-                text = label,
-                color = PhoneDownDesign.colors.textPrimary,
-                style = PhoneDownCardHeaderTextStyle,
-            )
+            InsightsCardTitle(text = label)
             PhoneDownLineChart(
                 values = points.map { it.value },
                 labels = points.map { it.label },
@@ -553,11 +614,7 @@ private fun TrendSection(
 private fun AdvancedSection(advanced: AdvancedInsights) {
     PhoneDownCard {
         Column(verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.md)) {
-            Text(
-                text = "Season Highlights",
-                color = PhoneDownDesign.colors.textPrimary,
-                style = PhoneDownCardHeaderTextStyle,
-            )
+            InsightsCardTitle(text = "Season Highlights")
             AdvancedRow(label = "Longest Clean", value = formatDuration(advanced.longestCleanFocusSeconds))
             AdvancedRow(label = "Average Session", value = formatDuration(advanced.averageSessionSeconds))
             AdvancedRow(label = "Weekday Focus", value = formatDuration(advanced.weekdayFocusSeconds))
@@ -572,16 +629,12 @@ private fun AdvancedRow(
     value: String,
 ) {
     Row(modifier = Modifier.fillMaxWidth()) {
-        Text(
+        InsightsPrimaryBody(
             text = label,
             modifier = Modifier.weight(1f),
-            color = PhoneDownDesign.colors.textPrimary,
-            style = MaterialTheme.typography.bodyMedium,
         )
-        Text(
+        InsightsPrimaryBody(
             text = value,
-            color = PhoneDownDesign.colors.textPrimary,
-            style = MaterialTheme.typography.bodyMedium,
         )
     }
 }
@@ -593,10 +646,8 @@ private fun ExportSection() {
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
+            InsightsPrimaryBody(
                 text = "Export Data",
-                color = PhoneDownDesign.colors.textPrimary,
-                style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.weight(1f),
             )
             Text(
@@ -619,7 +670,11 @@ private fun ProTeaserCard() {
         ) {
             Text(
                 text = "Upgrade to Pro",
-                style = MaterialTheme.typography.titleSmall,
+                style =
+                    MaterialTheme.typography.titleSmall.copy(
+                        fontSize = 16.sp,
+                        lineHeight = 22.sp,
+                    ),
                 color = PhoneDownDesign.colors.textPrimary,
                 fontWeight = FontWeight.SemiBold,
             )
@@ -653,7 +708,11 @@ private fun UpsellBanner() {
             ) {
                 Text(
                     text = "See your focus patterns over time",
-                    style = MaterialTheme.typography.bodyMedium,
+                    style =
+                        MaterialTheme.typography.bodyMedium.copy(
+                            fontSize = 14.sp,
+                            lineHeight = 20.sp,
+                        ),
                     color = PhoneDownDesign.colors.textPrimary,
                     fontWeight = FontWeight.SemiBold,
                 )

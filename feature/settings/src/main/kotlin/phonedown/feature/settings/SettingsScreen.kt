@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.sp
 import phonedown.core.designsystem.PhoneDownCard
 import phonedown.core.designsystem.PhoneDownDesign
 import phonedown.core.designsystem.PhoneDownProBadge
@@ -323,7 +324,11 @@ private fun SettingsSectionHeader(
         Text(
             text = title,
             color = PhoneDownDesign.colors.textPrimary,
-            style = PhoneDownSectionHeaderTextStyle,
+            style =
+                PhoneDownSectionHeaderTextStyle.copy(
+                    fontSize = 18.sp,
+                    lineHeight = 24.sp,
+                ),
         )
         PhoneDownCard {
             Column(content = { content() })

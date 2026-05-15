@@ -23,6 +23,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import phonedown.core.model.ThemeMode
 
 @Composable
@@ -58,13 +59,22 @@ fun PhoneDownSettingRow(
             Text(
                 text = title,
                 color = if (destructive) PhoneDownDesign.colors.danger else PhoneDownDesign.colors.textPrimary,
-                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                style =
+                    MaterialTheme.typography.bodyMedium.copy(
+                        fontSize = 14.sp,
+                        lineHeight = 20.sp,
+                        fontWeight = FontWeight.SemiBold,
+                    ),
             )
             if (supportingText != null) {
                 Text(
                     text = supportingText,
                     color = PhoneDownDesign.colors.textSecondary,
-                    style = MaterialTheme.typography.labelMedium,
+                    style =
+                        MaterialTheme.typography.labelMedium.copy(
+                            fontSize = 12.5.sp,
+                            lineHeight = 17.sp,
+                        ),
                 )
             }
         }
@@ -72,14 +82,22 @@ fun PhoneDownSettingRow(
             Text(
                 text = trailing,
                 color = if (destructive) PhoneDownDesign.colors.danger else PhoneDownDesign.colors.textSecondary,
-                style = MaterialTheme.typography.labelMedium,
+                style =
+                    MaterialTheme.typography.labelMedium.copy(
+                        fontSize = 12.5.sp,
+                        lineHeight = 17.sp,
+                    ),
             )
         }
         if (showChevron) {
             Text(
                 text = "\u2192",
                 color = PhoneDownDesign.colors.textTertiary,
-                style = MaterialTheme.typography.labelMedium,
+                style =
+                    MaterialTheme.typography.labelMedium.copy(
+                        fontSize = 12.5.sp,
+                        lineHeight = 17.sp,
+                    ),
                 modifier = Modifier.padding(start = PhoneDownSpacing.xs),
             )
         }
@@ -109,13 +127,22 @@ fun PhoneDownSwitchRow(
             Text(
                 text = title,
                 color = PhoneDownDesign.colors.textPrimary,
-                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                style =
+                    MaterialTheme.typography.bodyMedium.copy(
+                        fontSize = 14.sp,
+                        lineHeight = 20.sp,
+                        fontWeight = FontWeight.SemiBold,
+                    ),
             )
             if (supportingText != null) {
                 Text(
                     text = supportingText,
                     color = PhoneDownDesign.colors.textSecondary,
-                    style = MaterialTheme.typography.labelMedium,
+                    style =
+                        MaterialTheme.typography.labelMedium.copy(
+                            fontSize = 12.5.sp,
+                            lineHeight = 17.sp,
+                        ),
                 )
             }
         }

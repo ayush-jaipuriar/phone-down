@@ -16,6 +16,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import phonedown.core.model.AccountState
+import phonedown.core.model.GoogleAccount
 import phonedown.core.model.ProEntitlement
 import phonedown.core.model.repository.AuthRepository
 import phonedown.core.model.repository.BillingRepository
@@ -74,15 +75,37 @@ class AccountViewModelTest {
         }
 
     @Test
-    fun `signIn calls repository`() =
+    fun `completeSignIn applies Google account to repository`() =
         runTest(testDispatcher) {
             val authRepo = FakeAuthRepository()
             val viewModel = createViewModel(authRepo = authRepo)
 
-            viewModel.signIn()
+            viewModel.beginSignIn()
+            viewModel.completeSignIn(
+                GoogleAccount(
+                    accountId = "account-1",
+                    displayName = "Real User",
+                    email = "real@test.com",
+                    photoUrl = null,
+                ),
+            )
             testScheduler.advanceUntilIdle()
 
-            assertTrue(authRepo.signInCalled)
+            assertTrue(viewModel.signInState.value is SignInState.Idle)
+            assertEquals("real@test.com", (authRepo.stateFlow.value as AccountState.SignedIn).email)
+            assertEquals("account-1", authRepo.lastAppliedAccount?.accountId)
+        }
+
+    @Test
+    fun `failSignIn exposes error state`() =
+        runTest(testDispatcher) {
+            val viewModel = createViewModel()
+
+            viewModel.failSignIn("Google Sign-In failed")
+
+            val state = viewModel.signInState.value
+            assertTrue(state is SignInState.Error)
+            assertEquals("Google Sign-In failed", (state as SignInState.Error).message)
         }
 
     @Test
@@ -170,22 +193,26 @@ private class FakeAuthRepository(
     private val initialState: AccountState = AccountState.SignedOut,
 ) : AuthRepository {
     val stateFlow = MutableStateFlow(initialState)
-    var signInCalled = false
     var signOutCalled = false
+    var lastAppliedAccount: GoogleAccount? = null
 
     override val accountState = stateFlow
 
-    override suspend fun signIn() {
-        signInCalled = true
-        stateFlow.value = AccountState.SignedIn("Test User", "test@test.com", null)
+    override suspend fun applyGoogleAccount(account: GoogleAccount) {
+        lastAppliedAccount = account
+        stateFlow.value =
+            AccountState.SignedIn(
+                displayName = account.displayName,
+                email = account.email,
+                photoUrl = account.photoUrl,
+                accountId = account.accountId,
+            )
     }
 
     override suspend fun signOut() {
         signOutCalled = true
         stateFlow.value = AccountState.SignedOut
     }
-
-    override fun getAuthToken(): String? = null
 }
 
 private class FakeBillingRepository(

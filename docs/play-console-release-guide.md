@@ -153,6 +153,30 @@ Why this order matters:
 - billing products are easiest to verify once a Play build exists
 - release signing must be in place before Play-distributed testing behaves like the final product
 
+## 3.2 Current Progress
+
+Current status based on user progress:
+
+- [x] Step 1: Play Console developer account
+- [x] Step 2: Phone Down app shell in Play Console
+- [x] Local repo wiring for `google-services.json` via the Google services Gradle plugin
+- [x] Step 4: Upload keystore generation and fingerprint capture
+- [ ] Step 3: Play App Signing and release key setup
+- [x] Step 5: Dedicated Google Cloud / Firebase project
+- [x] Step 6: Firebase Android app setup
+- [x] Step 7: Google Drive API enablement
+- [x] Step 8: OAuth consent screen setup
+- [~] Step 9: SHA fingerprint registration
+- [ ] Step 10: Play Billing product setup
+- [ ] Step 11: Internal and closed testing tracks
+- [ ] Step 12: Store listing and policy completion
+- [ ] Step 13: Internal release upload
+
+Why this matters:
+
+- production-readiness work becomes much easier when we make progress visible
+- it reduces the “where am I in this maze?” feeling
+
 ## 3.1 How This Connects Back To Phone Down’s Codebase
 
 This release work is not separate from the app architecture. It feeds directly into the modules we already built.
@@ -163,6 +187,28 @@ This release work is not separate from the app architecture. It feeds directly i
 - `:app` will later initialize Firebase/Crashlytics and coordinate Activity-based auth and billing flows
 
 That is why this phase starts with console setup before real production integration code. The code needs real external identities to attach to.
+
+## 3.3 Local Repo Status For Firebase Config
+
+As of the current Phase 16 progress, the local Android project has already been wired to understand `app/google-services.json`.
+
+What was added locally:
+
+- the Google services Gradle plugin version in the version catalog
+- the root-level plugin declaration with `apply false`
+- the app-module plugin application
+
+What was intentionally not added yet:
+
+- Firebase Analytics
+- Firebase Crashlytics SDK
+- any other Firebase runtime SDKs
+
+Why this is the right order:
+
+- the Google services plugin is infrastructure
+- Firebase SDKs are product choices
+- we should not widen data collection or release-surface area until we intentionally implement the next real integration
 
 ## 4. Important Concepts Before You Start
 
@@ -520,6 +566,66 @@ That means we must eventually register:
 
 Otherwise a Play-installed build can fail even if the local debug build works.
 
+### What To Do In Play Console
+
+Inside the Phone Down app in Play Console:
+
+1. Open the app dashboard.
+2. Go to `Setup` or `App integrity` depending on the current Play Console layout.
+3. Look for `App signing`.
+4. If Play App Signing is not enabled yet, follow the flow to enable it.
+
+What you should expect:
+
+- Google will explain that Play can manage the app signing key
+- you will keep an upload key locally
+- Play will use its own signing key for distribution
+
+### What You Are Choosing Conceptually
+
+There are two broad models:
+
+1. you manage final app signing completely yourself
+2. Google Play manages final distribution signing, and you manage only the upload key
+
+For Phone Down, we want the second model.
+
+Why this is the recommended model:
+
+- simpler long-term release operations
+- standard modern Play workflow
+- better recovery options if the upload key is ever lost
+
+### What “App Integrity” Means In Practice
+
+Google uses app signing to verify:
+
+- this update really belongs to the same app
+- the uploaded artifact is from a trusted publisher path
+- distributed APKs are authentic
+
+So “integrity” here is really about continuity and trust across app updates.
+
+### What To Record After This Step
+
+In [docs/phase-16-console-setup-info.md](/Users/ayushjaipuriar/Documents/GitHub/phone-down/docs/phase-16-console-setup-info.md), fill:
+
+- `Play App Signing enabled`
+
+Do not record anything secret here. At this step, we mainly care whether the feature is enabled and, later, what public SHA fingerprints Play shows.
+
+### Common Mistakes
+
+- assuming upload key and Play signing key are the same thing
+- skipping this because the app is “just one version right now”
+- not realizing that Play-installed builds will later use Play’s signing identity
+
+### Completion Checklist
+
+- [ ] Play App Signing page located
+- [ ] Play App Signing enabled
+- [ ] You understand the difference between upload key and Play signing key
+
 ## 10. Step 4: Generate the Upload Keystore
 
 This happens on your machine, not inside the repo.
@@ -596,6 +702,63 @@ Record only:
 
 in [docs/phase-16-console-setup-info.md](/Users/ayushjaipuriar/Documents/GitHub/phone-down/docs/phase-16-console-setup-info.md).
 
+### What To Do Immediately After Running `keytool`
+
+After the keystore is created:
+
+1. confirm the file exists at the chosen path
+2. run the fingerprint command
+3. copy only the SHA-1 and SHA-256 values into the setup-info doc
+4. store the keystore password and key password in your password manager
+
+### Where This Keystore Fits In The Overall Flow
+
+This keystore is used later when:
+
+- we configure release signing locally
+- we build the release AAB
+- we upload that AAB to Play Console
+
+### How To Know The Keystore Step Really Succeeded
+
+You should have all of these afterward:
+
+- a `.jks` file outside the repo
+- an alias name you know
+- a password you stored safely
+- SHA-1 and SHA-256 values recorded
+
+If you only created the file but did not record fingerprints and passwords safely, the step is not really complete.
+
+### Common Mistakes
+
+- creating the keystore in the repo directory
+- forgetting where it was stored
+- not storing the password anywhere reliable
+- copying the entire command output into docs instead of just the public fingerprints
+
+### Completion Checklist
+
+- [x] upload keystore generated outside repo
+- [ ] alias confirmed
+- [ ] passwords stored safely outside repo
+- [x] upload SHA-1 recorded
+- [x] upload SHA-256 recorded
+
+### Current Progress
+
+The user has already completed the keystore generation and fingerprint-capture portion of this step.
+
+Current recorded public fingerprints:
+
+- upload SHA-1: `EE:FA:73:EF:A2:F0:6A:A1:8F:03:A8:0E:C4:A4:20:F7:65:33:A3:9C`
+- upload SHA-256: `63:0E:62:5F:A1:14:13:C9:A0:FB:2B:53:E8:4B:5A:D2:B3:03:11:B5:0D:52:4F:42:B9:92:75:0E:2C:7E:F9:0A`
+
+Remaining for this step:
+
+- confirm the alias is treated as final
+- confirm passwords are safely stored outside the repo
+
 ## 11. Step 5: Create a Dedicated Google Cloud and Firebase Project
 
 Recommendation:
@@ -630,6 +793,66 @@ Think of this project as the “Google-side home” for Phone Down. It is where 
 - what APIs it may call
 - what user consent screen it should show
 - what signed Android builds belong to it
+
+### What To Do
+
+1. Open [Google Cloud Console](https://console.cloud.google.com/).
+2. Click the project selector at the top.
+3. Click `New Project`.
+4. Use a clear project name such as `phone-down`.
+5. Let Google generate the project ID, or choose a clean available one if prompted.
+6. Create the project.
+7. After the project is created, note the project ID.
+
+Recommended:
+
+- project name: `phone-down`
+- project ID: use a simple, stable variant if Google offers one cleanly
+
+Current recorded value from user progress:
+
+- project name: `phone-down`
+- project ID: `phone-down-496414`
+
+### Difference Between Project Name And Project ID
+
+This is a very common beginner confusion.
+
+`Project name`:
+
+- human-readable
+- can be friendlier
+- mainly for your own dashboard clarity
+
+`Project ID`:
+
+- technical identifier
+- often used in configs and URLs
+- should be treated as stable
+
+Why we care more about the project ID later:
+
+- it is the thing you will send back to me
+- it is the clearest technical identifier for implementation work
+
+### What To Record After This Step
+
+In [docs/phase-16-console-setup-info.md](/Users/ayushjaipuriar/Documents/GitHub/phone-down/docs/phase-16-console-setup-info.md), fill:
+
+- `Google Cloud project name`
+- `Google Cloud project ID`
+
+### Common Mistakes
+
+- creating resources in the wrong selected project
+- reusing an older project accidentally because it was already selected
+- mixing up project name and project ID
+
+### Completion Checklist
+
+- [x] dedicated Google Cloud project created
+- [x] project ID recorded
+- [ ] you confirmed you are working inside the correct project
 
 ## 12. Step 6: Set Up Firebase
 
@@ -698,6 +921,73 @@ Important:
 - downloading the wrong kind of credential file
 - assuming Firebase setup alone automatically enables Drive API or OAuth consent
 
+### Detailed Browser Walkthrough
+
+1. Open [Firebase Console](https://console.firebase.google.com/).
+2. Click `Add project`.
+3. Choose the Google Cloud project you just created, or create through Firebase if it is not visible yet.
+4. When asked about Google Analytics:
+   - choose `Disable` for now unless you deliberately want product analytics immediately
+5. Once the project is created, click `Add app`.
+6. Choose Android.
+7. Enter package name:
+
+```text
+phonedown.app
+```
+
+8. Enter app nickname:
+
+```text
+Phone Down Android
+```
+
+9. Paste the debug SHA-1 and debug SHA-256 values from the setup-info file.
+10. Finish app registration.
+11. Download `google-services.json`.
+12. Keep that file locally. Do not move it into git casually.
+
+### Why Debug SHA Goes Here First
+
+The debug SHA is what makes local device builds recognizable to Google services.
+
+Without it:
+
+- the code may compile
+- the sign-in UI may launch
+- but Google can still reject the app identity during auth
+
+### What To Record After This Step
+
+In the setup-info doc, fill:
+
+- `Firebase project created`
+- `Firebase Android app package`
+- `Firebase Android app nickname`
+- `google-services.json downloaded locally`
+
+### Completion Checklist
+
+- [x] Firebase project exists
+- [x] Android app `phonedown.app` registered
+- [x] debug SHA values added
+- [x] `google-services.json` downloaded locally
+
+### Current Progress
+
+This step is now effectively complete based on current user setup progress:
+
+- Firebase project exists
+- Android app `phonedown.app` exists
+- app nickname is `Phone Down Android`
+- `google-services.json` has been downloaded locally and placed in the app module
+
+What this means in practice:
+
+- Firebase knows about the Android app identity
+- the local repo is wired to consume `google-services.json`
+- we can now move on to the next required Google-side capabilities, especially Drive API and OAuth consent
+
 ## 13. Step 7: Enable Google Drive API
 
 Open the Google Cloud project:
@@ -730,6 +1020,53 @@ Why:
 - it gives access only to hidden app data
 - it avoids frightening users with broad Drive access
 - it matches the product need exactly
+
+### Detailed Browser Walkthrough
+
+1. Stay inside the correct `phone-down` Google Cloud project.
+2. In the left menu, open `APIs & Services`.
+3. Open `Library`.
+4. Search for `Google Drive API`.
+5. Open it.
+6. Click `Enable`.
+7. Wait for the API dashboard page to appear.
+
+### How To Know It Worked
+
+Usually after enabling, you should see:
+
+- an `Enabled` state instead of `Enable`
+- usage/quotas/docs links for that API
+
+### Why We Enable The API Separately From Firebase
+
+Firebase project creation does not automatically mean all Google APIs are available.
+
+Firebase gives us app registration and mobile-oriented tooling. API enablement is still a separate Google Cloud capability switch.
+
+### What To Record After This Step
+
+In the setup-info doc, fill:
+
+- `Drive API enabled`
+
+### Completion Checklist
+
+- [x] Drive API page found
+- [x] Drive API enabled in the correct project
+- [x] setup-info doc updated
+
+### Current Progress
+
+This step is now complete based on current user setup progress:
+
+- Google Drive API is enabled in project `phone-down-496414`
+- the API details page shows `Status: Enabled`
+
+What this means in practice:
+
+- the project can later make real Drive API calls
+- we are now ready for the OAuth consent screen, which controls how users grant this access
 
 ## 14. Step 8: Configure OAuth Consent Screen
 
@@ -824,6 +1161,78 @@ Why this is needed:
 
 - otherwise Google blocks those accounts from completing sign-in
 
+### Detailed Browser Walkthrough
+
+1. In Google Cloud, open `APIs & Services`.
+2. Open `OAuth consent screen`.
+3. Choose `External` as the user type.
+4. Set app name to `Phone Down`.
+5. Set support email.
+6. Set developer contact email.
+7. Save and continue through the flow.
+8. Add the required scopes:
+   - `openid`
+   - `email`
+   - `profile`
+   - `https://www.googleapis.com/auth/drive.appdata`
+9. Add your own Google account as a test user.
+10. Add any additional tester accounts that need to try sign-in before production.
+
+### What “Testing Mode” Means
+
+While the OAuth app is still in testing mode:
+
+- only listed test users can complete sign-in
+- this is normal and expected during development
+
+That means “sign-in failed” can sometimes be a console-setup issue rather than an app-code issue.
+
+### Privacy Policy URL Note
+
+If the flow asks for a privacy policy URL and you do not yet have a public hosted URL, note that as a release task. The in-repo doc is not itself a public URL.
+
+This is one reason final listing/policy work remains a separate later step.
+
+### What To Record After This Step
+
+In the setup-info doc, fill:
+
+- `User type`
+- `Support email`
+- `Developer contact email`
+- `Test users added`
+- `OAuth consent configured`
+
+### Common Mistakes
+
+- selecting the wrong user type
+- forgetting to add yourself as a test user
+- requesting broad Drive access
+- thinking the in-repo privacy-policy Markdown file is already a public URL
+
+### Completion Checklist
+
+- [x] OAuth consent screen created
+- [x] correct scopes added
+- [x] at least one test user added
+- [x] setup-info doc updated
+
+### Current Progress
+
+This step is now complete based on current user setup progress:
+
+- branding is configured for `Phone Down`
+- user type is `External`
+- publishing status remains `Testing`
+- required scopes are configured
+- at least one test user has been added
+
+What this means in practice:
+
+- the project is now allowed to present a valid Google consent flow to approved testers
+- real sign-in failures later are less likely to come from missing OAuth policy configuration
+- we are now ready to create Android OAuth client credentials and finish the signing-fingerprint matrix
+
 ## 15. Step 9: Add SHA Fingerprints in the Right Places
 
 This part trips up many Android releases, so it is worth being very explicit.
@@ -856,6 +1265,105 @@ Think of fingerprint setup as a matrix:
 | Play-installed app | Play App Signing certificate | Yes |
 
 This one table explains a huge amount of Android auth confusion.
+
+### Detailed Action Plan
+
+At this point, make sure the following values eventually end up in the correct Google/Firebase configuration:
+
+1. debug SHA-1 and SHA-256
+2. upload key SHA-1 and SHA-256
+3. Play App Signing SHA-1 and SHA-256 once available in Play Console
+
+### Where To Find Play App Signing Fingerprints
+
+Inside Play Console, look under the app’s signing or integrity section after Play App Signing is enabled.
+
+You are usually looking for labels similar to:
+
+- App signing key certificate
+- SHA-1 certificate fingerprint
+- SHA-256 certificate fingerprint
+
+### Why This Step Often Feels Repetitive
+
+Because it is the same conceptual task repeated for multiple signing contexts:
+
+- local development
+- your upload path
+- Google’s final distribution path
+
+It feels repetitive because Android’s trust model is certificate-based. The repetition is not bureaucracy for its own sake; it is identity matching.
+
+### What To Record After This Step
+
+In the setup-info doc, fill:
+
+- upload key SHA-1
+- upload key SHA-256
+- Play App Signing SHA-1 if available
+- Play App Signing SHA-256 if available
+
+### Completion Checklist
+
+- [ ] debug SHA values already registered
+- [ ] upload SHA values recorded
+- [ ] Play signing SHA values found or noted as pending
+- [ ] you understand which install context each fingerprint corresponds to
+
+### Current Progress
+
+This step is partially complete:
+
+- debug Android OAuth client exists
+- upload SHA values are already recorded in our setup docs
+- Play App Signing SHA values are still pending
+- Web OAuth client/default web client ID is now configured
+
+What this means in practice:
+
+- local debug-build Google Sign-In now has a proper Android OAuth client path
+- release and Play-installed sign-in are not fully covered until we also account for Play signing fingerprints
+- Credential Manager Sign in with Google now has the required Web OAuth client ID, exposed to Android as `default_web_client_id`
+
+### Extra Required Step For Credential Manager
+
+Android Credential Manager's Sign in with Google flow asks the app for a server/web client ID. This is different from the Android OAuth client.
+
+Create or confirm a Web OAuth client:
+
+1. In Google Cloud, open `Google Auth Platform`.
+2. Open `Clients`.
+3. Click `Create client`.
+4. Choose `Web application`.
+5. Name it:
+
+```text
+Phone Down Web Client
+```
+
+6. Leave redirect URI fields empty unless Google requires a value for a future web/server flow.
+7. Create the client.
+8. Return to Firebase project settings and download an updated `google-services.json`, or confirm Firebase now exposes `default_web_client_id`.
+
+Why this matters:
+
+- the Android OAuth client binds package name plus SHA fingerprint
+- the Web OAuth client is the server-client identity used by the Google ID token flow
+- Credential Manager expects that web client ID even in an Android app
+
+Do not record or share any client secret. For this mobile flow, the important value is the public client ID and the generated Android resource, not a secret file.
+
+### Current Progress
+
+This extra step is now complete:
+
+- a Web OAuth client exists
+- refreshed `google-services.json` now generates `default_web_client_id`
+
+What this means in practice:
+
+- the Android app now has the resource Credential Manager Sign in with Google expects
+- debug-build manual sign-in QA can proceed
 
 ## 16. Step 10: Set Up Play Billing Products
 
@@ -908,6 +1416,74 @@ The lifetime plan is still a digital in-app product, so it should go through Goo
 - [ ] prices set
 - [ ] test accounts prepared
 
+### Detailed Browser Walkthrough
+
+Inside Play Console for Phone Down:
+
+1. Open the monetization section.
+2. Open subscriptions.
+3. Create the Pro subscription product if using the shared `pro` model.
+4. Add a monthly base plan named `pro-monthly`.
+5. Set price to `INR 99/month`.
+6. Add a yearly base plan named `pro-yearly`.
+7. Set price to `INR 799/year`.
+8. Open one-time products.
+9. Create `pro_lifetime`.
+10. Set price to `INR 1,999`.
+11. Activate all products when they are ready for testing.
+
+If the console flow makes shared subscription + base plans confusing, use the simpler fallback with separate subscription product IDs.
+
+### Why Product IDs Matter So Much
+
+These IDs become part of the contract between:
+
+- Play Console
+- the Play Billing library
+- our entitlement logic
+- restore purchases logic
+
+Changing them later is annoying because code and console state must stay aligned.
+
+### Why We Prefer “Boring” Product IDs
+
+Stable product IDs are more valuable than clever names.
+
+Good:
+
+- `pro`
+- `pro-monthly`
+- `pro-yearly`
+- `pro_lifetime`
+
+Bad:
+
+- promotional names
+- temporary marketing names
+- anything likely to feel embarrassing or outdated in a year
+
+### What To Record After This Step
+
+In the setup-info doc, fill:
+
+- chosen product IDs
+- whether products are created/active
+
+### Common Mistakes
+
+- creating products but forgetting to activate them
+- using inconsistent names between plan docs and Play Console
+- setting prices in the wrong currency context
+- assuming lifetime should be a subscription instead of a one-time product
+
+### Completion Checklist
+
+- [ ] monthly Pro product/base plan created
+- [ ] yearly Pro product/base plan created
+- [ ] lifetime product created
+- [ ] prices confirmed
+- [ ] setup-info doc updated
+
 ## 17. Step 11: Create Testing Tracks
 
 ### Internal Testing
@@ -941,6 +1517,36 @@ If required:
 
 - recruit at least 12 opted-in testers
 - keep the test live for at least 14 continuous days
+
+### Detailed Browser Walkthrough
+
+1. In Play Console, open `Testing`.
+2. Create an `Internal testing` track first.
+3. Add your own test account and any immediate collaborators.
+4. Save the tester list.
+5. Note where the opt-in link will later appear once a build is uploaded.
+6. If Google indicates closed testing is required, create a `Closed testing` track too.
+7. Prepare a list of 12 real testers if your account type requires it.
+
+### Why We Do This Before Production
+
+Testing tracks are not just technical niceties. They are Google’s way of seeing whether the app has been exercised in something closer to the real distribution environment.
+
+### What To Record After This Step
+
+In the setup-info doc, fill:
+
+- `Internal testing track created`
+- `Closed testing required by Google`
+- `Closed testing track created`
+- `12 tester list started`
+
+### Completion Checklist
+
+- [ ] internal testing track created
+- [ ] tester path understood
+- [ ] closed testing requirement determined
+- [ ] setup-info doc updated
 
 ## 18. Step 12: Store Listing and Policy Work
 

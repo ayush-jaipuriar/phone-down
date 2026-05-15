@@ -119,7 +119,7 @@ The repository uses a multi-module Gradle architecture.
 | `:core:sensors` | SensorManager integration and semantic validity evaluation |
 | `:core:notifications` | Foreground notification creation and sound/haptic playback |
 | `:core:backup` | Backup schema, serialization, fake backup implementation |
-| `:core:auth` | Fake auth implementation |
+| `:core:auth` | Auth repository implementations, including fake auth for tests and DataStore-backed real account state |
 | `:core:billing` | Fake billing implementation |
 | `:core:charts` | Shared charting primitives used by insights surfaces |
 
@@ -740,6 +740,36 @@ The best current example is `READ_PHONE_STATE`:
 This matters because a raw permission request without context can break trust in a focus product very quickly.
 
 ## 21. Auth, Billing, and Entitlements
+
+### 21.1 Google Sign-In Architecture
+
+Phase 16 introduces the first real Google Sign-In path.
+
+The important split is:
+
+- `:app` owns the Android Credential Manager UI call
+- `:core:model` owns the platform-neutral `GoogleAccount` model and `AuthRepository` contract
+- `:core:auth` owns persistent signed-in account state through `DataStoreAuthRepository`
+- `:feature:account` renders sign-in state, loading state, and errors without depending on Google APIs
+
+Why the Credential Manager call stays in `:app`:
+
+- it needs an active Android screen/context
+- it launches platform UI
+- feature modules should stay UI-only and not know about Google SDK types
+
+Why the repository receives a `GoogleAccount` instead of launching sign-in itself:
+
+- the repository contract remains easy to test
+- the model module stays free of Android dependencies
+- future Drive authorization can remain separate from identity sign-in
+
+Google identity and Drive authorization are deliberately separate:
+
+- identity sign-in answers “which Google account is this?”
+- Drive authorization answers “may Phone Down access its hidden app backup folder?”
+
+This avoids treating a Google ID token as a Drive API access token.
 
 These systems are architected but not yet fully real end-to-end with production services.
 

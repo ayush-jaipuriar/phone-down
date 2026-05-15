@@ -7,6 +7,7 @@ sealed class AccountState {
         val displayName: String?,
         val email: String?,
         val photoUrl: String?,
+        val accountId: String? = null,
     ) : AccountState()
 }
 

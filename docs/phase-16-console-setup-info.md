@@ -220,8 +220,8 @@ Without an upload key:
 
 | Fingerprint | Value | Why It Matters |
 |---|---|---|
-| Upload key SHA-1 | TODO | Needed for Google/Firebase app trust configuration |
-| Upload key SHA-256 | TODO | Needed for stronger certificate matching and some API config |
+| Upload key SHA-1 | `EE:FA:73:EF:A2:F0:6A:A1:8F:03:A8:0E:C4:A4:20:F7:65:33:A3:9C` | Needed for Google/Firebase app trust configuration |
+| Upload key SHA-256 | `63:0E:62:5F:A1:14:13:C9:A0:FB:2B:53:E8:4B:5A:D2:B3:03:11:B5:0D:52:4F:42:B9:92:75:0E:2C:7E:F9:0A` | Needed for stronger certificate matching and some API config |
 
 ### Generation Command
 
@@ -254,6 +254,17 @@ keytool -list -v \
 ### Study Note
 
 The upload keystore is not an ordinary project file. It is long-lived release infrastructure.
+
+### Current Progress
+
+Recorded from local `keytool` output on `2026-05-15`:
+
+- alias: `phone-down-upload`
+- creation date: `2026-05-15`
+- upload SHA-1 recorded
+- upload SHA-256 recorded
+
+Sensitive values such as the keystore password were intentionally not recorded here.
 
 ## 8. Play App Signing Certificate
 
@@ -289,19 +300,61 @@ Play-installed build:
 
 - Play signing SHA
 
+## 8.1 Android OAuth Clients
+
+These are the Android-specific OAuth client records that bind package name plus certificate fingerprint to Google Sign-In trust.
+
+| Field | Value | Why It Matters |
+|---|---|---|
+| Android OAuth debug client created | Yes | Needed for real debug-build Google Sign-In |
+| Android OAuth debug client name | `Phone Down Android Debug` | Human-readable client label in Google Cloud |
+| Android OAuth debug client type | Android | Confirms this is the correct client platform |
+| Android OAuth debug client ID | Created | Actual runtime client identity exists in Google Cloud |
+| Web OAuth client for Credential Manager | Yes | Needed for `default_web_client_id` used by Sign in with Google |
+
+### Theory
+
+The OAuth consent setup defines what the app is allowed to ask for.
+
+The Android OAuth client defines which installed Android app is allowed to ask for it.
+
+That is why both are needed:
+
+- consent config = policy and trust UI
+- Android OAuth client = package/fingerprint identity binding
+
+### Current Progress
+
+Recorded from user console progress on `2026-05-15`:
+
+- Android OAuth client created for debug testing
+- client name is `Phone Down Android Debug`
+- client type is `Android`
+
+Important operational note:
+
+- do not download the OAuth client JSON for this Android mobile flow
+- we only need the client to exist in Google Cloud for the Android sign-in path
+
+Current implementation note:
+
+- the Android app now uses Credential Manager for Google Sign-In
+- refreshed Firebase config now generates `default_web_client_id`
+- debug-build Google Sign-In is ready for manual device QA
+
 ## 9. Google Cloud / Firebase Project
 
 Recommendation: use a dedicated project for Phone Down.
 
 | Field | Value | Why It Matters |
 |---|---|---|
-| Google Cloud project name | TODO: `phone-down` recommended | Human-readable project identity |
-| Google Cloud project ID | TODO | Technical project identifier used in config and APIs |
-| Firebase project created | TODO: Yes / No | Needed for Crashlytics and app config |
+| Google Cloud project name | `phone-down` | Human-readable project identity |
+| Google Cloud project ID | `phone-down-496414` | Technical project identifier used in config and APIs |
+| Firebase project created | Yes | Needed for Crashlytics and app config |
 | Firebase Android app package | `phonedown.app` | Must match the app exactly |
-| Firebase Android app nickname | TODO: `Phone Down Android` recommended | Helps distinguish the app in Firebase |
-| `google-services.json` downloaded locally | TODO: Yes / No | Needed later when we wire Firebase into the Android app |
-| Drive API enabled | TODO: Yes / No | Required for cloud backup/restore |
+| Firebase Android app nickname | `Phone Down Android` | Helps distinguish the app in Firebase |
+| `google-services.json` downloaded locally | Yes | Needed later when we wire Firebase into the Android app |
+| Drive API enabled | Yes | Required for cloud backup/restore |
 
 ### Theory
 
@@ -311,6 +364,23 @@ We care about both because:
 
 - Google Sign-In and Drive permissions depend on Cloud/OAuth config
 - Crashlytics and Android app registration depend on Firebase
+
+### Current Progress
+
+Recorded from user console progress on `2026-05-15`:
+
+- Google Cloud project name: `phone-down`
+- Google Cloud project ID: `phone-down-496414`
+- Firebase project exists
+- Firebase Android app for `phonedown.app` exists
+- Firebase Android app nickname is `Phone Down Android`
+- Google Drive API enabled in the correct project
+
+Current local config status:
+
+- `google-services.json` has been placed at `app/google-services.json`
+- the file remains ignored by git
+- contents were intentionally not copied into docs
 
 ### Important Safety Note
 
@@ -332,12 +402,12 @@ If a downloaded file or console action mentions `secret`, `private key`, or `ser
 | Field | Value | Why It Matters |
 |---|---|---|
 | OAuth app name | Phone Down | User-visible name during Google consent |
-| User type | TODO: External / Internal | Should usually be `External` for a consumer app |
-| Support email | TODO | User-facing trust and support contact |
-| Developer contact email | TODO | Google’s contact path for issues or verification |
+| User type | External | Should usually be `External` for a consumer app |
+| Support email | Configured | User-facing trust and support contact |
+| Developer contact email | Configured | Google’s contact path for issues or verification |
 | Privacy policy URL | TODO | Required trust and review document |
 | Authorized domain | TODO | Needed if domain-backed links are used |
-| Test users added | TODO: Yes / No | Required while the app is in testing mode |
+| Test users added | Yes | Required while the app is in testing mode |
 
 ### Required Scopes
 
@@ -351,6 +421,22 @@ If a downloaded file or console action mentions `secret`, `private key`, or `ser
 ### Theory
 
 The OAuth consent screen is not just bureaucracy. It is the exact moment a user decides whether your app looks trustworthy enough to connect to their Google account.
+
+### Current Progress
+
+Recorded from user console progress on `2026-05-15`:
+
+- OAuth app name is `Phone Down`
+- user type is `External`
+- publishing status remains `Testing`
+- support email is configured
+- developer contact email is configured
+- required scopes have been added:
+  - `openid`
+  - `email`
+  - `profile`
+  - `https://www.googleapis.com/auth/drive.appdata`
+- at least one test user has been added
 
 Using the smallest necessary scopes helps because:
 

@@ -41,6 +41,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import phonedown.core.designsystem.PhoneDownAccent
 import phonedown.core.designsystem.PhoneDownButton
@@ -893,19 +894,20 @@ private fun TodaySummary(uiState: FocusUiState) {
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.spacedBy(PhoneDownSpacing.sm),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                PhoneDownMetricCard(
+                FocusTodayMetric(
                     label = "Total Focus",
                     value = formatDurationHoursMins(uiState.todayTotalFocusSeconds),
                     modifier = Modifier.weight(1f),
                 )
-                PhoneDownMetricCard(
+                FocusTodayMetric(
                     label = "Sessions",
                     value = uiState.todaySessionsCount.toString(),
                     modifier = Modifier.weight(1f),
                 )
-                PhoneDownMetricCard(
+                FocusTodayMetric(
                     label = "Clean",
                     value = uiState.todayCleanCount.toString(),
                     modifier = Modifier.weight(1f),
@@ -915,6 +917,47 @@ private fun TodaySummary(uiState: FocusUiState) {
         }
     }
 }
+
+@Composable
+private fun FocusTodayMetric(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier,
+    accent: PhoneDownAccent = PhoneDownAccent.Neutral,
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.xxs),
+    ) {
+        Text(
+            text = value,
+            color = focusTodayMetricColor(accent),
+            style =
+                MaterialTheme.typography.titleMedium.copy(
+                    fontSize = 17.sp,
+                    lineHeight = 23.sp,
+                ),
+            textAlign = TextAlign.Center,
+        )
+        Text(
+            text = label,
+            color = PhoneDownDesign.colors.textSecondary,
+            style = MaterialTheme.typography.labelMedium,
+            textAlign = TextAlign.Center,
+        )
+    }
+}
+
+@Composable
+private fun focusTodayMetricColor(accent: PhoneDownAccent) =
+    when (accent) {
+        PhoneDownAccent.Neutral -> PhoneDownDesign.colors.textPrimary
+        PhoneDownAccent.Progress -> PhoneDownDesign.colors.progress
+        PhoneDownAccent.Success -> PhoneDownDesign.colors.success
+        PhoneDownAccent.Warning -> PhoneDownDesign.colors.warning
+        PhoneDownAccent.Danger -> PhoneDownDesign.colors.danger
+    }
 
 @Composable
 private fun FocusRingSection(uiState: FocusUiState) {

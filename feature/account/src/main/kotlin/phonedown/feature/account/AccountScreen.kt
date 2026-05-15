@@ -42,6 +42,8 @@ import phonedown.core.model.ThemeMode
 fun AccountScreen(
     accountState: AccountState,
     isProUser: Boolean,
+    isSigningIn: Boolean,
+    signInError: String?,
     isRestoring: Boolean,
     restoreError: String?,
     restoreSuccess: String?,
@@ -49,6 +51,7 @@ fun AccountScreen(
     onSignOut: () -> Unit,
     onRestoreClick: () -> Unit,
     onClearRestoreState: () -> Unit,
+    onClearSignInError: () -> Unit,
     onBack: () -> Unit,
 ) {
     var showRestoreDialog by remember { mutableStateOf(false) }
@@ -72,7 +75,10 @@ fun AccountScreen(
 
         when (accountState) {
             is AccountState.SignedOut -> {
-                SignedOutContent(onSignIn = onSignIn)
+                SignedOutContent(
+                    isSigningIn = isSigningIn,
+                    onSignIn = onSignIn,
+                )
             }
             is AccountState.SignedIn -> {
                 SignedInContent(
@@ -121,6 +127,19 @@ fun AccountScreen(
             )
         }
 
+        if (signInError != null) {
+            AlertDialog(
+                onDismissRequest = onClearSignInError,
+                title = { Text("Sign-In Needs Attention") },
+                text = { Text(signInError) },
+                confirmButton = {
+                    TextButton(onClick = onClearSignInError) {
+                        Text("OK")
+                    }
+                },
+            )
+        }
+
         if (restoreSuccess != null) {
             AlertDialog(
                 onDismissRequest = onClearRestoreState,
@@ -137,7 +156,10 @@ fun AccountScreen(
 }
 
 @Composable
-private fun SignedOutContent(onSignIn: () -> Unit) {
+private fun SignedOutContent(
+    isSigningIn: Boolean,
+    onSignIn: () -> Unit,
+) {
     Column(
         verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.lg),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -159,10 +181,19 @@ private fun SignedOutContent(onSignIn: () -> Unit) {
         Spacer(modifier = Modifier.height(PhoneDownSpacing.md))
 
         PhoneDownButton(
-            text = "Sign in with Google",
+            text = if (isSigningIn) "Signing in..." else "Sign in with Google",
             onClick = onSignIn,
             modifier = Modifier.fillMaxWidth(),
+            enabled = !isSigningIn,
         )
+
+        if (isSigningIn) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(24.dp),
+                color = PhoneDownDesign.colors.progress,
+                strokeWidth = 2.dp,
+            )
+        }
     }
 }
 
@@ -286,6 +317,8 @@ private fun AccountScreenSignedOutPreview() {
         AccountScreen(
             accountState = AccountState.SignedOut,
             isProUser = false,
+            isSigningIn = false,
+            signInError = null,
             isRestoring = false,
             restoreError = null,
             restoreSuccess = null,
@@ -293,6 +326,7 @@ private fun AccountScreenSignedOutPreview() {
             onSignOut = {},
             onRestoreClick = {},
             onClearRestoreState = {},
+            onClearSignInError = {},
             onBack = {},
         )
     }
@@ -310,6 +344,8 @@ private fun AccountScreenSignedInPreview() {
                 photoUrl = null,
             ),
             isProUser = true,
+            isSigningIn = false,
+            signInError = null,
             isRestoring = false,
             restoreError = null,
             restoreSuccess = null,
@@ -317,6 +353,7 @@ private fun AccountScreenSignedInPreview() {
             onSignOut = {},
             onRestoreClick = {},
             onClearRestoreState = {},
+            onClearSignInError = {},
             onBack = {},
         )
     }

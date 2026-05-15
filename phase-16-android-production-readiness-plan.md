@@ -758,18 +758,21 @@ The order matters because some pieces depend on console setup.
 - [x] Create `docs/phase-16-manual-qa.md`.
 - [x] Create `docs/phase-16-console-setup-info.md`.
 - [x] Update `docs/architecture-guide.md` real/deferred matrix for Phase 16 target.
-- [ ] Set up Play Console account and app shell.
+- [x] Set up Play Console account and app shell.
 - [ ] Set up dedicated Google Cloud/Firebase project.
 - [ ] Configure package, SHA fingerprints, OAuth consent, Drive API, Firebase app.
-- [ ] Confirm release signing approach.
+- [x] Confirm release signing approach.
 
 ### Sprint 16.2 - Real Google Sign-In
 
-- [ ] Add dependencies.
-- [ ] Implement real auth repository.
-- [ ] Wire app-layer sign-in launcher.
-- [ ] Update Account screen states.
-- [ ] Add tests and manual QA.
+- [x] Draft focused Sprint 16.2 implementation plan.
+- [x] Add dependencies.
+- [x] Implement real auth repository.
+- [x] Wire app-layer sign-in launcher.
+- [x] Update Account screen states.
+- [~] Add tests and manual QA.
+
+Manual QA is pending a Web OAuth client/default web client ID in Firebase config.
 
 ### Sprint 16.3 - Real Drive Backup and Auto-Backup
 

@@ -18,6 +18,7 @@ import org.junit.Before
 import org.junit.Test
 import phonedown.core.model.AccountState
 import phonedown.core.model.FocusSession
+import phonedown.core.model.GoogleAccount
 import phonedown.core.model.PenaltyEvent
 import phonedown.core.model.ProEntitlement
 import phonedown.core.model.ThemeMode
@@ -253,11 +254,9 @@ private class FakeAuthRepository(
 ) : AuthRepository {
     override val accountState: Flow<AccountState> = MutableStateFlow(initialState)
 
-    override suspend fun signIn() {}
+    override suspend fun applyGoogleAccount(account: GoogleAccount) {}
 
     override suspend fun signOut() {}
-
-    override fun getAuthToken(): String? = null
 }
 
 private class FakeBackupRepository : BackupRepository {
