@@ -19,4 +19,5 @@ data class SettingsUiState(
     val deleteIncludeBackup: Boolean = true,
     val isDeleting: Boolean = false,
     val deleteSuccess: Boolean = false,
+    val deleteError: String? = null,
 )

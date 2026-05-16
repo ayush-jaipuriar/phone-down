@@ -46,6 +46,7 @@ fun AccountScreen(
     signInError: String?,
     isRestoring: Boolean,
     restoreError: String?,
+    noBackupFoundMessage: String?,
     restoreSuccess: String?,
     onSignIn: () -> Unit,
     onSignOut: () -> Unit,
@@ -119,6 +120,19 @@ fun AccountScreen(
                 onDismissRequest = onClearRestoreState,
                 title = { Text("Restore Failed") },
                 text = { Text(restoreError) },
+                confirmButton = {
+                    TextButton(onClick = onClearRestoreState) {
+                        Text("OK")
+                    }
+                },
+            )
+        }
+
+        if (noBackupFoundMessage != null) {
+            AlertDialog(
+                onDismissRequest = onClearRestoreState,
+                title = { Text("No Backup Found") },
+                text = { Text(noBackupFoundMessage) },
                 confirmButton = {
                     TextButton(onClick = onClearRestoreState) {
                         Text("OK")
@@ -321,6 +335,7 @@ private fun AccountScreenSignedOutPreview() {
             signInError = null,
             isRestoring = false,
             restoreError = null,
+            noBackupFoundMessage = null,
             restoreSuccess = null,
             onSignIn = {},
             onSignOut = {},
@@ -348,6 +363,7 @@ private fun AccountScreenSignedInPreview() {
             signInError = null,
             isRestoring = false,
             restoreError = null,
+            noBackupFoundMessage = null,
             restoreSuccess = null,
             onSignIn = {},
             onSignOut = {},

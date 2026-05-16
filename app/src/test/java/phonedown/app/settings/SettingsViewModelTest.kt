@@ -16,6 +16,9 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import phonedown.app.backup.AutoBackupScheduling
+import phonedown.app.backup.DriveAuthorizationCoordinator
+import phonedown.app.backup.DriveAuthorizationUiStep
 import phonedown.core.model.AccountState
 import phonedown.core.model.FocusSession
 import phonedown.core.model.GoogleAccount
@@ -27,6 +30,7 @@ import phonedown.core.model.repository.AuthRepository
 import phonedown.core.model.repository.BackupRepository
 import phonedown.core.model.repository.BackupResult
 import phonedown.core.model.repository.BillingRepository
+import phonedown.core.model.repository.DeleteBackupResult
 import phonedown.core.model.repository.RestoreResult
 import phonedown.core.model.repository.SessionRepository
 import phonedown.core.model.repository.SettingsRepository
@@ -51,6 +55,8 @@ class SettingsViewModelTest {
         authRepo: AuthRepository = FakeAuthRepository(),
         backupRepo: BackupRepository = FakeBackupRepository(),
         sessionRepo: SessionRepository = FakeSessionRepository(),
+        driveAuthorizationCoordinator: DriveAuthorizationCoordinator = FakeDriveAuthorizationCoordinator(),
+        autoBackupScheduling: AutoBackupScheduling = FakeAutoBackupScheduling(),
     ): SettingsViewModel =
         SettingsViewModel(
             settingsRepository = settingsRepo,
@@ -58,6 +64,8 @@ class SettingsViewModelTest {
             authRepository = authRepo,
             backupRepository = backupRepo,
             sessionRepository = sessionRepo,
+            driveAuthorizationManager = driveAuthorizationCoordinator,
+            autoBackupScheduler = autoBackupScheduling,
         )
 
     @Test
@@ -231,6 +239,32 @@ class SettingsViewModelTest {
 
             assertTrue(viewModel.uiState.value.deleteSuccess)
         }
+
+    @Test
+    fun `deleteAllData with cloud delete failure preserves local data and surfaces delete error`() =
+        runTest(testDispatcher) {
+            val authRepo = FakeAuthRepository(AccountState.SignedIn("Test", "test@test.com", null))
+            val backupRepo = FakeBackupRepository(deleteResult = DeleteBackupResult.Failure("Cloud backup delete failed"))
+            val sessionRepo = FakeSessionRepository()
+            val settingsRepo = FakeSettingsRepository()
+            val viewModel =
+                createViewModel(
+                    authRepo = authRepo,
+                    backupRepo = backupRepo,
+                    sessionRepo = sessionRepo,
+                    settingsRepo = settingsRepo,
+                )
+            testScheduler.advanceUntilIdle()
+
+            viewModel.deleteAllData()
+            testScheduler.advanceUntilIdle()
+
+            assertFalse(viewModel.uiState.value.deleteSuccess)
+            assertEquals("Cloud backup delete failed", viewModel.uiState.value.deleteError)
+            assertFalse(sessionRepo.clearAllSessionsCalled)
+            assertFalse(sessionRepo.clearAllPenaltyEventsCalled)
+            assertFalse(settingsRepo.resetToDefaultsCalled)
+        }
 }
 
 private class FakeBillingRepository(
@@ -260,6 +294,14 @@ private class FakeAuthRepository(
 }
 
 private class FakeBackupRepository : BackupRepository {
+    constructor()
+
+    constructor(deleteResult: DeleteBackupResult) {
+        this.deleteResult = deleteResult
+    }
+
+    var deleteResult: DeleteBackupResult = DeleteBackupResult.Deleted
+
     override suspend fun createBackup(
         sessions: List<FocusSession>,
         penaltyEvents: List<PenaltyEvent>,
@@ -270,10 +312,28 @@ private class FakeBackupRepository : BackupRepository {
 
     override suspend fun getLastBackupTime(): Long? = null
 
-    override suspend fun deleteBackup(): Boolean = true
+    override suspend fun deleteBackup(): DeleteBackupResult = deleteResult
+}
+
+private class FakeDriveAuthorizationCoordinator : DriveAuthorizationCoordinator {
+    override suspend fun beginAuthorization(): DriveAuthorizationUiStep = DriveAuthorizationUiStep.Cancelled
+
+    override fun completeAuthorization(
+        resultCode: Int,
+        data: android.content.Intent?,
+    ): DriveAuthorizationUiStep = DriveAuthorizationUiStep.Cancelled
+
+    override fun clearCachedAccessToken() {}
+}
+
+private class FakeAutoBackupScheduling : AutoBackupScheduling {
+    override suspend fun refreshSchedule() {}
 }
 
 private class FakeSessionRepository : SessionRepository {
+    var clearAllSessionsCalled = false
+    var clearAllPenaltyEventsCalled = false
+
     override suspend fun upsertSession(session: FocusSession) {}
 
     override fun observeSession(id: String): Flow<FocusSession?> = MutableStateFlow(null)
@@ -304,15 +364,20 @@ private class FakeSessionRepository : SessionRepository {
 
     override suspend fun getAllPenaltyEvents(): List<PenaltyEvent> = emptyList()
 
-    override suspend fun clearAllSessions() {}
+    override suspend fun clearAllSessions() {
+        clearAllSessionsCalled = true
+    }
 
-    override suspend fun clearAllPenaltyEvents() {}
+    override suspend fun clearAllPenaltyEvents() {
+        clearAllPenaltyEventsCalled = true
+    }
 }
 
 private class FakeSettingsRepository(
     initialSettings: UserSettings = UserSettings(),
 ) : SettingsRepository {
     private val settingsFlow = MutableStateFlow(initialSettings)
+    var resetToDefaultsCalled = false
 
     override val settings: Flow<UserSettings> = settingsFlow
 
@@ -355,6 +420,7 @@ private class FakeSettingsRepository(
     }
 
     override suspend fun resetToDefaults() {
+        resetToDefaultsCalled = true
         settingsFlow.value = UserSettings()
     }
 }

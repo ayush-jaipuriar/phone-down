@@ -1420,3 +1420,20 @@ These are not blockers because product direction has been clarified, but they sh
 - Blocked verification: `./gradlew --no-configuration-cache :feature:settings:connectedDebugAndroidTest` could not run because Gradle reported no connected devices.
 - Known quality-gate limitation: `./scripts/check.sh` still fails on existing ktlint policy disagreements and PascalCase Compose naming conventions documented earlier in the project.
 - Next steps: Run manual device QA for Pause/Add Time, restore, notification tap routing, and call-permission education; then decide whether to tune any UX copy based on the device pass.
+
+### 2026-05-16 - Phase 16 Sprint 16.3 Real Google Drive Backup/Restore
+
+- Changed: Implemented the real Google Drive backup/restore path and once-daily auto-backup foundation on top of the already-shipped fake backup UX.
+- Files modified: `app/build.gradle.kts`, `app/src/main/java/phonedown/app/MainActivity.kt`, `app/src/main/java/phonedown/app/account/`, `app/src/main/java/phonedown/app/backup/`, `app/src/main/java/phonedown/app/runtime/AppRuntimeModule.kt`, `app/src/main/java/phonedown/app/settings/`, `app/src/test/java/phonedown/app/account/AccountViewModelTest.kt`, `app/src/test/java/phonedown/app/settings/SettingsViewModelTest.kt`, `core/backup/`, `core/model/`, `feature/settings/`, `feature/settings/src/test/`, `gradle/libs.versions.toml`, `build-logic/convention/build.gradle.kts`, `phase-16-android-production-readiness-plan.md`, and `phase-16-sprint-16-3-real-drive-backup-restore-plan.md`.
+- Functions/classes/components touched: `GoogleDriveAuthorizationManager`, `DriveAuthorizationCoordinator`, `DriveAccessTokenProvider`, `DriveAppDataClient`, `DriveBackupRepository`, `AutoBackupScheduler`, `AutoBackupScheduling`, `AutoBackupWorker`, `SettingsViewModel`, `SettingsRoute`, `AccountViewModel`, `AccountRoute`, `SettingsScreen`, `AccountViewModelTest`, and `SettingsScreenScreenshotTest`.
+- Why: Replace fake backup transport with the real Drive `appDataFolder` path while keeping the product promise narrow, predictable, and Pro-gated.
+- Tests run: `./gradlew --no-daemon --no-configuration-cache :app:assembleDebug` and `./gradlew --no-daemon --no-configuration-cache :core:backup:testDebugUnitTest :app:testDebugUnitTest :feature:settings:testDebugUnitTest :feature:account:testDebugUnitTest`.
+- Build tooling note: after a local Gradle cache/tooling wobble, `build-logic/convention/build.gradle.kts` was temporarily switched from version-catalog plugin references to explicit coordinates so the repo could build again deterministically.
+- Manual QA update: real device QA on May 16, 2026 found and fixed three production blockers:
+  - missing `android.permission.INTERNET` in `AndroidManifest.xml`
+  - Drive authorization resolution state loss in `GoogleDriveAuthorizationManager`
+  - placeholder certificate pins in `network_security_config.xml` that broke Google Drive TLS handshakes
+- Manual QA result: backup now succeeds on device, the last-backup timestamp updates, the real once-daily Auto Backup toggle appears after first success, restore successfully re-applies backed-up settings in a full-replace flow, and the explicit no-backup-found path now works after deleting the hidden Drive backup and signing back in.
+- Follow-up trust fix: the delete-all-data flow now pre-authorizes Drive access, deletes cloud backup before wiping local state, and surfaces a real cloud-delete failure instead of silently pretending success.
+- UX polish: the no-backup restore branch now renders as `No Backup Found` rather than the harsher generic `Restore Failed`.
+- Remaining work: optional deeper transport/integration tests, and later Phase 16 billing/Crashlytics/signing workstreams.

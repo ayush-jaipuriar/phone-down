@@ -4,6 +4,7 @@ plugins {
 }
 
 dependencies {
+    implementation(project(":core:common"))
     implementation(project(":core:database"))
     implementation(project(":core:datastore"))
     implementation(project(":core:model"))
@@ -14,9 +15,4 @@ dependencies {
 
 android {
     namespace = "phonedown.core.backup"
-}
-
-dependencies {
-    implementation(project(":core:database"))
-    implementation(project(":core:datastore"))
 }

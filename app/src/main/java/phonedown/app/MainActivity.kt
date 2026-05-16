@@ -21,6 +21,7 @@ import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
+import phonedown.app.backup.AutoBackupScheduler
 import phonedown.app.navigation.PhoneDownApp
 import phonedown.app.navigation.PhoneDownRoute
 import phonedown.app.runtime.ActiveSessionRuntimeCoordinator
@@ -36,6 +37,9 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var runtimeCoordinator: ActiveSessionRuntimeCoordinator
+
+    @Inject
+    lateinit var autoBackupScheduler: AutoBackupScheduler
 
     private var pendingStartDurationSeconds: Long? = null
     private val openFocusRequests = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
@@ -59,6 +63,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         lifecycleScope.launch {
             runtimeCoordinator.recoverFromAppLaunch()
+            autoBackupScheduler.refreshSchedule()
         }
         callPermissionGranted = hasCallPermission()
         setContent {

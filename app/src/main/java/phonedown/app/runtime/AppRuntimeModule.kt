@@ -13,13 +13,19 @@ import dagger.hilt.components.SingletonComponent
 import phonedown.app.BuildConfig
 import phonedown.app.account.BackupRestorer
 import phonedown.app.account.RestoreBackupUseCase
+import phonedown.app.backup.AutoBackupScheduler
+import phonedown.app.backup.AutoBackupScheduling
+import phonedown.app.backup.DriveAuthorizationCoordinator
+import phonedown.app.backup.GoogleDriveAuthorizationManager
 import phonedown.core.auth.DataStoreAuthRepository
-import phonedown.core.backup.FakeBackupRepository
+import phonedown.core.backup.DriveAppDataClient
+import phonedown.core.backup.DriveBackupRepository
 import phonedown.core.billing.FakeBillingRepository
 import phonedown.core.common.Clock
 import phonedown.core.common.IdGenerator
 import phonedown.core.model.repository.AuthRepository
 import phonedown.core.model.repository.BillingRepository
+import phonedown.core.model.repository.DriveAccessTokenProvider
 import phonedown.core.model.repository.SessionRepository
 import phonedown.core.notifications.FocusFeedbackPlayer
 import phonedown.core.notifications.FocusForegroundNotificationManager
@@ -219,7 +225,35 @@ object AppRuntimeModule {
 
     @Provides
     @Singleton
-    fun providesBackupRepository(): phonedown.core.model.repository.BackupRepository = FakeBackupRepository()
+    fun providesDriveAccessTokenProvider(
+        googleDriveAuthorizationManager: GoogleDriveAuthorizationManager,
+    ): DriveAccessTokenProvider = googleDriveAuthorizationManager
+
+    @Provides
+    @Singleton
+    fun providesDriveAuthorizationCoordinator(
+        googleDriveAuthorizationManager: GoogleDriveAuthorizationManager,
+    ): DriveAuthorizationCoordinator = googleDriveAuthorizationManager
+
+    @Provides
+    @Singleton
+    fun providesAutoBackupScheduling(
+        autoBackupScheduler: AutoBackupScheduler,
+    ): AutoBackupScheduling = autoBackupScheduler
+
+    @Provides
+    @Singleton
+    fun providesBackupRepository(
+        driveAccessTokenProvider: DriveAccessTokenProvider,
+        settingsRepository: phonedown.core.model.repository.SettingsRepository,
+        clock: Clock,
+    ): phonedown.core.model.repository.BackupRepository =
+        DriveBackupRepository(
+            driveAppDataClient = DriveAppDataClient(),
+            driveAccessTokenProvider = driveAccessTokenProvider,
+            settingsRepository = settingsRepository,
+            clock = clock,
+        )
 
     @Provides
     @Singleton

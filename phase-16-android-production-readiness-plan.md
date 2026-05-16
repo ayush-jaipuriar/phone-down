@@ -2,9 +2,12 @@
 
 ## Status
 
-- Planning status: Drafted
-- Implementation status: Sprint 16.1 in progress
-- Approval required before implementation: Completed
+- Planning status: Drafted and expanded through Sprint 16.4 planning
+- Implementation status:
+  - Sprint 16.1 setup/docs: completed
+  - Sprint 16.2 real Google Sign-In: implemented
+  - Sprint 16.3 real Google Drive backup/restore: implemented in code, manual QA still pending
+- Approval required before implementation: Per-sprint approval required
 - Scope owner: Phone Down Android V1 production release
 - Target outcome: Replace fake/deferred production dependencies and prepare the app for Google Play production release
 
@@ -454,6 +457,25 @@ Recommended constraints:
 - [ ] Auto-backup runs once daily under constraints.
 - [ ] Backup/restore UI never claims success before persistence succeeds.
 
+### Progress Update - 2026-05-16
+
+- [x] Added real Drive-backed repository wiring and removed fake backup runtime DI for normal app usage.
+- [x] Added a dedicated Google Drive authorization layer that separates account identity from Drive scope authorization.
+- [x] Added once-daily WorkManager auto-backup scheduling and worker runtime eligibility checks.
+- [x] Updated Settings and Account flows to pre-authorize Drive access before manual backup/restore.
+- [x] Verified `:app:assembleDebug` and targeted unit tests for `:core:backup`, `:app`, `:feature:settings`, and `:feature:account`.
+- [x] Manual physical-device QA uncovered and fixed three real Sprint 16.3 blockers:
+  - missing `android.permission.INTERNET` in `AndroidManifest.xml`
+  - lost pending account email across the Drive authorization resolution flow in `GoogleDriveAuthorizationManager`
+  - placeholder certificate pins in `network_security_config.xml` that incorrectly blocked Google Drive TLS handshakes
+- [x] Manual backup now succeeds on device, updates the last-backup timestamp, and reveals the real Auto Backup toggle after first success.
+- [x] Manual restore now succeeds on device and re-applies backed-up settings in a true full-replace flow.
+- [x] Explicit no-backup-found device QA now passes after deleting the current hidden backup and re-signing into the same Google account.
+- [x] Delete-all-data with cloud backup is now trust-preserving:
+  - it pre-authorizes Drive access
+  - deletes cloud backup before wiping local state
+  - and surfaces a real failure instead of silently pretending cloud deletion succeeded
+
 ## 10. Workstream 5 - Real Play Billing and Entitlements
 
 ### Goal
@@ -784,6 +806,28 @@ Manual QA is pending a Web OAuth client/default web client ID in Firebase config
 - [ ] Add tests and manual QA.
 
 ### Sprint 16.4 - Real Play Billing
+
+- Detailed sprint plan drafted:
+  - [phase-16-sprint-16-4-real-play-billing-plan.md](/Users/ayushjaipuriar/Documents/GitHub/phone-down/phase-16-sprint-16-4-real-play-billing-plan.md)
+- Clarified scope for Sprint 16.4:
+  - monthly subscription
+  - yearly subscription
+  - lifetime purchase
+  - restore purchases
+  - entitlement activation and downgrade rules
+  - paywall copy refinement
+  - final price-display QA
+  - subscription cancellation and recovery QA
+- Product ID assumption for implementation planning:
+  - `pro_monthly`
+  - `pro_yearly`
+  - `pro_lifetime`
+- Console state at planning time:
+  - Play Billing products not yet created in Play Console
+  - implementation should therefore include both repo-side integration and beginner-friendly Play Console/testing-track setup guidance
+- Recommended source of truth retained:
+  - Play Billing purchase state plus 24-hour local entitlement cache
+  - not Drive backup data
 
 - [ ] Create Play products.
 - [ ] Implement real billing repository.

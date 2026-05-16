@@ -8,6 +8,7 @@ import phonedown.core.model.PenaltyEvent
 import phonedown.core.model.UserSettings
 import phonedown.core.model.repository.BackupRepository
 import phonedown.core.model.repository.BackupResult
+import phonedown.core.model.repository.DeleteBackupResult
 import phonedown.core.model.repository.RestorePayload
 import phonedown.core.model.repository.RestorePayloadResult
 import phonedown.core.model.repository.RestoreResult
@@ -74,11 +75,11 @@ class FakeBackupRepository : BackupRepository {
 
     override suspend fun getLastBackupTime(): Long? = lastBackupTime
 
-    override suspend fun deleteBackup(): Boolean {
+    override suspend fun deleteBackup(): DeleteBackupResult {
         delay(500)
         val hadBackup = storedJson != null
         storedJson = null
         lastBackupTime = null
-        return hadBackup
+        return if (hadBackup) DeleteBackupResult.Deleted else DeleteBackupResult.NoBackupFound
     }
 }

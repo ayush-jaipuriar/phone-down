@@ -1,5 +1,6 @@
 package phonedown.app.account
 
+import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -10,6 +11,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import phonedown.app.backup.AutoBackupScheduling
+import phonedown.app.backup.DriveAuthorizationUiStep
+import phonedown.app.backup.DriveAuthorizationCoordinator
 import phonedown.core.model.AccountState
 import phonedown.core.model.GoogleAccount
 import phonedown.core.model.ProEntitlement
@@ -24,6 +28,8 @@ class AccountViewModel
         private val authRepository: AuthRepository,
         billingRepository: BillingRepository,
         private val restoreBackupUseCase: BackupRestorer,
+        private val driveAuthorizationManager: DriveAuthorizationCoordinator,
+        private val autoBackupScheduler: AutoBackupScheduling,
     ) : ViewModel() {
         private val _restoreState = MutableStateFlow<RestoreState>(RestoreState.Idle)
         val restoreState: StateFlow<RestoreState> = _restoreState.asStateFlow()
@@ -51,7 +57,9 @@ class AccountViewModel
 
         fun completeSignIn(account: GoogleAccount) {
             viewModelScope.launch {
+                driveAuthorizationManager.clearCachedAccessToken()
                 authRepository.applyGoogleAccount(account)
+                autoBackupScheduler.refreshSchedule()
                 _signInState.value = SignInState.Idle
             }
         }
@@ -69,7 +77,22 @@ class AccountViewModel
         }
 
         fun signOut() {
-            viewModelScope.launch { authRepository.signOut() }
+            viewModelScope.launch {
+                driveAuthorizationManager.clearCachedAccessToken()
+                authRepository.signOut()
+                autoBackupScheduler.refreshSchedule()
+            }
+        }
+
+        suspend fun beginRestoreAuthorization(): DriveAuthorizationUiStep = driveAuthorizationManager.beginAuthorization()
+
+        fun completeRestoreAuthorization(
+            resultCode: Int,
+            data: Intent?,
+        ): DriveAuthorizationUiStep = driveAuthorizationManager.completeAuthorization(resultCode, data)
+
+        fun failRestore(message: String) {
+            _restoreState.value = RestoreState.Error(message)
         }
 
         fun restoreBackup() {
@@ -78,12 +101,14 @@ class AccountViewModel
                 val result = restoreBackupUseCase()
                 _restoreState.value =
                     when (result) {
-                        is RestoreBackupOutcome.Success ->
+                        is RestoreBackupOutcome.Success -> {
+                            autoBackupScheduler.refreshSchedule()
                             RestoreState.Success(result.sessionsRestored)
+                        }
                         is RestoreBackupOutcome.Failure ->
                             RestoreState.Error(result.reason)
                         RestoreBackupOutcome.NoBackupFound ->
-                            RestoreState.Error("No backup found")
+                            RestoreState.NoBackupFound("No backup found for this account.")
                     }
             }
         }
@@ -118,6 +143,10 @@ sealed class RestoreState {
     ) : RestoreState()
 
     data class Error(
+        val message: String,
+    ) : RestoreState()
+
+    data class NoBackupFound(
         val message: String,
     ) : RestoreState()
 }

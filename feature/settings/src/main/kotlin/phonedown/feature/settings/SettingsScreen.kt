@@ -49,6 +49,7 @@ fun SettingsScreen(
     onAccountClick: () -> Unit,
     onProClick: () -> Unit,
     onBackupClick: () -> Unit,
+    onAutoBackupToggled: (Boolean) -> Unit,
     onPrivacyPolicyClick: () -> Unit,
     callPausePermissionGranted: Boolean = false,
     onCallPausePermissionRequested: () -> Unit = {},
@@ -92,6 +93,7 @@ fun SettingsScreen(
             onAccountClick = onAccountClick,
             onProClick = onProClick,
             onBackupClick = onBackupClick,
+            onAutoBackupToggled = onAutoBackupToggled,
         )
 
         Spacer(modifier = Modifier.height(PhoneDownSpacing.sm))
@@ -220,6 +222,7 @@ private fun AccountSection(
     onAccountClick: () -> Unit,
     onProClick: () -> Unit,
     onBackupClick: () -> Unit,
+    onAutoBackupToggled: (Boolean) -> Unit,
 ) {
     SettingsSectionHeader(title = "Account") {
         PhoneDownSettingRow(
@@ -273,7 +276,9 @@ private fun AccountSection(
             else -> {
                 PhoneDownSettingRow(
                     title = "Backup & Restore",
-                    supportingText = if (uiState.isBackingUp) {
+                    supportingText = if (uiState.backupError != null) {
+                        uiState.backupError
+                    } else if (uiState.isBackingUp) {
                         "Backing up..."
                     } else if (uiState.lastBackupEpochMillis != null) {
                         "Last backup: ${formatBackupTime(uiState.lastBackupEpochMillis)}"
@@ -284,6 +289,14 @@ private fun AccountSection(
                     showChevron = true,
                     onClick = onBackupClick,
                 )
+                if (uiState.backupOptIn) {
+                    PhoneDownSwitchRow(
+                        title = "Auto Backup",
+                        supportingText = "Back up once daily when network is available.",
+                        checked = uiState.autoBackupEnabled,
+                        onCheckedChange = onAutoBackupToggled,
+                    )
+                }
             }
         }
 
@@ -380,6 +393,14 @@ private fun DeleteConfirmationDialog(
                     )
                 }
 
+                if (uiState.deleteError != null) {
+                    Text(
+                        text = uiState.deleteError,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = PhoneDownDesign.colors.danger,
+                    )
+                }
+
                 Text(
                     "Type DELETE to confirm:",
                     style = MaterialTheme.typography.labelMedium,
@@ -428,6 +449,7 @@ private fun SettingsScreenLightPreview() {
             onAccountClick = {},
             onProClick = {},
             onBackupClick = {},
+            onAutoBackupToggled = {},
             onPrivacyPolicyClick = {},
             onDeleteRequested = {},
             onDeleteConfirmed = {},
@@ -451,6 +473,7 @@ private fun SettingsScreenDarkPreview() {
             onAccountClick = {},
             onProClick = {},
             onBackupClick = {},
+            onAutoBackupToggled = {},
             onPrivacyPolicyClick = {},
             onDeleteRequested = {},
             onDeleteConfirmed = {},

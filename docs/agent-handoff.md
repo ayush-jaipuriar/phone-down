@@ -2,231 +2,280 @@
 
 ## 1. Goal
 
-- Build Phone Down into a real production-ready Android Play Store app, not just a feature-complete app with fake external integrations.
-- Current production-readiness phase is `Phase 16 - Android Production Readiness`, covering real Google Sign-In, real Google Drive backup/restore, real Play Billing, release signing, Crashlytics, Play policy readiness, and final release QA.
-- Sprint `16.1` is the current active sprint: release infrastructure, console setup, and documentation handholding for a first-time Play publisher.
-- The user explicitly wants beginner-friendly, theory-backed guides so they can learn the release stack while doing it.
-- There is also uncommitted UI polish work in the tree for Focus/Insights/Settings typography and screenshot baselines; that work must not be overwritten while Phase 16 continues.
-- User has now completed the Play Console/account/app-shell setup path through Step 2 and has generated the upload keystore with public SHA fingerprints recorded.
-- The local repo is now wired with the Google services Gradle plugin so `app/google-services.json` can be consumed by Firebase-aware builds, but no Firebase SDKs have been intentionally added yet.
-- Firebase project/app setup is now confirmed complete enough for the next console steps: the `phone-down` Firebase project exists, the Android app `phonedown.app` exists, and `google-services.json` is already placed locally.
-- Google Drive API is now enabled for project `phone-down-496414`, so the next required browser-side step is OAuth consent configuration.
-- OAuth consent configuration is now effectively complete: branding, external audience, testing status, required scopes, and at least one test user are all in place.
-- The first Android OAuth client now exists for debug testing: `Phone Down Android Debug`.
-- Sprint 16.2 focused implementation plan has been drafted in `phase-16-sprint-16-2-real-google-sign-in-plan.md`; implementation has not started yet and still needs user approval.
-- Sprint 16.2 implementation is now code-complete for debug Google Sign-In wiring, and the Firebase config now generates `default_web_client_id`, so manual sign-in QA can proceed.
+- Build Phone Down into a fully production-ready Android Play Store app, not just a feature-complete app with fake external integrations.
+- Continue `Phase 16 - Android Production Readiness`, which covers real Google Sign-In, real Google Drive backup/restore, real Play Billing, release signing, Crashlytics, Play policy readiness, and final QA.
+- Preserve the project’s strict workflow: clarify if needed, plan in Markdown, get approval, implement, verify, then report honestly.
+- The current immediate objective is to continue from Sprint `16.2` after the real Google Sign-In implementation is committed and a follow-up launcher-icon correction is now in local, uncommitted progress.
+- The next meaningful product milestone is end-to-end device QA of real Google Sign-In, then moving into the next approved production-readiness sprint.
+- Real-device QA for the current Google Sign-In flow has been executed successfully on May 16, 2026, and launcher-icon QA has now been re-run after a visual mismatch was reported by the user.
 
 ## 2. Context The Next Agent Must Know
 
 - Read `AGENTS.md` first and follow it strictly.
-- Repo workflow rules:
-  - ask clarifying questions before writing any new phase/sprint plan
-  - do not implement a phase until the user approves the plan
+- Project rules that matter most here:
+  - ask clarifying questions before writing any new phase/sprint planning `.md` file
+  - do not implement a new phase/sprint until the user approves the plan
   - update relevant Markdown docs during meaningful progress
-  - run comprehensive verification before claiming implementation completion
+  - prefer local Android builds and local QA over cloud-first workflows
+  - do not commit unless the user explicitly asks
+- Teaching mode is expected: explain what you are doing, why it matters, and the tradeoffs.
 - Architecture:
-  - `:app` owns navigation, Activities, runtime/service orchestration, permission flows, and eventually real auth/billing launch coordination
-  - `:feature:*` modules are UI-focused
-  - `:core:auth`, `:core:backup`, and `:core:billing` still need real production implementations in Phase 16
+  - `:app` owns runtime orchestration, Activities, DI, and platform-specific coordination
+  - `:feature:*` modules stay UI-focused
+  - `:core:model` owns platform-neutral contracts/models
+  - `:core:auth` now has both fake and real auth-facing repository behavior
   - `:domain:session` and `:domain:insights` are already real and tested
-- Key Phase 16 product decisions already made:
-  - create a dedicated Google Cloud/Firebase project for Phone Down instead of reusing `only-yours`
+- Important Phase 16 decisions already made:
+  - use a dedicated Google Cloud/Firebase project for Phone Down
   - use Google Drive `appDataFolder` for backup
   - implement once-daily auto-backup with WorkManager
-  - keep Room database unencrypted for V1
+  - keep Room unencrypted for V1
   - add Firebase Crashlytics with minimal disclosed diagnostics
   - keep the 24-hour entitlement cache
-  - recommended India launch pricing: `INR 99/month`, `INR 799/year`, `INR 1,999 lifetime`
-- New personal Play accounts may require closed testing with at least 12 opted-in testers for 14 continuous days before production access.
-- The user is a complete beginner to Play publishing and wants step-by-step guidance plus theory.
-- Do not overwrite existing uncommitted changes unless the user explicitly asks.
-- Do not commit anything unless the user explicitly asks.
+  - India pricing recommendation: `INR 99/month`, `INR 799/year`, `INR 1,999 lifetime`
+- Console/setup state already established:
+  - Google Cloud project: `phone-down`
+  - project ID: `phone-down-496414`
+  - Firebase Android app exists for package `phonedown.app`
+  - Drive API enabled
+  - OAuth branding/audience/scopes/test-user setup completed
+  - Android debug OAuth client created: `Phone Down Android Debug`
+  - Web OAuth client created so `default_web_client_id` is available to Android runtime config
+- Security note:
+  - a downloaded `client_secret_...json` artifact was explicitly **not** placed in the repo
+  - `google-services.json` is present locally and ignored by git
 
 ## 3. Work Completed
 
-- Launcher icon productionization work has now started:
-  - selected the final app icon direction from generated concept variations
-  - replaced the placeholder launcher assets with new density-specific `ic_launcher.png` and `ic_launcher_round.png` files derived from the approved master icon
-  - regenerated adaptive-icon layer assets `ic_launcher_foreground.png` and `ic_launcher_background.png` across mipmap densities
-  - added `mipmap-anydpi-v26/ic_launcher.xml` and `ic_launcher_round.xml`
-  - updated `AndroidManifest.xml` to explicitly use `@mipmap/ic_launcher` and `@mipmap/ic_launcher_round`
-- Phase 15 was already implemented before this handoff cycle:
+- Phase 15 trust fixes were completed earlier and are already in repo history:
   - real Pause/Add Time end to end
   - real full-replace restore
   - call permission education flow
-  - notification tap-to-Focus warm-start routing
-  - Settings cleanup of dead rows
+  - notification tap-to-Focus routing
+  - dead Settings row cleanup
   - consistent “today” metrics semantics
-- Phase 16 planning was completed and approved:
-  - created [phase-16-android-production-readiness-plan.md](/Users/ayushjaipuriar/Documents/GitHub/phone-down/phase-16-android-production-readiness-plan.md)
-  - plan covers Play Console, Google Cloud/Firebase, real Google Sign-In, real Drive backup, auto-backup, real Play Billing, Crashlytics, signing, policy docs, and QA gates
-- Sprint 16.1 repo-side documentation work was completed:
-  - created [docs/play-console-release-guide.md](/Users/ayushjaipuriar/Documents/GitHub/phone-down/docs/play-console-release-guide.md)
-  - created [docs/phase-16-console-setup-info.md](/Users/ayushjaipuriar/Documents/GitHub/phone-down/docs/phase-16-console-setup-info.md)
-  - created [docs/phase-16-manual-qa.md](/Users/ayushjaipuriar/Documents/GitHub/phone-down/docs/phase-16-manual-qa.md)
-  - updated [docs/architecture-guide.md](/Users/ayushjaipuriar/Documents/GitHub/phone-down/docs/architecture-guide.md) so the real/deferred matrix marks auth, billing, Drive, Crashlytics, auto-backup, and release signing as active Phase 16 targets
-  - updated the Phase 16 plan progress checklists and theory sections
-- The three new Phase 16 docs were expanded significantly in this session into combined guide/study docs:
-  - `docs/play-console-release-guide.md` now includes mental models, glossary-style explanations, release-identity theory, common misunderstandings, why each step exists, and checkpoint questions
-  - `docs/phase-16-console-setup-info.md` now explains what each field means, what is safe vs unsafe to share, and how values map back to implementation
-  - `docs/phase-16-manual-qa.md` now explains QA philosophy, evidence capture, severity thinking, what failures usually imply architecturally, and why each test exists
-- Current uncommitted UI polish work already present in the tree and reviewed during this session:
-  - `feature/focus/src/main/kotlin/phonedown/feature/focus/FocusScreen.kt`
-    - added a `FocusTodayMetric` helper and centered the Today metrics with slightly larger values
-  - `feature/insights/src/main/kotlin/phonedown/feature/insights/InsightsContent.kt`
-    - added local Insights typography helpers, centered Today metrics, and increased emphasis/card typography
-  - `core/designsystem/src/main/kotlin/phonedown/core/designsystem/PhoneDownSettingsComponents.kt`
-    - increased Settings row title/support/trailing typography
-  - `feature/settings/src/main/kotlin/phonedown/feature/settings/SettingsScreen.kt`
-    - increased section-header sizing
-  - related Paparazzi baseline PNGs for Focus, Insights, and Settings are modified
-- Commands run in this session:
-  - `sed -n '1,260p' AGENTS.md`
+- Phase 16 planning and setup docs were created and expanded:
+  - [phase-16-android-production-readiness-plan.md](/Users/ayushjaipuriar/Documents/GitHub/phone-down/phase-16-android-production-readiness-plan.md)
+  - [phase-16-sprint-16-2-real-google-sign-in-plan.md](/Users/ayushjaipuriar/Documents/GitHub/phone-down/phase-16-sprint-16-2-real-google-sign-in-plan.md)
+  - [docs/play-console-release-guide.md](/Users/ayushjaipuriar/Documents/GitHub/phone-down/docs/play-console-release-guide.md)
+  - [docs/phase-16-console-setup-info.md](/Users/ayushjaipuriar/Documents/GitHub/phone-down/docs/phase-16-console-setup-info.md)
+  - [docs/phase-16-manual-qa.md](/Users/ayushjaipuriar/Documents/GitHub/phone-down/docs/phase-16-manual-qa.md)
+  - [docs/architecture-guide.md](/Users/ayushjaipuriar/Documents/GitHub/phone-down/docs/architecture-guide.md)
+- Sprint 16.2 implementation is committed in `HEAD` (`3c8cb1e`):
+  - added real Google Sign-In dependencies in Gradle
+  - added [GoogleSignInCoordinator.kt](/Users/ayushjaipuriar/Documents/GitHub/phone-down/app/src/main/java/phonedown/app/account/GoogleSignInCoordinator.kt)
+  - added [DataStoreAuthRepository.kt](/Users/ayushjaipuriar/Documents/GitHub/phone-down/core/auth/src/main/kotlin/phonedown/core/auth/DataStoreAuthRepository.kt)
+  - added [GoogleAccount.kt](/Users/ayushjaipuriar/Documents/GitHub/phone-down/core/model/src/main/kotlin/phonedown/core/model/GoogleAccount.kt)
+  - updated `AuthRepository`, `AccountState`, `AccountRoute`, `AccountViewModel`, `AccountScreen`, `FakeAuthRepository`, and `AppRuntimeModule`
+  - updated related account/settings tests
+- UI/branding work that landed in the same latest commit:
+  - productionized launcher icon assets across densities
+  - added adaptive icon XMLs:
+    - [ic_launcher.xml](/Users/ayushjaipuriar/Documents/GitHub/phone-down/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml)
+    - [ic_launcher_round.xml](/Users/ayushjaipuriar/Documents/GitHub/phone-down/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml)
+  - updated [AndroidManifest.xml](/Users/ayushjaipuriar/Documents/GitHub/phone-down/app/src/main/AndroidManifest.xml) to explicitly use launcher and round icons
+  - included Focus/Insights/Settings typography/UI polish updates and snapshot baseline updates
+- Commands inspected in this handoff pass:
+  - `git status`
   - `git status --short --branch`
-  - `git diff --stat`
-  - `git diff -- <changed Kotlin files>`
-  - reads of `docs/agent-handoff.md`, `docs/play-console-release-guide.md`, `phase-16-android-production-readiness-plan.md`
-  - `git diff --check -- ...` on the doc files
-  - `wc -l` on the new guide docs
-- Verification performed in this session:
-  - `git diff --check` passed for the updated Phase 16 docs
-- Verification not performed in this session:
-  - no Gradle build/test run was needed because this session’s actual edits were documentation-only
-- Additional user-provided console progress captured:
-  - upload keystore alias: `phone-down-upload`
-  - upload key SHA-1: `EE:FA:73:EF:A2:F0:6A:A1:8F:03:A8:0E:C4:A4:20:F7:65:33:A3:9C`
-  - upload key SHA-256: `63:0E:62:5F:A1:14:13:C9:A0:FB:2B:53:E8:4B:5A:D2:B3:03:11:B5:0D:52:4F:42:B9:92:75:0E:2C:7E:F9:0A`
-  - Google Cloud project name: `phone-down`
-  - Google Cloud project ID: `phone-down-496414`
-  - `google-services.json` downloaded locally and placed at `app/google-services.json` (ignored by git)
-- Local Gradle integration completed in this session:
-  - added Google services plugin version to `gradle/libs.versions.toml`
-  - added root plugin declaration in `build.gradle.kts`
-  - applied `com.google.gms.google-services` in `app/build.gradle.kts`
-  - intentionally did not add Firebase Analytics or Firebase BoM yet
+  - `git log --oneline --decorate -n 8`
+  - `git show --stat --summary --name-only HEAD`
+  - `sed -n ... docs/agent-handoff.md`
+  - `sed -n ... phase-16-sprint-16-2-real-google-sign-in-plan.md`
+- Important current outputs:
+  - `git status`: working tree clean
+  - `HEAD`: `3c8cb1e (HEAD -> main, origin/main, origin/HEAD) feat: Implement real Google Sign-In flow and UI updates`
+- Verification known from recent implementation history:
+  - Sprint 16.2 code was previously verified with targeted Gradle unit/build commands before commit
+  - a later attempted `:app:assembleDebug` during icon packaging had once hit a build-logic parser error (`:build-logic:convention:compilePluginsBlocks`), but this was re-run successfully on May 16, 2026
+- Fresh QA performed on May 16, 2026 against connected Android device `192.168.1.6:35045`:
+  - `./gradlew --no-configuration-cache :app:assembleDebug` succeeded
+  - installed `app/build/outputs/apk/debug/app-debug.apk` successfully via `adb install -r`
+  - launched `phonedown.app/.MainActivity`
+  - verified app opened correctly on Focus tab
+  - verified Settings -> Account -> Google Account flow
+  - verified real Google chooser appeared with `Phone Down` branding
+  - verified consent screen appeared
+  - verified successful return into `Phone Down` signed-in Account screen with account state rendered
+  - earlier launcher/app-drawer QA showed a packaged icon that did not visually match the user-approved monogram reference closely enough
+- Follow-up icon correction performed locally on May 16, 2026:
+  - generated a new launcher master matching the user-approved dark monogram reference more closely
+  - repackaged all density-specific assets:
+    - `app/src/main/res/mipmap-*/ic_launcher.png`
+    - `app/src/main/res/mipmap-*/ic_launcher_round.png`
+    - `app/src/main/res/mipmap-*/ic_launcher_foreground.png`
+    - `app/src/main/res/mipmap-*/ic_launcher_background.png`
+  - re-ran `./gradlew --no-configuration-cache :app:assembleDebug` successfully after the asset swap
+  - reinstalled on device and verified in launcher context that the shown icon now matches the intended monogram family much more closely
 
 ## 4. Current Workspace State
 
 - Branch: `main`
-- `git status --short --branch` shows: `## main...origin/main`
-- No staged files
+- Remote state: branch is up to date with `origin/main`
+- `git status`: dirty working tree with local icon-asset replacements plus this handoff update
 - Modified files:
-  - `app/src/main/AndroidManifest.xml`
-  - `app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml`
-  - `app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml`
-  - `app/src/main/res/mipmap-*/ic_launcher.png`
-  - `app/src/main/res/mipmap-*/ic_launcher_round.png`
-  - `app/src/main/res/mipmap-*/ic_launcher_foreground.png`
-  - `app/src/main/res/mipmap-*/ic_launcher_background.png`
-  - `core/designsystem/src/main/kotlin/phonedown/core/designsystem/PhoneDownSettingsComponents.kt`
+  - `app/src/main/res/mipmap-hdpi/ic_launcher.png`
+  - `app/src/main/res/mipmap-hdpi/ic_launcher_background.png`
+  - `app/src/main/res/mipmap-hdpi/ic_launcher_foreground.png`
+  - `app/src/main/res/mipmap-hdpi/ic_launcher_round.png`
+  - `app/src/main/res/mipmap-mdpi/ic_launcher.png`
+  - `app/src/main/res/mipmap-mdpi/ic_launcher_background.png`
+  - `app/src/main/res/mipmap-mdpi/ic_launcher_foreground.png`
+  - `app/src/main/res/mipmap-mdpi/ic_launcher_round.png`
+  - `app/src/main/res/mipmap-xhdpi/ic_launcher.png`
+  - `app/src/main/res/mipmap-xhdpi/ic_launcher_background.png`
+  - `app/src/main/res/mipmap-xhdpi/ic_launcher_foreground.png`
+  - `app/src/main/res/mipmap-xhdpi/ic_launcher_round.png`
+  - `app/src/main/res/mipmap-xxhdpi/ic_launcher.png`
+  - `app/src/main/res/mipmap-xxhdpi/ic_launcher_background.png`
+  - `app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.png`
+  - `app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png`
+  - `app/src/main/res/mipmap-xxxhdpi/ic_launcher.png`
+  - `app/src/main/res/mipmap-xxxhdpi/ic_launcher_background.png`
+  - `app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png`
+  - `app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png`
   - `docs/agent-handoff.md`
-  - `feature/focus/src/main/kotlin/phonedown/feature/focus/FocusScreen.kt`
-  - `feature/focus/src/test/snapshots/images/phonedown.feature.focus_FocusScreenScreenshotTest_idleState_Dark.png`
-  - `feature/focus/src/test/snapshots/images/phonedown.feature.focus_FocusScreenScreenshotTest_idleState_Light.png`
-  - `feature/insights/src/main/kotlin/phonedown/feature/insights/InsightsContent.kt`
-  - `feature/insights/src/test/snapshots/images/phonedown.feature.insights_InsightsScreenScreenshotTest_insightsContentDark.png`
-  - `feature/insights/src/test/snapshots/images/phonedown.feature.insights_InsightsScreenScreenshotTest_insightsContentLight.png`
-  - `feature/settings/src/main/kotlin/phonedown/feature/settings/SettingsScreen.kt`
-  - `feature/settings/src/test/snapshots/images/phonedown.feature.settings_SettingsScreenScreenshotTest_settingsScreenDark.png`
-  - `feature/settings/src/test/snapshots/images/phonedown.feature.settings_SettingsScreenScreenshotTest_settingsScreenLight.png`
-- Untracked files:
-  - `docs/phase-16-console-setup-info.md`
-  - `docs/phase-16-manual-qa.md`
-  - `docs/play-console-release-guide.md`
-- These uncommitted changes include both:
-  - real current work from this session on Phase 16 docs
-  - existing UI polish changes that must not be overwritten
-- No staged files were present.
-- No obvious secrets or suspicious files were noticed in the current workspace listing.
-- `.gitignore` already protects important release-sensitive patterns including `.env`, `.bak`, `.key`, `.pem`, `.p12`, `service-account*.json`, `client_secret*.json`, `oauth*.json`, `*.jks`, `*.keystore`, and `google-services.json`.
+- Untracked files: none
+- Staged files: none
+- Latest commit at handoff time:
+  - `3c8cb1e feat: Implement real Google Sign-In flow and UI updates`
+- Treat the current uncommitted mipmap/icon changes as intentional in-progress work and do not overwrite or revert them unless explicitly asked.
+- Sensitive-file posture:
+  - no suspicious tracked secrets were visible in this inspection
+  - `google-services.json` remains local/ignored
+  - client-secret JSON files are expected to stay out of git and out of docs
 
 ## 5. Decisions And Rationale
 
-- Dedicated Google Cloud/Firebase project for Phone Down:
-  - avoids identity/scope/quota confusion with `only-yours`
-  - cleaner OAuth branding, Firebase ownership, and future maintenance
-- Google Drive `appDataFolder` for backup:
-  - narrowest useful Drive scope
-  - keeps backups hidden and implementation-focused
-  - aligns with the app’s privacy/minimalism posture
-- Once-daily auto-backup with WorkManager:
-  - practical V1 feature
-  - low cost for a small app
-  - matches the product promise
-- Keep Room database unencrypted for V1:
-  - session data is not highly sensitive enough to justify Phase 16 complexity
-  - better to ship real auth/billing/backup reliably first
-- Add Firebase Crashlytics:
-  - needed for production visibility
-  - must be privacy-scoped and disclosed properly
-- 24-hour entitlement cache retained:
-  - good offline/resilience tradeoff for V1
-- India pricing recommendation:
-  - `INR 99/month`, `INR 799/year`, `INR 1,999 lifetime`
-  - chosen to be accessible in India while still commercially credible
-- Documentation-first Sprint 16.1:
-  - the user is a beginner to Play publishing
-  - auth/billing/Drive implementation should not start before package/fingerprint/project/test-track setup is clear
-- Recent UI polish changes were kept scoped:
-  - Focus Today card got a custom local metric layout instead of changing shared metric-card behavior globally
-  - Insights and Settings typography changes were localized to preserve existing architecture while improving visual hierarchy
+- Real Google Sign-In uses Android Credential Manager plus a small app-layer coordinator:
+  - keeps sign-in UI/platform handling in `:app`
+  - keeps `:core:model` platform-neutral
+  - avoids stuffing Android-specific auth flows directly into feature UI
+- `DataStoreAuthRepository` persists minimal account display state instead of raw tokens:
+  - enough for signed-in UI continuity
+  - lower risk than token persistence
+  - better fit for V1 scope
+- Fake auth was preserved for tests:
+  - keeps unit tests lightweight and deterministic
+  - avoids coupling all test paths to Google runtime services
+- Web OAuth client was required even for Android Credential Manager setup:
+  - needed so Android gets `default_web_client_id` from Firebase/Google services config
+- The selected final launcher icon direction was the top-left refined concept from the generated set:
+  - strongest balance of distinctiveness, clarity at small sizes, and premium feel
+- Adaptive icon packaging was added alongside legacy launcher sizes:
+  - modern Android launchers mask icons differently
+  - adaptive assets reduce cropping/masking inconsistencies across devices
+- The initially committed packaged icon still drifted visually from the user's chosen reference on-device:
+  - rather than assuming the generated concept had landed correctly, the follow-up fix replaced the actual rasterized launcher assets and revalidated on hardware
+  - this is a good reminder that launcher icons need device-level QA because OEM masks, background treatments, and density-specific exports can change the perceived result
 
 ## 6. Known Issues / Blockers
 
-- Biggest current blocker: browser-side console setup has not been completed yet by the user.
-- Biggest current blocker: Google Cloud/Firebase/OAuth setup is still pending.
-  - Dedicated Google Cloud project now exists, but Firebase-specific setup is still pending
-  - No Play App Signing SHA values yet
-  - No Billing products created yet
-  - Firebase project/app status still needs explicit confirmation even though `google-services.json` now exists locally
-- Because of that, real Phase 16 code integration has not started.
-- The workspace is dirty with uncommitted UI typography polish plus doc work. The next agent must preserve that state.
-- No code verification was run in this session because the session work was documentation-only.
-- Existing historical constraint from previous work:
-  - `./scripts/check.sh` may still fail on known ktlint convention disagreements around PascalCase Compose naming and some project formatting conventions
-- The current handoff file itself is modified in this session and not committed.
+- The old `docs/agent-handoff.md` was stale before this rewrite; it incorrectly described a clean tree and earlier icon-validation state. This new file replaces that stale picture.
+- Real Google Sign-In/device QA is now working, but one notable follow-up surfaced in logs:
+  - `Firebase Installations` emitted `403 PERMISSION_DENIED` / `API_KEY_SERVICE_BLOCKED` warnings during device QA
+  - sign-in still succeeded, so this is not the auth blocker
+  - this likely indicates Firebase-side API restriction/config cleanup still needed before broader production readiness
+- The corrected launcher icon is verified on-device, but the icon asset changes are not committed yet.
+- Follow-up investigation on May 16, 2026 refined the warning diagnosis:
+  - `app` does not currently include any explicit Firebase runtime SDK dependency
+  - `dependencyInsight` for `firebase-installations` and `com.google.firebase` on `:app:debugRuntimeClasspath` returned no matches
+  - re-running the signed-out -> sign-in flow reproduced Google Play Services / auth noise for `com.android.vending` and `oauth2:https://www.googleapis.com/auth/googleplay`
+  - the previously remembered `Firebase Installations` `API_KEY_SERVICE_BLOCKED` warning did not reproduce in the controlled retest
+  - practical conclusion: this is not a current blocker for Sprint 16.3, but Firebase console/API restrictions should still be rechecked once actual Firebase runtime products like Crashlytics are added
+- Sprint 16.3 is now implemented in code:
+  - [phase-16-sprint-16-3-real-drive-backup-restore-plan.md](/Users/ayushjaipuriar/Documents/GitHub/phone-down/phase-16-sprint-16-3-real-drive-backup-restore-plan.md)
+  - real Drive authorization layer, `DriveAppDataClient`, `DriveBackupRepository`, WorkManager auto-backup scheduling/worker, and Settings/Account UI wiring are all in place
+- Sprint 16.3 manual device QA on May 16, 2026 is now partially completed and was materially useful:
+  - manual backup initially failed with a permission-style network error
+  - root causes found and fixed:
+    - missing `android.permission.INTERNET` in `app/src/main/AndroidManifest.xml`
+    - lost pending account email across the Drive authorization resolution flow in `GoogleDriveAuthorizationManager`
+    - placeholder certificate pins in `app/src/main/res/xml/network_security_config.xml` that caused `SSLHandshakeException: Pin verification failed` against `www.googleapis.com`
+  - after fixes, real manual backup succeeded on device
+  - the Settings row updated to `Last backup: ...`
+  - the once-daily `Auto Backup` toggle appeared and was manually toggled off as a restore test mutation
+  - restore succeeded from the Account screen with `Restore Complete`
+  - the restored settings reverted `Auto Backup` back to enabled, proving full settings replacement worked end to end
+- Sprint 16.3 follow-up QA and fixes on May 16, 2026 closed the explicit empty-state gap too:
+  - the current hidden Drive backup was deleted through the real `Delete All Data` + `Also delete cloud backup` flow
+  - re-signing into the same Google account and restoring then reached the expected empty-state body: `No backup found for this account.`
+  - along the way, another trust bug was fixed:
+    - `deleteBackup()` no longer returns a lossy `Boolean`; it now uses `DeleteBackupResult`
+    - the Settings delete flow now pre-authorizes Drive access, attempts cloud deletion before wiping local data, and surfaces a real failure instead of silently pretending the cloud backup was deleted
+  - a final UX polish split `RestoreState.NoBackupFound` from generic restore failures so the dialog title can say `No Backup Found` instead of `Restore Failed`
+- Phase 16 is not done:
+  - real Play Billing setup/integration still pending
+  - Crashlytics/release-signing/final Play readiness still pending
+  - optional deeper transport/integration coverage is still worthwhile, but the core device QA paths for Sprint 16.3 are now covered
+- Sprint 16.4 planning is now drafted and waiting for user review:
+  - [phase-16-sprint-16-4-real-play-billing-plan.md](/Users/ayushjaipuriar/Documents/GitHub/phone-down/phase-16-sprint-16-4-real-play-billing-plan.md)
+  - confirmed scope includes monthly/yearly/lifetime products, restore purchases, entitlement activation, paywall/listing copy refinement, final price-display QA, and cancellation/recovery QA
+  - confirmed assumptions:
+    - product IDs: `pro_monthly`, `pro_yearly`, `pro_lifetime`
+    - Play Billing products are not yet created in Play Console
+    - 24-hour entitlement cache remains the resilience rule
+    - Play Billing plus local cache remains the entitlement authority, not Drive backup
+- A local build-tooling workaround is currently present:
+  - `build-logic/convention/build.gradle.kts` uses explicit plugin coordinates instead of version-catalog aliases because the local Gradle cache/tooling state broke accessor resolution during Sprint 16.3 implementation
+  - the repo builds successfully with this workaround, but it should be revisited later if we want to restore the original catalog-based build-logic style
+- Play Console/Play App Signing/Billing product state should be revalidated live before coding the next sprint, because some of that setup can drift outside the repo.
 
 ## 7. Exact Next Steps
 
-1. Inspect the current repo state before doing anything else:
+1. Reconfirm repo/tooling state locally before new work:
    - run `git status --short --branch`
-   - read [docs/agent-handoff.md](/Users/ayushjaipuriar/Documents/GitHub/phone-down/docs/agent-handoff.md)
-   - read [phase-16-android-production-readiness-plan.md](/Users/ayushjaipuriar/Documents/GitHub/phone-down/phase-16-android-production-readiness-plan.md)
-2. Do not start real auth/billing/Drive code until the user completes the remaining console setup using:
-   - [docs/play-console-release-guide.md](/Users/ayushjaipuriar/Documents/GitHub/phone-down/docs/play-console-release-guide.md)
-   - [docs/phase-16-console-setup-info.md](/Users/ayushjaipuriar/Documents/GitHub/phone-down/docs/phase-16-console-setup-info.md)
-3. Ask the user to send back the remaining safe values from section `14` of [docs/phase-16-console-setup-info.md](/Users/ayushjaipuriar/Documents/GitHub/phone-down/docs/phase-16-console-setup-info.md):
-   - developer account type / Play app status
-   - project ID / Firebase/Drive/OAuth status
-   - Play App Signing SHA values if available
-   - Billing product IDs and activation status
-   - whether `google-services.json` is downloaded locally
-4. Once those values exist, begin Sprint `16.2`:
-   - inspect `:core:auth`, `:core:model` auth repository contracts, and existing Account route/ViewModel files
-   - implement real Google Sign-In behind `AuthRepository`
-   - keep fake implementations available for tests if still useful
-5. Preserve the current uncommitted UI polish files unless the user explicitly asks to revert or commit them.
+   - run `git log --oneline --decorate -n 3`
+   - read [docs/agent-handoff.md](/Users/ayushjaipuriar/Documents/GitHub/phone-down/docs/agent-handoff.md), [phase-16-sprint-16-2-real-google-sign-in-plan.md](/Users/ayushjaipuriar/Documents/GitHub/phone-down/phase-16-sprint-16-2-real-google-sign-in-plan.md), and [phase-16-sprint-16-3-real-drive-backup-restore-plan.md](/Users/ayushjaipuriar/Documents/GitHub/phone-down/phase-16-sprint-16-3-real-drive-backup-restore-plan.md)
+2. Review the uncommitted launcher-icon asset diff before any other work:
+   - inspect `git diff -- app/src/main/res/mipmap-* docs/agent-handoff.md`
+   - keep these icon updates unless the user explicitly asks to regenerate again
+3. Close Sprint 16.3 documentation and decide whether any optional extra QA is worth the time:
+   - optionally inspect/capture WorkManager state for once-daily auto-backup scheduling evidence
+   - otherwise move to Sprint 16.4 review and approval
+4. Before any Sprint 16.4 implementation begins:
+   - read [phase-16-sprint-16-4-real-play-billing-plan.md](/Users/ayushjaipuriar/Documents/GitHub/phone-down/phase-16-sprint-16-4-real-play-billing-plan.md)
+   - confirm or revise the billing sprint plan with the user
+   - do not start coding until the user approves the sprint plan
+4. Re-run the verified local automation path before or after device QA if needed:
+   - `./gradlew --no-daemon --no-configuration-cache :app:assembleDebug`
+   - `./gradlew --no-daemon --no-configuration-cache :core:backup:testDebugUnitTest :app:testDebugUnitTest :feature:settings:testDebugUnitTest :feature:account:testDebugUnitTest`
+5. After Sprint 16.3 QA, decide whether to:
+   - tune backup UX/copy based on findings
+   - or move into the next Phase 16 sprint, most likely real Play Billing
 
 ## 8. Suggested Prompt For The Next Agent
 
 ```text
-Continue work in the Phone Down project. First, read `AGENTS.md`, `docs/agent-handoff.md`, and inspect the actual repo state with `git status --short --branch` and relevant diffs. Treat all uncommitted changes as user/previous-agent work and do not overwrite or revert them unless explicitly asked. Do not commit anything unless the user explicitly asks.
+Continue work in the Phone Down project. First, read `AGENTS.md`, `docs/agent-handoff.md`, and inspect the actual repo state with `git status --short --branch`, `git log --oneline --decorate -n 3`, and any relevant diffs. Treat the repo as source of truth. Do not commit anything unless I explicitly ask.
 
-Current situation:
-- Phase 15 is already implemented.
-- Phase 16 (Android Production Readiness) is approved and Sprint 16.1 documentation is complete.
-- The user is a complete beginner to Play publishing and wants step-by-step, theory-backed guidance.
-- Real production integrations have NOT started yet because console setup is still pending.
-- The user should complete the browser-side setup using:
-  - `docs/play-console-release-guide.md`
-  - `docs/phase-16-console-setup-info.md`
-- There are also uncommitted UI typography polish changes in Focus/Insights/Settings plus Paparazzi baseline updates; preserve them.
+Current state:
+- Branch `main` is up to date with `origin/main`, but the working tree is currently dirty with uncommitted launcher-icon asset replacements and an updated handoff doc.
+- Latest commit is `3c8cb1e feat: Implement real Google Sign-In flow and UI updates`.
+- Real Google Sign-In wiring for Sprint 16.2 is already implemented and committed.
+- The originally committed launcher icon was visually corrected afterward; the corrected mipmap assets are local and uncommitted.
+- Phase 16 is still in progress: Billing, Crashlytics, signing, final Play readiness, and Sprint 16.3 manual QA remain.
+- Sprint 16.3 code is implemented and verified by local build/unit-test passes.
+- `:app:assembleDebug` was re-run successfully on May 16, 2026.
+- Real Google Sign-In was manually validated on a connected Android device.
+- The corrected launcher icon was also revalidated on-device after the asset swap and now matches the chosen monogram direction much more closely.
+- A previously observed warning was re-investigated:
+  - controlled retest did not reproduce a Firebase Installations error
+  - reproducible log noise instead came from Google Play Services / `com.android.vending` auth token fetches, while Credential Manager sign-in for `phonedown.app` still succeeded
+  - treat Firebase Installations as a low-confidence/non-blocking concern until actual Firebase runtime SDKs are introduced
+- Sprint 16.3 specifics now in repo:
+  - `GoogleDriveAuthorizationManager` separates account sign-in from Drive scope authorization
+  - `DriveAppDataClient` + `DriveBackupRepository` replace fake backup transport in normal runtime DI
+  - `AutoBackupScheduler` + `AutoBackupWorker` implement once-daily Pro/sign-in-gated auto-backup behavior
+  - targeted verification passed: `:app:assembleDebug`, `:core:backup:testDebugUnitTest`, `:app:testDebugUnitTest`, `:feature:settings:testDebugUnitTest`, `:feature:account:testDebugUnitTest`
 
 Your first tasks:
-1. Read `docs/agent-handoff.md`, `phase-16-android-production-readiness-plan.md`, and the three Phase 16 docs.
-2. Reconfirm current git state and do not disturb existing uncommitted UI/doc changes.
-3. Ask the user to send back only the safe values from section 14 of `docs/phase-16-console-setup-info.md` if they have completed console setup.
-4. If the user has completed console setup, begin Sprint 16.2 by inspecting `:core:auth`, auth repository contracts in `:core:model`, and the account/auth UI wiring in `:app`, then implement real Google Sign-In.
+1. Read `docs/agent-handoff.md`, `phase-16-android-production-readiness-plan.md`, `phase-16-sprint-16-2-real-google-sign-in-plan.md`, and `phase-16-sprint-16-3-real-drive-backup-restore-plan.md`.
+2. Reconfirm the dirty repo state and inspect the uncommitted mipmap/icon diff before touching anything else.
+3. Preserve the current icon asset changes unless the user explicitly asks to regenerate again.
+4. Treat Sprint 16.3 implementation as already in place; focus first on manual device QA and any fixes it reveals.
+5. Keep the build-logic workaround in mind before “cleaning up” Gradle files; it was added because local version-catalog accessor generation broke during implementation.
+6. Update `docs/agent-handoff.md` with whatever you learn before moving deeper into Phase 16.
 
-Keep the repo as source of truth, update docs during meaningful progress, and avoid secrets at all times.
+Preserve teaching mode, explain why each step matters, and ask clarifying questions before drafting any new sprint/phase plan.
 ```

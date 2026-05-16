@@ -24,6 +24,12 @@ sealed class RestorePayloadResult {
     data object NoBackupFound : RestorePayloadResult()
 }
 
+sealed class DeleteBackupResult {
+    data object Deleted : DeleteBackupResult()
+    data object NoBackupFound : DeleteBackupResult()
+    data class Failure(val reason: String) : DeleteBackupResult()
+}
+
 data class RestorePayload(
     val sessions: List<FocusSession>,
     val penaltyEvents: List<PenaltyEvent>,
@@ -49,5 +55,5 @@ interface BackupRepository {
 
     suspend fun getLastBackupTime(): Long?
 
-    suspend fun deleteBackup(): Boolean
+    suspend fun deleteBackup(): DeleteBackupResult
 }

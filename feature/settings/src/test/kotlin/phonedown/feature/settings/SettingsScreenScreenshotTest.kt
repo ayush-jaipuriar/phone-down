@@ -28,6 +28,7 @@ class SettingsScreenScreenshotTest {
                     onDeleteIncludeBackupChanged = {},
                     onSoundToggled = {},
                     onHapticsToggled = {},
+                    onAutoBackupToggled = {},
                     onThemeModeSelected = {},
                 )
             }
@@ -51,6 +52,7 @@ class SettingsScreenScreenshotTest {
                     onDeleteIncludeBackupChanged = {},
                     onSoundToggled = {},
                     onHapticsToggled = {},
+                    onAutoBackupToggled = {},
                     onThemeModeSelected = {},
                 )
             }

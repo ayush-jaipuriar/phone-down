@@ -15,6 +15,9 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import phonedown.app.backup.AutoBackupScheduling
+import phonedown.app.backup.DriveAuthorizationCoordinator
+import phonedown.app.backup.DriveAuthorizationUiStep
 import phonedown.core.model.AccountState
 import phonedown.core.model.GoogleAccount
 import phonedown.core.model.ProEntitlement
@@ -149,7 +152,7 @@ class AccountViewModelTest {
         }
 
     @Test
-    fun `restoreBackup no backup found shows error`() =
+    fun `restoreBackup no backup found shows dedicated empty state`() =
         runTest(testDispatcher) {
             val restorer = FakeBackupRestorer(RestoreBackupOutcome.NoBackupFound)
             val viewModel = createViewModel(backupRestorer = restorer)
@@ -158,8 +161,8 @@ class AccountViewModelTest {
             testScheduler.advanceUntilIdle()
 
             val state = viewModel.restoreState.value
-            assertTrue(state is RestoreState.Error)
-            assertEquals("No backup found", (state as RestoreState.Error).message)
+            assertTrue(state is RestoreState.NoBackupFound)
+            assertEquals("No backup found for this account.", (state as RestoreState.NoBackupFound).message)
         }
 
     @Test
@@ -181,11 +184,15 @@ class AccountViewModelTest {
         authRepo: AuthRepository = FakeAuthRepository(),
         billingRepo: BillingRepository = FakeBillingRepository(ProEntitlement.Free),
         backupRestorer: BackupRestorer = FakeBackupRestorer(RestoreBackupOutcome.NoBackupFound),
+        driveAuthorizationCoordinator: DriveAuthorizationCoordinator = FakeDriveAuthorizationCoordinator(),
+        autoBackupScheduling: AutoBackupScheduling = FakeAutoBackupScheduling(),
     ): AccountViewModel =
         AccountViewModel(
             authRepository = authRepo,
             billingRepository = billingRepo,
             restoreBackupUseCase = backupRestorer,
+            driveAuthorizationManager = driveAuthorizationCoordinator,
+            autoBackupScheduler = autoBackupScheduling,
         )
 }
 
@@ -235,4 +242,19 @@ private class FakeBackupRestorer(
     private val outcome: RestoreBackupOutcome,
 ) : BackupRestorer {
     override suspend fun invoke(): RestoreBackupOutcome = outcome
+}
+
+private class FakeDriveAuthorizationCoordinator : DriveAuthorizationCoordinator {
+    override suspend fun beginAuthorization(): DriveAuthorizationUiStep = DriveAuthorizationUiStep.Cancelled
+
+    override fun completeAuthorization(
+        resultCode: Int,
+        data: android.content.Intent?,
+    ): DriveAuthorizationUiStep = DriveAuthorizationUiStep.Cancelled
+
+    override fun clearCachedAccessToken() {}
+}
+
+private class FakeAutoBackupScheduling : AutoBackupScheduling {
+    override suspend fun refreshSchedule() {}
 }
