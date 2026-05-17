@@ -27,6 +27,7 @@ import phonedown.app.navigation.PhoneDownRoute
 import phonedown.app.runtime.ActiveSessionRuntimeCoordinator
 import phonedown.app.runtime.FocusSessionService
 import phonedown.app.runtime.FocusSessionServiceContract
+import phonedown.core.model.repository.BillingRepository
 import phonedown.core.model.repository.SettingsRepository
 import javax.inject.Inject
 
@@ -40,6 +41,9 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var autoBackupScheduler: AutoBackupScheduler
+
+    @Inject
+    lateinit var billingRepository: BillingRepository
 
     private var pendingStartDurationSeconds: Long? = null
     private val openFocusRequests = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
@@ -64,6 +68,7 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             runtimeCoordinator.recoverFromAppLaunch()
             autoBackupScheduler.refreshSchedule()
+            billingRepository.syncPurchases()
         }
         callPermissionGranted = hasCallPermission()
         setContent {

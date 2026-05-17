@@ -273,12 +273,15 @@ private class FakeBillingRepository(
     override val products: Flow<List<phonedown.core.model.ProProduct>> = MutableStateFlow(emptyList())
     override val purchases: Flow<List<phonedown.core.model.ProPurchase>> = MutableStateFlow(emptyList())
     override val entitlement: Flow<ProEntitlement> = MutableStateFlow(initialEntitlement)
+    override val events: Flow<phonedown.core.model.BillingEvent> = kotlinx.coroutines.flow.flowOf()
 
     override suspend fun loadProducts() {}
 
     override suspend fun launchPurchaseFlow(product: phonedown.core.model.ProProduct) {}
 
     override suspend fun restorePurchases() {}
+
+    override suspend fun syncPurchases() {}
 
     override suspend fun acknowledgePurchase(purchaseToken: String) {}
 }

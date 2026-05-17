@@ -3,7 +3,13 @@ package phonedown.core.billing
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import phonedown.core.model.BillingEvent
+import phonedown.core.model.PRO_LIFETIME_PRODUCT_ID
+import phonedown.core.model.PRO_MONTHLY_PRODUCT_ID
+import phonedown.core.model.PRO_YEARLY_PRODUCT_ID
 import phonedown.core.model.ProEntitlement
 import phonedown.core.model.ProProduct
 import phonedown.core.model.ProProductType
@@ -26,21 +32,21 @@ class FakeBillingRepository(
     private val _products = MutableStateFlow(
         listOf(
             ProProduct(
-                id = "phone_down_pro_monthly",
+                id = PRO_MONTHLY_PRODUCT_ID,
                 type = ProProductType.Monthly,
                 priceAmountMicros = 4_990_000,
                 formattedPrice = "$4.99",
                 billingPeriod = "P1M",
             ),
             ProProduct(
-                id = "phone_down_pro_yearly",
+                id = PRO_YEARLY_PRODUCT_ID,
                 type = ProProductType.Yearly,
                 priceAmountMicros = 29_990_000,
                 formattedPrice = "$29.99",
                 billingPeriod = "P1Y",
             ),
             ProProduct(
-                id = "phone_down_pro_lifetime",
+                id = PRO_LIFETIME_PRODUCT_ID,
                 type = ProProductType.Lifetime,
                 priceAmountMicros = 79_990_000,
                 formattedPrice = "$79.99",
@@ -52,6 +58,8 @@ class FakeBillingRepository(
 
     private val _purchases = MutableStateFlow<List<ProPurchase>>(emptyList())
     override val purchases: Flow<List<ProPurchase>> = _purchases.asStateFlow()
+    private val _events = MutableSharedFlow<BillingEvent>(extraBufferCapacity = 4)
+    override val events: Flow<BillingEvent> = _events.asSharedFlow()
 
     private val _entitlement = MutableStateFlow<ProEntitlement>(ProEntitlement.Free)
     override val entitlement: Flow<ProEntitlement> = _entitlement.asStateFlow()
@@ -83,6 +91,7 @@ class FakeBillingRepository(
         )
         _entitlement.value = newEntitlement
         cache?.write(newEntitlement)
+        _events.tryEmit(BillingEvent.PurchaseCompleted(product.id))
     }
 
     override suspend fun restorePurchases() {
@@ -96,7 +105,17 @@ class FakeBillingRepository(
                 )
                 _entitlement.value = newEntitlement
                 cache?.write(newEntitlement)
+                _events.tryEmit(BillingEvent.RestoreCompleted(_purchases.value.size))
             }
+        } else {
+            _events.tryEmit(BillingEvent.RestoreNoPurchases)
+        }
+    }
+
+    override suspend fun syncPurchases() {
+        if (_purchases.value.isEmpty()) {
+            _entitlement.value = ProEntitlement.Free
+            cache?.write(ProEntitlement.Free)
         }
     }
 

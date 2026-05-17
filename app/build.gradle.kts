@@ -1,8 +1,37 @@
+import java.util.Properties
+
 plugins {
     id("phonedown.android.application")
     id("com.google.gms.google-services")
     id("phonedown.hilt")
 }
+
+val keystorePropertiesFile = rootProject.file("keystore.properties")
+val keystoreProperties =
+    Properties().apply {
+        if (keystorePropertiesFile.exists()) {
+            keystorePropertiesFile.inputStream().use(::load)
+        }
+    }
+
+fun signingValue(
+    propertyName: String,
+    environmentName: String,
+): String? =
+    keystoreProperties.getProperty(propertyName)
+        ?: providers.environmentVariable(environmentName).orNull
+
+val releaseStoreFile = signingValue("storeFile", "PHONE_DOWN_STORE_FILE")
+val releaseStorePassword = signingValue("storePassword", "PHONE_DOWN_STORE_PASSWORD")
+val releaseKeyAlias = signingValue("keyAlias", "PHONE_DOWN_KEY_ALIAS")
+val releaseKeyPassword = signingValue("keyPassword", "PHONE_DOWN_KEY_PASSWORD")
+val hasReleaseSigningConfig =
+    listOf(
+        releaseStoreFile,
+        releaseStorePassword,
+        releaseKeyAlias,
+        releaseKeyPassword,
+    ).all { !it.isNullOrBlank() }
 
 android {
     namespace = "phonedown.app"
@@ -17,13 +46,24 @@ android {
         buildConfig = true
     }
 
+    signingConfigs {
+        create("release") {
+            if (hasReleaseSigningConfig) {
+                storeFile = file(requireNotNull(releaseStoreFile))
+                storePassword = requireNotNull(releaseStorePassword)
+                keyAlias = requireNotNull(releaseKeyAlias)
+                keyPassword = requireNotNull(releaseKeyPassword)
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            // Use debug signing for now. For production, configure signingConfigs.release
-            // with your keystore and update this to signingConfig = signingConfigs.release
-            signingConfig = signingConfigs.getByName("debug")
+            if (hasReleaseSigningConfig) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
@@ -31,6 +71,28 @@ android {
         }
     }
 }
+
+tasks
+    .matching { task ->
+        task.name in setOf(
+            "assembleRelease",
+            "bundleRelease",
+            "packageReleaseBundle",
+            "signReleaseBundle",
+        )
+    }.configureEach {
+        doFirst {
+            check(hasReleaseSigningConfig) {
+                """
+                Release signing is not configured.
+
+                Copy keystore.properties.example to keystore.properties and fill it with the upload
+                keystore path/passwords, or provide PHONE_DOWN_STORE_FILE, PHONE_DOWN_STORE_PASSWORD,
+                PHONE_DOWN_KEY_ALIAS, and PHONE_DOWN_KEY_PASSWORD as environment variables.
+                """.trimIndent()
+            }
+        }
+    }
 
 dependencies {
     implementation(project(":core:auth"))

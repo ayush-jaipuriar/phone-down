@@ -1,5 +1,122 @@
 # Agent Handoff Summary
 
+## Update - 2026-05-17 (Production Readiness Audit Before First Play Upload)
+
+- A full pre-upload production-readiness audit was completed before attempting the first Play internal upload.
+- Latest release-signing follow-up:
+  - user created local ignored `keystore.properties`
+  - `keystore.properties` is ignored by Git and contains all four required signing keys
+  - the configured `storeFile` resolves to the expected `phone-down-upload.jks`
+  - `./gradlew --no-daemon --no-configuration-cache :app:bundleRelease` now succeeds with real upload-key signing
+  - fresh signed release bundle exists at:
+    - [app-release.aab](/Users/ayushjaipuriar/Documents/GitHub/phone-down/app/build/outputs/bundle/release/app-release.aab)
+  - artifact details:
+    - size: 6.2 MB
+    - bundle SHA-256: `764667e43982c6d82d9726f5493a4a109112bdb22e10248b79276aa373ab9e85`
+    - upload certificate SHA-1: `EE:FA:73:EF:A2:F0:6A:A1:8F:03:A8:0E:C4:A4:20:F7:65:33:A3:9C`
+    - upload certificate SHA-256: `63:0E:62:5F:A1:14:13:C9:A0:FB:2B:53:E8:4B:5A:D2:B3:03:11:B5:0D:52:4F:42:B9:92:75:0E:2C:7E:F9:0A`
+  - `jarsigner` reported `jar verified`
+  - a safety scan of the AAB file list did not find bundled keystores, `google-services.json`, `client_secret*.json`, `.env`, `.pem`, `.p12`, or similar credential files; only normal AndroidX/Play Services credential library metadata appeared
+  - `git diff --check` still passes
+- Current interpretation:
+  - release artifact mechanics are now good enough for the first internal testing upload
+  - broader production release remains no-go until Play products and Play-installed QA are complete
+- New audit document:
+  - [docs/production-readiness-audit-2026-05-17.md](/Users/ayushjaipuriar/Documents/GitHub/phone-down/docs/production-readiness-audit-2026-05-17.md)
+- Important repo/build truths established during this audit:
+  - `:app:bundleRelease` succeeded locally and produced:
+    - `app/build/outputs/bundle/release/app-release.aab`
+  - `:app:testDebugUnitTest` succeeded
+  - `git diff --check` succeeded
+- However, the broader production-readiness conclusion is still **do not promote beyond internal testing yet** because:
+  - Play Billing products (`pro_monthly`, `pro_yearly`, `pro_lifetime`) still do not exist in Play Console
+  - Play-installed QA for real auth, backup, and billing has not happened yet
+  - `android:allowBackup="true"` remains unresolved relative to the app’s explicit Drive backup model
+  - release/security/store docs are stale in places and could mislead Play Console setup
+- The current AAB is therefore:
+  - **build-valid**
+  - **signed with the expected upload key**
+  - **acceptable as the first internal-testing upload candidate**
+- Recommended next order from the audit:
+  1. create Play Billing products
+  2. upload the signed AAB to internal testing
+  3. run Play-installed QA for sign-in, Drive backup/restore, and billing flows
+  4. fix any issues found before broader release
+- Follow-up on the same day added a stricter pre-upload gate:
+  - [docs/pre-upload-go-no-go-checklist-2026-05-17.md](/Users/ayushjaipuriar/Documents/GitHub/phone-down/docs/pre-upload-go-no-go-checklist-2026-05-17.md)
+- Security/secrets audit highlights from that follow-up:
+  - no tracked secret-like files were found in git during the audit
+  - `app/google-services.json` exists locally and is correctly ignored by `.gitignore`
+  - built artifacts (`*.aab`, `*.apk`) are correctly ignored
+  - **important gap:** `keystore.properties` is not currently ignored, which becomes a real leak risk once release signing is wired
+  - no obvious committed tokens/keys were found via regex-based source/doc scanning; matches were explanatory mentions only
+- Updated recommendation order after the security pass:
+  1. add `keystore.properties` to `.gitignore`
+  2. fix release signing
+  3. rebuild a fresh signed AAB
+  4. create Play products
+  5. upload to internal testing
+  6. run Play-installed QA
+- Follow-up implementation completed:
+  - `.gitignore` now ignores `keystore.properties`
+  - `keystore.properties.example` was added with placeholders only
+  - `app/build.gradle.kts` no longer points release builds at debug signing
+  - release signing now reads either ignored local `keystore.properties` values or environment variables:
+    - `PHONE_DOWN_STORE_FILE`
+    - `PHONE_DOWN_STORE_PASSWORD`
+    - `PHONE_DOWN_KEY_ALIAS`
+    - `PHONE_DOWN_KEY_PASSWORD`
+  - release bundle/assemble/sign tasks now fail fast if those signing values are missing, which prevents accidentally uploading an unsigned or debug-signed artifact
+  - the stale unsigned/generated `app-release.aab` was removed from `app/build/outputs/bundle/release/`
+- Remaining blocker before meaningful internal billing QA:
+  - create Play Console products for `pro_monthly`, `pro_yearly`, and `pro_lifetime`
+
+## Update - 2026-05-16 (Sprint 16.4 In Progress)
+
+- Ignore older sections below that still describe Sprint 16.4 as "planning only" or describe icon-only local changes.
+- Current truth:
+  - Sprint 16.3 real Drive backup/restore is implemented and manually QA'd on device.
+  - Sprint 16.4 real Play Billing is now **in implementation**, not just planned.
+  - Local verification currently passing for the new billing slice:
+    - `./gradlew --no-daemon --no-configuration-cache :app:assembleDebug`
+    - `./gradlew --no-daemon --no-configuration-cache :app:testDebugUnitTest`
+    - `git diff --check`
+- The current dirty working tree is billing-sprint work, not launcher-icon work:
+  - modified: `app/src/main/java/phonedown/app/MainActivity.kt`
+  - modified: `app/src/main/java/phonedown/app/pro/ProRoute.kt`
+  - modified: `app/src/main/java/phonedown/app/pro/ProViewModel.kt`
+  - modified: `app/src/main/java/phonedown/app/runtime/AppRuntimeModule.kt`
+  - modified: `app/src/test/java/phonedown/app/account/AccountViewModelTest.kt`
+  - modified: `app/src/test/java/phonedown/app/pro/ProViewModelTest.kt`
+  - modified: `app/src/test/java/phonedown/app/settings/SettingsViewModelTest.kt`
+  - modified: `core/billing/build.gradle.kts`
+  - modified: `core/billing/src/main/kotlin/phonedown/core/billing/FakeBillingRepository.kt`
+  - modified: `core/model/src/main/kotlin/phonedown/core/model/repository/BillingRepository.kt`
+  - modified: `feature/pro/src/main/kotlin/phonedown/feature/pro/ProScreen.kt`
+  - modified: `gradle/libs.versions.toml`
+  - modified: `phase-16-android-production-readiness-plan.md`
+  - modified: `phase-16-sprint-16-4-real-play-billing-plan.md`
+  - modified: `v1-implementation-plan.md`
+  - untracked: `app/src/main/java/phonedown/app/runtime/ForegroundActivityProvider.kt`
+  - untracked: `core/billing/src/main/kotlin/phonedown/core/billing/BillingActivityProvider.kt`
+  - untracked: `core/billing/src/main/kotlin/phonedown/core/billing/RealBillingRepository.kt`
+  - untracked: `core/model/src/main/kotlin/phonedown/core/model/BillingEvent.kt`
+  - untracked: `core/model/src/main/kotlin/phonedown/core/model/ProCatalog.kt`
+- Sprint 16.4 implementation completed so far:
+  - real Play Billing dependency wiring
+  - `BillingRepository` contract extended with event flow and `syncPurchases()`
+  - new `BillingEvent` and `ProCatalog` models
+  - real `RealBillingRepository`
+  - runtime DI swap from fake billing to real billing
+  - startup entitlement sync in `MainActivity`
+  - new `ForegroundActivityProvider` for purchase launch context
+  - paywall/viewmodel upgraded to honest loading/restore/purchase/subscription-management states
+  - app billing tests updated and passing
+- Immediate next step from this state:
+  1. create Play Console billing products and tester setup for `pro_monthly`, `pro_yearly`, and `pro_lifetime`
+  2. install a Play-distributed or tester-eligible build
+  3. run real-device purchase/restore/cancel/recovery QA
+
 ## 1. Goal
 
 - Build Phone Down into a fully production-ready Android Play Store app, not just a feature-complete app with fake external integrations.

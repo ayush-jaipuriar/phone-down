@@ -1437,3 +1437,12 @@ These are not blockers because product direction has been clarified, but they sh
 - Follow-up trust fix: the delete-all-data flow now pre-authorizes Drive access, deletes cloud backup before wiping local state, and surfaces a real cloud-delete failure instead of silently pretending success.
 - UX polish: the no-backup restore branch now renders as `No Backup Found` rather than the harsher generic `Restore Failed`.
 - Remaining work: optional deeper transport/integration tests, and later Phase 16 billing/Crashlytics/signing workstreams.
+
+### 2026-05-16 - Phase 16 Sprint 16.4 Real Play Billing (Initial App Integration)
+
+- Changed: Replaced the fake runtime billing path with the first real Google Play Billing implementation slice, including app startup entitlement sync, real product querying, purchase/restore event plumbing, and a paywall that can truthfully represent loading, restore, retry, and active-subscription states.
+- Files modified: `core/model/`, `core/billing/`, `app/src/main/java/phonedown/app/MainActivity.kt`, `app/src/main/java/phonedown/app/runtime/`, `app/src/main/java/phonedown/app/pro/`, `feature/pro/`, `app/src/test/java/phonedown/app/pro/ProViewModelTest.kt`, `app/src/test/java/phonedown/app/account/AccountViewModelTest.kt`, `app/src/test/java/phonedown/app/settings/SettingsViewModelTest.kt`, `gradle/libs.versions.toml`, `phase-16-sprint-16-4-real-play-billing-plan.md`, and `phase-16-android-production-readiness-plan.md`.
+- Functions/classes/components touched: `BillingRepository`, `BillingEvent`, `ProCatalog`, `FakeBillingRepository`, `BillingActivityProvider`, `RealBillingRepository`, `ForegroundActivityProvider`, `AppRuntimeModule`, `MainActivity`, `ProViewModel`, `ProRoute`, `ProScreen`, and the related app test fakes.
+- Why: Billing had reached the point where a polished but fake paywall would actively mislead users. This slice makes Google Play the real product and entitlement authority in app code, while keeping the UI honest about asynchronous billing state.
+- Tests run: `./gradlew --no-daemon --no-configuration-cache :app:assembleDebug`, `./gradlew --no-daemon --no-configuration-cache :app:testDebugUnitTest`, and `git diff --check`.
+- Remaining work: create the Play Console products (`pro_monthly`, `pro_yearly`, `pro_lifetime`), configure license testers/internal testing, then run real-device billing QA for purchase, restore, cancellation, and recovery.

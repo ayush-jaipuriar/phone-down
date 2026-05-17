@@ -3,7 +3,7 @@
 ## Status
 
 - Planning status: Drafted
-- Implementation status: Not started
+- Implementation status: In progress
 - Approval required before implementation: Yes
 - Phase: Phase 16 - Android Production Readiness
 - Primary goal: Replace fake billing with real Google Play Billing across monthly, yearly, and lifetime Pro, then verify the full purchase, restore, cancellation, and paywall experience on real devices and Play test tracks
@@ -438,6 +438,44 @@ using the Play subscription center.
 This matters because users should not have to guess how to cancel or modify their subscription.
 
 ## 9. Implementation Checklist
+
+### Progress Update - 2026-05-16
+
+- [x] Added real Play Billing dependency wiring in `gradle/libs.versions.toml` and `core/billing/build.gradle.kts`.
+- [x] Extended `BillingRepository` with billing event flow and silent purchase sync support.
+- [x] Added shared billing models:
+  - [x] `BillingEvent`
+  - [x] `ProCatalog` product-ID constants and subscription helpers
+- [x] Upgraded `FakeBillingRepository` to the new contract so existing app/test code can keep using it safely.
+- [x] Added Android billing launch bridge:
+  - [x] `BillingActivityProvider`
+  - [x] `ForegroundActivityProvider`
+- [x] Added `RealBillingRepository` with:
+  - [x] Play Billing connection management
+  - [x] real product loading from Google Play
+  - [x] purchase launching
+  - [x] restore querying
+  - [x] purchase acknowledgment
+  - [x] entitlement resolution and cache writes
+  - [x] silent `syncPurchases()` refresh path
+- [x] Swapped app runtime DI from fake billing to real billing in normal runtime.
+- [x] Added startup entitlement sync from `MainActivity`.
+- [x] Reworked paywall state flow:
+  - [x] `ProViewModel` now models loading, purchase-in-progress, restore-in-progress, product-load failure, entitlement state, manageable-subscription state, and user-facing billing messages
+  - [x] `ProRoute` maps app-layer state into feature-layer screen state
+  - [x] `ProScreen` now renders honest loading/retry/pro-active/manage-subscription/restore-message states
+- [x] Updated `ProViewModelTest` to cover the new async billing-state behaviors.
+- [x] Updated older app test fakes (`AccountViewModelTest`, `SettingsViewModelTest`) for the evolved billing contract.
+- [x] Local verification completed for this slice:
+  - [x] `./gradlew --no-daemon --no-configuration-cache :app:assembleDebug`
+  - [x] `./gradlew --no-daemon --no-configuration-cache :app:testDebugUnitTest`
+  - [x] `git diff --check`
+- [ ] Still pending in Sprint 16.4:
+  - [ ] Play Console billing product creation
+  - [ ] license tester / internal testing setup
+  - [ ] real-device billing purchase/restore QA through Play-distributed builds
+  - [ ] cancellation/recovery QA
+  - [ ] final paywall/listing copy polish based on real product metadata
 
 ## 9.1 Repo And Dependency Layer
 

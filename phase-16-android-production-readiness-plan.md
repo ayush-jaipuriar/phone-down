@@ -6,7 +6,8 @@
 - Implementation status:
   - Sprint 16.1 setup/docs: completed
   - Sprint 16.2 real Google Sign-In: implemented
-  - Sprint 16.3 real Google Drive backup/restore: implemented in code, manual QA still pending
+  - Sprint 16.3 real Google Drive backup/restore: implemented and manually QA'd on device
+  - Sprint 16.4 real Play Billing: implementation in progress, local build/test verification passing
 - Approval required before implementation: Per-sprint approval required
 - Scope owner: Phone Down Android V1 production release
 - Target outcome: Replace fake/deferred production dependencies and prepare the app for Google Play production release
