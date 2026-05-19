@@ -46,6 +46,7 @@ The repo is close, and the local signing/artifact mechanics are now proven. The 
 A fresh signed release bundle now exists at:
 
 - [app-release.aab](/Users/ayushjaipuriar/Documents/GitHub/phone-down/app/build/outputs/bundle/release/app-release.aab)
+- clearer upload copy: [PhoneDown-1.0.2-3-release.aab](/Users/ayushjaipuriar/Documents/GitHub/phone-down/app/build/outputs/bundle/release/PhoneDown-1.0.2-3/PhoneDown-1.0.2-3-release.aab)
 
 It was generated after real local signing was configured through ignored `keystore.properties`.
 
@@ -75,8 +76,9 @@ It was generated after real local signing was configured through ignored `keysto
 ### Verified artifact
 
 - Path: [app-release.aab](/Users/ayushjaipuriar/Documents/GitHub/phone-down/app/build/outputs/bundle/release/app-release.aab)
+- Alternate upload path: [PhoneDown-1.0.2-3-release.aab](/Users/ayushjaipuriar/Documents/GitHub/phone-down/app/build/outputs/bundle/release/PhoneDown-1.0.2-3/PhoneDown-1.0.2-3-release.aab)
 - Size: 6.2 MB
-- Bundle SHA-256: `764667e43982c6d82d9726f5493a4a109112bdb22e10248b79276aa373ab9e85`
+- Bundle SHA-256: `53a64dcd3b2af5516977c96f1f1263e7259585c2dc2e7e159c8db069143fcabb`
 - Upload certificate SHA-1: `EE:FA:73:EF:A2:F0:6A:A1:8F:03:A8:0E:C4:A4:20:F7:65:33:A3:9C`
 - Upload certificate SHA-256: `63:0E:62:5F:A1:14:13:C9:A0:FB:2B:53:E8:4B:5A:D2:B3:03:11:B5:0D:52:4F:42:B9:92:75:0E:2C:7E:F9:0A`
 

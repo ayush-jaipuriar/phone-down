@@ -291,8 +291,8 @@ These need to be replaced before anything resembling real external distribution.
 
 **Evidence:**
 
-- build version in [`app/build.gradle.kts`](/Users/ayushjaipuriar/Documents/GitHub/phone-down/app/build.gradle.kts:13) is `1.0.0`
-- Settings UI still shows older version text in [`SettingsScreen.kt`](/Users/ayushjaipuriar/Documents/GitHub/phone-down/feature/settings/src/main/kotlin/phonedown/feature/settings/SettingsScreen.kt:319)
+- build version in [`app/build.gradle.kts`](/Users/ayushjaipuriar/Documents/GitHub/phone-down/app/build.gradle.kts:13) is `1.0.2`
+- Settings UI now receives the live app version from [`SettingsRoute.kt`](/Users/ayushjaipuriar/Documents/GitHub/phone-down/app/src/main/java/phonedown/app/settings/SettingsRoute.kt:75), which keeps the visible version aligned with release metadata.
 
 This is small, but it makes internal testing slightly more confusing because testers can no longer trust the displayed app version.
 

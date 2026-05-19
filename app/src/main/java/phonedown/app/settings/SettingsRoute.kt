@@ -1,9 +1,14 @@
 package phonedown.app.settings
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -12,6 +17,7 @@ import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
+import phonedown.app.BuildConfig
 import phonedown.app.backup.DriveAuthorizationUiStep
 import phonedown.feature.settings.SettingsScreen
 
@@ -26,6 +32,7 @@ fun SettingsRoute(
     onCallPausePermissionRequested: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
+    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
     var pendingAuthorizationAction by remember { mutableStateOf<DriveAuthorizationAction?>(null) }
@@ -67,6 +74,7 @@ fun SettingsRoute(
 
     SettingsScreen(
         uiState = uiState,
+        appVersionLabel = BuildConfig.VERSION_NAME,
         onAccountClick = onAccountClick,
         onProClick = onProClick,
         onBackupClick = {
@@ -89,6 +97,22 @@ fun SettingsRoute(
         },
         onAutoBackupToggled = viewModel::setAutoBackupEnabled,
         onPrivacyPolicyClick = onPrivacyPolicyClick,
+        onSupportClick = {
+            val feedbackIntent = createFeedbackIntent()
+            try {
+                context.startActivity(Intent.createChooser(feedbackIntent, "Send feedback"))
+            } catch (_: ActivityNotFoundException) {
+                context.startActivity(
+                    Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse("https://play.google.com/store/apps/details?id=${BuildConfig.APPLICATION_ID}"),
+                    ),
+                )
+            }
+        },
+        onPortfolioClick = {
+            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://ayushjaipuriar.com")))
+        },
         callPausePermissionGranted = callPausePermissionGranted,
         onCallPausePermissionRequested = onCallPausePermissionRequested,
         onDeleteRequested = viewModel::showDeleteConfirmation,
@@ -133,3 +157,29 @@ private enum class DriveAuthorizationAction {
     Backup,
     DeleteCloudBackup,
 }
+
+private fun createFeedbackIntent(): Intent =
+    Intent(Intent.ACTION_SENDTO).apply {
+        data = Uri.parse("mailto:")
+        putExtra(Intent.EXTRA_EMAIL, arrayOf("jaipuriar.ayush@gmail.com"))
+        putExtra(Intent.EXTRA_SUBJECT, "Phone Down feedback")
+        putExtra(
+            Intent.EXTRA_TEXT,
+            """
+            What happened?
+
+
+            What did you expect?
+
+
+            Steps to reproduce:
+            1.
+            2.
+            3.
+
+            App version: ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})
+            Device: ${Build.MANUFACTURER} ${Build.MODEL}
+            Android: ${Build.VERSION.RELEASE} (SDK ${Build.VERSION.SDK_INT})
+            """.trimIndent(),
+        )
+    }

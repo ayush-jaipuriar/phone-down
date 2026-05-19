@@ -79,120 +79,19 @@ fun FocusScreen(
                 .testTag(FocusTestTags.SCREEN),
         topPadding = PhoneDownSpacing.lg,
     ) {
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.lg),
-        ) {
-            FocusRingSection(uiState = uiState)
-
-            SessionProgressSummary(uiState = uiState)
-
-            AnimatedContent(
-                targetState = uiState.presentationState,
-                label = "FocusActions",
-                modifier = Modifier.fillMaxWidth(),
-            ) { state ->
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    when (state) {
-                        FocusPresentationState.Idle -> {
-                            IdleActions(
-                                selectedDurationSeconds = uiState.selectedDurationSeconds,
-                                onStartClick = { onEvent(FocusEvent.StartClicked) },
-                                onDurationSelectorClick = { onEvent(FocusEvent.DurationSelectorClicked) },
-                            )
-                        }
-
-                        FocusPresentationState.ReadyToFocus -> {
-                            ReadyToFocusContent(
-                                onBackClick = { onEvent(FocusEvent.ReadyBackClicked) },
-                            )
-                        }
-
-                        FocusPresentationState.WaitingForPhoneDown -> {
-                            GuidanceState(
-                                title = "Place phone down to begin.",
-                                body = "Put your phone face down on a stable surface.",
-                                actionLabel = "Cancel",
-                                onAction = { onEvent(FocusEvent.EndClicked) },
-                            )
-                        }
-
-                        FocusPresentationState.Arming -> {
-                            GuidanceState(
-                                title = "Hold still...",
-                                body = "Keep your phone face down until focus begins.",
-                                actionLabel = "Cancel",
-                                onAction = { onEvent(FocusEvent.EndClicked) },
-                            )
-                        }
-
-                        FocusPresentationState.Active,
-                        FocusPresentationState.PausedByCall,
-                        -> {
-                            InProgressActions(
-                                presentationState = state,
-                                penaltySeconds = uiState.penaltySeconds,
-                                showAddTime = uiState.showAddTime,
-                                onEndClick = { onEvent(FocusEvent.EndClicked) },
-                                onPauseClick = if (state == FocusPresentationState.Active) {
-                                    { onEvent(FocusEvent.PauseClicked) }
-                                } else { null },
-                                onAddTimeClick = if (state == FocusPresentationState.Active) {
-                                    { onEvent(FocusEvent.AddTimeClicked) }
-                                } else { null },
-                                onAddTimeSelected = { onEvent(FocusEvent.AddTimeSelected(it)) },
-                            )
-                        }
-
-                        FocusPresentationState.PausedByUser -> {
-                            InProgressActions(
-                                presentationState = state,
-                                penaltySeconds = uiState.penaltySeconds,
-                                onEndClick = { onEvent(FocusEvent.EndClicked) },
-                                onResumeClick = { onEvent(FocusEvent.ResumeClicked) },
-                            )
-                        }
-
-                        FocusPresentationState.PausedByPickup -> {
-                            PausedByPickupActions(
-                                graceRemainingSeconds = uiState.graceRemainingSeconds,
-                                penaltySeconds = uiState.penaltySeconds,
-                                onEndClick = { onEvent(FocusEvent.EndClicked) },
-                            )
-                        }
-
-                        FocusPresentationState.CompletedClean,
-                        FocusPresentationState.CompletedInterrupted,
-                        FocusPresentationState.EndedEarly,
-                        FocusPresentationState.Broken,
-                        FocusPresentationState.Invalid,
-                        -> {
-                            SessionCompleteContent(
-                                presentationState = state,
-                                selectedDurationSeconds = uiState.selectedDurationSeconds,
-                                remainingSeconds = uiState.remainingSeconds,
-                                penaltySeconds = uiState.penaltySeconds,
-                                interruptionCount = uiState.interruptionCount,
-                                clean = uiState.clean,
-                                onDoneClick = { onEvent(FocusEvent.BackToHomeClicked) },
-                            )
-                        }
-
-                        FocusPresentationState.SensorUnavailable -> {
-                            SensorUnavailableState(
-                                onRetryClick = { onEvent(FocusEvent.RetrySensorsClicked) },
-                            )
-                        }
-                    }
-                }
-            }
+        if (uiState.presentationState == FocusPresentationState.Idle) {
+            IdleFocusContent(
+                uiState = uiState,
+                modifier = Modifier.weight(1f),
+                onStartClick = { onEvent(FocusEvent.StartClicked) },
+                onDurationSelectorClick = { onEvent(FocusEvent.DurationSelectorClicked) },
+            )
+        } else {
+            ActiveFocusContent(
+                uiState = uiState,
+                modifier = Modifier.weight(1f),
+                onEvent = onEvent,
+            )
         }
 
         AnimatedVisibility(visible = showTodaySummary) {
@@ -214,6 +113,150 @@ fun FocusScreen(
             onConfirm = { onEvent(FocusEvent.EndConfirmed) },
             onDismiss = { onEvent(FocusEvent.EndDismissed) },
         )
+    }
+}
+
+@Composable
+private fun IdleFocusContent(
+    uiState: FocusUiState,
+    modifier: Modifier = Modifier,
+    onStartClick: () -> Unit,
+    onDurationSelectorClick: () -> Unit,
+) {
+    Column(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        FocusRingSection(uiState = uiState)
+
+        Spacer(modifier = Modifier.height(PhoneDownSpacing.lg))
+
+        IdleActions(
+            selectedDurationSeconds = uiState.selectedDurationSeconds,
+            onStartClick = onStartClick,
+            onDurationSelectorClick = onDurationSelectorClick,
+        )
+    }
+}
+
+@Composable
+private fun ActiveFocusContent(
+    uiState: FocusUiState,
+    modifier: Modifier = Modifier,
+    onEvent: (FocusEvent) -> Unit,
+) {
+    Column(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.lg),
+    ) {
+        FocusRingSection(uiState = uiState)
+
+        SessionProgressSummary(uiState = uiState)
+
+        AnimatedContent(
+            targetState = uiState.presentationState,
+            label = "FocusActions",
+            modifier = Modifier.fillMaxWidth(),
+        ) { state ->
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center,
+            ) {
+                when (state) {
+                    FocusPresentationState.Idle -> Unit
+
+                    FocusPresentationState.ReadyToFocus -> {
+                        ReadyToFocusContent(
+                            onBackClick = { onEvent(FocusEvent.ReadyBackClicked) },
+                        )
+                    }
+
+                    FocusPresentationState.WaitingForPhoneDown -> {
+                        GuidanceState(
+                            title = "Place phone down to begin.",
+                            body = "Put your phone face down on a stable surface.",
+                            actionLabel = "Cancel",
+                            onAction = { onEvent(FocusEvent.EndClicked) },
+                        )
+                    }
+
+                    FocusPresentationState.Arming -> {
+                        GuidanceState(
+                            title = "Hold still...",
+                            body = "Keep your phone face down until focus begins.",
+                            actionLabel = "Cancel",
+                            onAction = { onEvent(FocusEvent.EndClicked) },
+                        )
+                    }
+
+                    FocusPresentationState.Active,
+                    FocusPresentationState.PausedByCall,
+                    -> {
+                        InProgressActions(
+                            presentationState = state,
+                            penaltySeconds = uiState.penaltySeconds,
+                            showAddTime = uiState.showAddTime,
+                            onEndClick = { onEvent(FocusEvent.EndClicked) },
+                            onPauseClick = if (state == FocusPresentationState.Active) {
+                                { onEvent(FocusEvent.PauseClicked) }
+                            } else { null },
+                            onAddTimeClick = if (state == FocusPresentationState.Active) {
+                                { onEvent(FocusEvent.AddTimeClicked) }
+                            } else { null },
+                            onAddTimeSelected = { onEvent(FocusEvent.AddTimeSelected(it)) },
+                        )
+                    }
+
+                    FocusPresentationState.PausedByUser -> {
+                        InProgressActions(
+                            presentationState = state,
+                            penaltySeconds = uiState.penaltySeconds,
+                            onEndClick = { onEvent(FocusEvent.EndClicked) },
+                            onResumeClick = { onEvent(FocusEvent.ResumeClicked) },
+                        )
+                    }
+
+                    FocusPresentationState.PausedByPickup -> {
+                        PausedByPickupActions(
+                            graceRemainingSeconds = uiState.graceRemainingSeconds,
+                            penaltySeconds = uiState.penaltySeconds,
+                            onEndClick = { onEvent(FocusEvent.EndClicked) },
+                        )
+                    }
+
+                    FocusPresentationState.CompletedClean,
+                    FocusPresentationState.CompletedInterrupted,
+                    FocusPresentationState.EndedEarly,
+                    FocusPresentationState.Broken,
+                    FocusPresentationState.Invalid,
+                    -> {
+                        SessionCompleteContent(
+                            presentationState = state,
+                            selectedDurationSeconds = uiState.selectedDurationSeconds,
+                            remainingSeconds = uiState.remainingSeconds,
+                            penaltySeconds = uiState.penaltySeconds,
+                            interruptionCount = uiState.interruptionCount,
+                            clean = uiState.clean,
+                            onDoneClick = { onEvent(FocusEvent.BackToHomeClicked) },
+                        )
+                    }
+
+                    FocusPresentationState.SensorUnavailable -> {
+                        SensorUnavailableState(
+                            onRetryClick = { onEvent(FocusEvent.RetrySensorsClicked) },
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 

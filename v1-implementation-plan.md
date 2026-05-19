@@ -1361,7 +1361,7 @@ Purpose: bring Phone Down to production release quality with comprehensive testi
 - [x] Play Store feature graphic created (1024x500)
 - [x] Play Store icon created (512x512)
 - [x] Play Store listing metadata prepared (title, description, changelog)
-- [x] Release build configuration (ProGuard/R8, version 1.0.0)
+- [x] Release build configuration (ProGuard/R8, version 1.0.2)
 - [x] Signed release AAB builds successfully
 - [x] Lint passes (7 minor warnings, no errors)
 - [x] `docs/release-readiness.md` created
@@ -1379,7 +1379,7 @@ Purpose: bring Phone Down to production release quality with comprehensive testi
 - [x] Generated app icons for all densities (mdpi, hdpi, xhdpi, xxhdpi, xxxhdpi) using Pillow.
 - [x] Generated Play Store feature graphic (1024x500) and icon (512x512).
 - [x] Created Play Store listing metadata in `fastlane/metadata/android/en-US/`.
-- [x] Updated version name to "1.0.0" and version code to 1.
+- [x] Updated version name to "1.0.2" and version code to 3.
 - [x] Configured release build with ProGuard/R8 and debug signing (placeholder for real keystore).
 - [x] Verified release AAB builds successfully (`:app:bundleRelease`).
 - [x] Ran lint (`:app:lintDebug`) — 7 minor warnings, no errors.
@@ -1446,3 +1446,13 @@ These are not blockers because product direction has been clarified, but they sh
 - Why: Billing had reached the point where a polished but fake paywall would actively mislead users. This slice makes Google Play the real product and entitlement authority in app code, while keeping the UI honest about asynchronous billing state.
 - Tests run: `./gradlew --no-daemon --no-configuration-cache :app:assembleDebug`, `./gradlew --no-daemon --no-configuration-cache :app:testDebugUnitTest`, and `git diff --check`.
 - Remaining work: create the Play Console products (`pro_monthly`, `pro_yearly`, `pro_lifetime`), configure license testers/internal testing, then run real-device billing QA for purchase, restore, cancellation, and recovery.
+
+### 2026-05-17 - Pre-Internal-Testing UX Polish
+
+- Changed: Implemented a compact polish pass for the Focus idle state, Settings feedback/about rows, and app navigation motion before continuing Play internal testing.
+- Files modified: `app/src/main/java/phonedown/app/navigation/PhoneDownNavHost.kt`, `app/src/main/java/phonedown/app/settings/SettingsRoute.kt`, `feature/focus/src/main/kotlin/phonedown/feature/focus/FocusScreen.kt`, `feature/settings/src/main/kotlin/phonedown/feature/settings/SettingsScreen.kt`, `docs/agent-handoff.md`, and Focus idle Paparazzi snapshot baselines.
+- Functions/classes/components touched: `PhoneDownNavHost`, `SettingsRoute`, `FocusScreen`, `IdleFocusContent`, `ActiveFocusContent`, and `SettingsScreen` About section.
+- Why: Improve first-run tester polish by centering the idle timer/start cluster, giving testers an obvious feedback path, adding restrained creator attribution, aligning Settings version text with the live app version, and replacing fade-like navigation with a more familiar Android horizontal push/pop motion.
+- Tests run: `./gradlew --no-daemon --no-configuration-cache :app:compileDebugKotlin :feature:focus:compileDebugKotlin :feature:settings:compileDebugKotlin`, `./gradlew --no-daemon --no-configuration-cache :app:testDebugUnitTest :feature:focus:testDebugUnitTest :feature:settings:testDebugUnitTest :feature:focus:recordPaparazziDebug :feature:settings:recordPaparazziDebug`, `./gradlew --no-daemon --no-configuration-cache :app:assembleDebug :feature:focus:verifyPaparazziDebug :feature:settings:verifyPaparazziDebug`, `./gradlew --no-daemon --no-configuration-cache :app:bundleRelease`, and `git diff --check`.
+- Build tooling note: the first compile attempt hit the known local Gradle build-logic cache/parser issue; removing generated `build-logic/convention/build` and `build-logic/.gradle` state allowed the build to proceed.
+- Remaining work: perform a quick device visual QA pass for idle Focus positioning, feedback email intent, portfolio link, and navigation transitions before regenerating/uploading a fresh internal-testing AAB.

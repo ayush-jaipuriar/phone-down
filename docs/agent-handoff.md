@@ -1,5 +1,38 @@
 # Agent Handoff Summary
 
+## Update - 2026-05-17 (Pre-Internal-Testing UX Polish)
+
+- Implemented four small UX enhancements requested before continuing Play/internal testing:
+  - Focus idle/start state now vertically centers the timer ring and Start Focus controls in the available content area.
+  - Active/ready/paused/completed focus states keep their existing top-to-bottom structure so state-specific guidance and controls still have room.
+  - Settings > About now includes `Send Feedback` for tester bug reports and a small creator attribution row: `Made with care by Ayush Jaipuriar`.
+  - Settings feedback opens an Android email intent with a prefilled bug-report template and app/device diagnostics.
+  - Creator attribution opens the portfolio link.
+  - App navigation now uses Material-style horizontal push/pop slide transitions instead of the previous fade-like default feel.
+  - Settings version text now reads from `BuildConfig.VERSION_NAME`, avoiding future drift from the app version name.
+- Files changed in this polish pass:
+  - [PhoneDownNavHost.kt](/Users/ayushjaipuriar/Documents/GitHub/phone-down/app/src/main/java/phonedown/app/navigation/PhoneDownNavHost.kt)
+  - [SettingsRoute.kt](/Users/ayushjaipuriar/Documents/GitHub/phone-down/app/src/main/java/phonedown/app/settings/SettingsRoute.kt)
+  - [FocusScreen.kt](/Users/ayushjaipuriar/Documents/GitHub/phone-down/feature/focus/src/main/kotlin/phonedown/feature/focus/FocusScreen.kt)
+  - [SettingsScreen.kt](/Users/ayushjaipuriar/Documents/GitHub/phone-down/feature/settings/src/main/kotlin/phonedown/feature/settings/SettingsScreen.kt)
+  - Focus idle Paparazzi baselines under `feature/focus/src/test/snapshots/images/`
+  - Verification run:
+  - initial compile hit the known local build-logic cache/parser issue; clearing generated `build-logic` build state fixed it
+  - `./gradlew --no-daemon --no-configuration-cache :app:compileDebugKotlin :feature:focus:compileDebugKotlin :feature:settings:compileDebugKotlin` passed
+  - `./gradlew --no-daemon --no-configuration-cache :app:testDebugUnitTest :feature:focus:testDebugUnitTest :feature:settings:testDebugUnitTest :feature:focus:recordPaparazziDebug :feature:settings:recordPaparazziDebug` passed
+  - `./gradlew --no-daemon --no-configuration-cache :app:assembleDebug :feature:focus:verifyPaparazziDebug :feature:settings:verifyPaparazziDebug` passed
+  - `./gradlew --no-daemon --no-configuration-cache :app:bundleRelease` passed after the polish changes
+  - refreshed signed release bundle:
+    - [app-release.aab](/Users/ayushjaipuriar/Documents/GitHub/phone-down/app/build/outputs/bundle/release/app-release.aab)
+    - bundle SHA-256: `53a64dcd3b2af5516977c96f1f1263e7259585c2dc2e7e159c8db069143fcabb`
+    - upload certificate SHA-1 still matches `EE:FA:73:EF:A2:F0:6A:A1:8F:03:A8:0E:C4:A4:20:F7:65:33:A3:9C`
+    - upload certificate SHA-256 still matches `63:0E:62:5F:A1:14:13:C9:A0:FB:2B:53:E8:4B:5A:D2:B3:03:11:B5:0D:52:4F:42:B9:92:75:0E:2C:7E:F9:0A`
+    - AAB file-list scan found no bundled keystores, `google-services.json`, `client_secret*.json`, `.env`, `.pem`, or `.p12`
+  - `git diff --check` passed
+- Follow-up recommended:
+  - install the debug build on device and visually confirm the idle Focus centering, Settings feedback intent, portfolio link, and navigation motion feel good before uploading the next internal-testing AAB.
+  - for cleaner manual Play uploads, a version-labeled copy of the same signed bundle now exists at `app/build/outputs/bundle/release/PhoneDown-1.0.2-3/PhoneDown-1.0.2-3-release.aab`
+
 ## Update - 2026-05-17 (Production Readiness Audit Before First Play Upload)
 
 - A full pre-upload production-readiness audit was completed before attempting the first Play internal upload.
@@ -12,7 +45,7 @@
     - [app-release.aab](/Users/ayushjaipuriar/Documents/GitHub/phone-down/app/build/outputs/bundle/release/app-release.aab)
   - artifact details:
     - size: 6.2 MB
-    - bundle SHA-256: `764667e43982c6d82d9726f5493a4a109112bdb22e10248b79276aa373ab9e85`
+    - bundle SHA-256: `53a64dcd3b2af5516977c96f1f1263e7259585c2dc2e7e159c8db069143fcabb`
     - upload certificate SHA-1: `EE:FA:73:EF:A2:F0:6A:A1:8F:03:A8:0E:C4:A4:20:F7:65:33:A3:9C`
     - upload certificate SHA-256: `63:0E:62:5F:A1:14:13:C9:A0:FB:2B:53:E8:4B:5A:D2:B3:03:11:B5:0D:52:4F:42:B9:92:75:0E:2C:7E:F9:0A`
   - `jarsigner` reported `jar verified`

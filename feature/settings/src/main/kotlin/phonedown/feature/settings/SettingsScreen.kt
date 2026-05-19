@@ -46,6 +46,7 @@ private val DURATION_PRESETS = listOf(10L, 15L, 25L, 45L, 60L)
 @Suppress("FunctionName")
 fun SettingsScreen(
     uiState: SettingsUiState,
+    appVersionLabel: String = "--",
     onAccountClick: () -> Unit,
     onProClick: () -> Unit,
     onBackupClick: () -> Unit,
@@ -53,8 +54,8 @@ fun SettingsScreen(
     onPrivacyPolicyClick: () -> Unit,
     callPausePermissionGranted: Boolean = false,
     onCallPausePermissionRequested: () -> Unit = {},
-    onTermsOfServiceClick: () -> Unit = {},
     onSupportClick: () -> Unit = {},
+    onPortfolioClick: () -> Unit = {},
     onDeleteRequested: () -> Unit,
     onDeleteConfirmed: () -> Unit,
     onDeleteDismissed: () -> Unit,
@@ -99,7 +100,10 @@ fun SettingsScreen(
         Spacer(modifier = Modifier.height(PhoneDownSpacing.sm))
 
         AboutSection(
+            appVersionLabel = appVersionLabel,
             onPrivacyPolicyClick = onPrivacyPolicyClick,
+            onSupportClick = onSupportClick,
+            onPortfolioClick = onPortfolioClick,
             onDeleteRequested = onDeleteRequested,
         )
 
@@ -305,18 +309,33 @@ private fun AccountSection(
 
 @Composable
 private fun AboutSection(
+    appVersionLabel: String,
     onPrivacyPolicyClick: () -> Unit,
+    onSupportClick: () -> Unit,
+    onPortfolioClick: () -> Unit,
     onDeleteRequested: () -> Unit,
 ) {
     SettingsSectionHeader(title = "About") {
+        PhoneDownSettingRow(
+            title = "Send Feedback",
+            supportingText = "Report a bug or share a testing note",
+            showChevron = true,
+            onClick = onSupportClick,
+        )
         PhoneDownSettingRow(
             title = "Privacy Policy",
             showChevron = true,
             onClick = onPrivacyPolicyClick,
         )
         PhoneDownSettingRow(
+            title = "Made with care by Ayush Jaipuriar",
+            supportingText = "View portfolio",
+            showChevron = true,
+            onClick = onPortfolioClick,
+        )
+        PhoneDownSettingRow(
             title = "Version",
-            trailing = "0.1.0",
+            trailing = appVersionLabel,
         )
         PhoneDownSettingRow(
             title = "Delete All Data",

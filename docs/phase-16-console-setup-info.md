@@ -102,8 +102,8 @@ These values define the technical Android identity of Phone Down.
 | App name | Phone Down | User-facing app name in Play and consent screens |
 | Android package / application ID | `phonedown.app` | Permanent Android identity used by Play, Firebase, and Google APIs |
 | Android namespace | `phonedown.app` | Build/config namespace in the app module |
-| Version name | `1.0.0` | Human-readable release version |
-| Version code | `1` | Internal monotonically increasing Android release number |
+| Version name | `1.0.2` | Human-readable release version |
+| Version code | `3` | Internal monotonically increasing Android release number |
 | App type | Free app with in-app purchases | Tells Play we monetize via Billing, not paid install |
 | Ads | No ads | Must match Play Console declaration and app behavior |
 

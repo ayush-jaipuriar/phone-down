@@ -2,6 +2,8 @@
 
 package phonedown.app.navigation
 
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -122,6 +124,30 @@ private fun PhoneDownNavHost(
         navController = navController,
         startDestination = initialRoute.path,
         modifier = modifier,
+        enterTransition = {
+            slideIntoContainer(
+                AnimatedContentTransitionScope.SlideDirection.Left,
+                animationSpec = tween(NAV_TRANSITION_MILLIS),
+            )
+        },
+        exitTransition = {
+            slideOutOfContainer(
+                AnimatedContentTransitionScope.SlideDirection.Left,
+                animationSpec = tween(NAV_TRANSITION_MILLIS),
+            )
+        },
+        popEnterTransition = {
+            slideIntoContainer(
+                AnimatedContentTransitionScope.SlideDirection.Right,
+                animationSpec = tween(NAV_TRANSITION_MILLIS),
+            )
+        },
+        popExitTransition = {
+            slideOutOfContainer(
+                AnimatedContentTransitionScope.SlideDirection.Right,
+                animationSpec = tween(NAV_TRANSITION_MILLIS),
+            )
+        },
     ) {
         composable(PhoneDownRoute.Onboarding.path) {
             OnboardingRoute(
@@ -204,3 +230,5 @@ private fun NavDestination?.showsTabs(): Boolean = phoneDownBottomTabs.any { tab
 
 private fun NavDestination?.isRouteSelected(route: PhoneDownRoute): Boolean =
     this?.hierarchy?.any { destination -> destination.route == route.path } == true
+
+private const val NAV_TRANSITION_MILLIS = 280
