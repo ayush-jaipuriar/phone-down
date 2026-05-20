@@ -10,6 +10,7 @@ Public information pages for the Phone Down Android app.
 ## Available Pages
 
 - [Privacy Policy]({{ '/privacy-policy/' | relative_url }})
+- [Account and Data Deletion]({{ '/account-deletion/' | relative_url }})
 
 ## Support
 

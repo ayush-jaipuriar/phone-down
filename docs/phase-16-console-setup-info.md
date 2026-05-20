@@ -193,8 +193,9 @@ If the Play app exists but the testing tracks do not, we are still not ready for
 |---|---|---|
 | Planned public host | GitHub Pages from this repository | Fastest way to produce a stable public privacy-policy URL |
 | Planned site URL | `https://ayush-jaipuriar.github.io/phone-down/` | Base URL for the public Pages site |
-| Planned privacy policy URL | `https://ayush-jaipuriar.github.io/phone-down/privacy-policy/` | URL intended for the Play Console privacy policy field |
-| Current status | Repo prepared locally; requires push and GitHub Pages enablement | Pages URLs do not exist until GitHub builds and publishes the site |
+| Privacy policy URL | `https://ayush-jaipuriar.github.io/phone-down/privacy-policy/` | Public URL used in the Play Console privacy policy field |
+| Account deletion URL | `https://ayush-jaipuriar.github.io/phone-down/account-deletion/` | Public URL used for Play account deletion requirements in Data safety |
+| Current status | Published and live on GitHub Pages | Public compliance URLs are now available for Play Console forms |
 
 ### Theory
 

@@ -84,6 +84,10 @@ To fully delete your account:
 2. Sign out of Google account
 3. Revoke app access through your Google Account settings
 
+Public deletion instructions are also available at:
+
+`https://ayush-jaipuriar.github.io/phone-down/account-deletion/`
+
 ## Children's Privacy
 
 Phone Down is not intended for children under 13. We do not knowingly collect data from children under 13. If you believe we have inadvertently collected such data, please contact us to have it removed.
