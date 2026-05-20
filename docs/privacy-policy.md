@@ -1,6 +1,11 @@
+---
+title: Privacy Policy for Phone Down
+permalink: /privacy-policy/
+---
+
 # Privacy Policy for Phone Down
 
-**Last Updated:** May 3, 2026
+**Last Updated:** May 20, 2026
 
 ## Introduction
 
@@ -101,8 +106,8 @@ We may update this Privacy Policy from time to time. Changes will be:
 ## Contact Us
 
 If you have questions about this Privacy Policy or your data:
-- Email: support@phonedown.app (placeholder)
-- In-app: Settings > About > Support
+- Email: jaipuriar.ayush@gmail.com
+- In-app: Settings > About > Send Feedback
 
 ## Compliance
 

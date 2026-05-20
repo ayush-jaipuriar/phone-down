@@ -106,6 +106,7 @@ These values define the technical Android identity of Phone Down.
 | Version code | `3` | Internal monotonically increasing Android release number |
 | App type | Free app with in-app purchases | Tells Play we monetize via Billing, not paid install |
 | Ads | No ads | Must match Play Console declaration and app behavior |
+| Support email | `jaipuriar.ayush@gmail.com` | Public support contact used in console and policy flows |
 
 ### Theory
 
@@ -185,6 +186,25 @@ For example:
 ### What To Watch For
 
 If the Play app exists but the testing tracks do not, we are still not ready for realistic Play-distributed behavior testing.
+
+## 6.1 Privacy Policy Hosting
+
+| Field | Value | Why It Matters |
+|---|---|---|
+| Planned public host | GitHub Pages from this repository | Fastest way to produce a stable public privacy-policy URL |
+| Planned site URL | `https://ayush-jaipuriar.github.io/phone-down/` | Base URL for the public Pages site |
+| Planned privacy policy URL | `https://ayush-jaipuriar.github.io/phone-down/privacy-policy/` | URL intended for the Play Console privacy policy field |
+| Current status | Repo prepared locally; requires push and GitHub Pages enablement | Pages URLs do not exist until GitHub builds and publishes the site |
+
+### Theory
+
+Play does not care where the privacy policy is hosted, but it does care that:
+
+- the URL is public
+- the URL is stable
+- the page content matches real app behavior
+
+GitHub Pages works well because it gives us a low-friction public URL while keeping the policy text in the same repository as the app and release docs.
 
 ## 7. Upload Keystore
 
