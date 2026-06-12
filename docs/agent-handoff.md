@@ -1,5 +1,79 @@
 # Agent Handoff Summary
 
+## Update - 2026-06-12 (Sprint 16.5 Phase 1 Store Listing Saved)
+
+- User approved the Sprint 16.5 plan and authorized using browser automation if needed.
+- Phase 1 started in Play Console:
+  - Dashboard initially confirmed `Provide app information and create your store listing` was still `10 of 11 complete`.
+  - The remaining visible task was `Set up your store listing`.
+  - Default store listing page opened for English (United Kingdom) - `en-GB`.
+  - App name field already contains `Phone Down`.
+  - Short description and full description were filled from existing Fastlane metadata and saved.
+- Prepared upload-ready public store assets:
+  - `fastlane/metadata/android/en-US/images/icon.png` - 512x512
+  - `fastlane/metadata/android/en-US/images/featureGraphic.png` - 1024x500
+  - `fastlane/metadata/android/en-US/images/phoneScreenshots/*.png` - 1080x1920
+  - `fastlane/metadata/android/en-US/images/sevenInchScreenshots/*.png` - 1080x1920
+  - `fastlane/metadata/android/en-US/images/tenInchScreenshots/*.png` - 1080x1920
+- Chrome browser automation reached the Play Console asset side panel, but local file upload failed because the Codex Chrome extension lacks file URL access.
+- User enabled `Allow access to file URLs`, but a retry still failed with the same Chrome extension file-upload permission error and no native file picker appeared.
+- User then authorized Computer Use; native file picker upload succeeded.
+- Play Console now has required assets attached:
+  - app icon: 1 / 1
+  - feature graphic: 1 / 1
+  - phone screenshots: 4 / 8
+  - 7-inch tablet screenshots: 4 / 8
+  - 10-inch tablet screenshots: 4 / 8
+- Store listing save succeeded; Play showed `Change saved. Send for review in Publishing overview.`
+- Publishing overview lists the default store listing under `Changes not yet sent for review`.
+- Play quick checks finished, but `Send app for review` remains disabled because required dashboard steps are incomplete.
+- Dashboard no longer shows the store listing setup task. Remaining visible setup is closed testing:
+  - `Select countries and regions`
+  - `Select testers`
+  - `Preview and confirm the release`
+  - `Send the release to Google for review`
+- Production access still shows `0 testers currently opted-in`.
+- Next action:
+  - complete closed-testing country/tester/release-confirmation setup, then return to Publishing overview and send pending changes for review.
+- No code implementation has started yet for backup policy or Crashlytics.
+
+## Update - 2026-06-12 (Sprint 16.5 Internal Testing Readiness Plan)
+
+- Created the next implementation plan:
+  - [phase-16-sprint-16-5-internal-testing-readiness-plan.md](/Users/ayushjaipuriar/Documents/GitHub/phone-down/phase-16-sprint-16-5-internal-testing-readiness-plan.md)
+- The plan is organized into seven implementation phases, each with progress checklists and acceptance criteria:
+  - Phase 1: store listing and console setup
+  - Phase 2: billing product creation
+  - Phase 3: Play signing and Firebase trust
+  - Phase 4: backup policy cleanup
+  - Phase 5: Crashlytics integration
+  - Phase 6: internal release sync
+  - Phase 7: Play-installed internal QA
+- Scope clarified by the user:
+  - target internal testing readiness first, not full production readiness
+  - use product IDs `pro_monthly`, `pro_yearly`, and `pro_lifetime`
+  - include Crashlytics before closed testing
+  - use the engineering recommendation for Android backup policy
+  - include hands-on Play Console steps
+- Live Play Console truth checked before planning:
+  - Phone Down exists as package `phonedown.app`
+  - app status is `Draft`
+  - internal testing release `3 (1.0.2)` is active and available to internal testers
+  - tester list `internal_release_testers` has 4 users
+  - store setup is 10 of 11 complete; visible remaining task is store listing setup
+  - no subscriptions exist
+  - no one-time products exist
+  - closed testing `Alpha` exists but has no release
+  - production access is disabled and shows 0 opted-in testers
+- Repo truth checked before planning:
+  - working tree was clean on `main`
+  - app version is `1.0.2` / version code `3`
+  - real Play Billing code is wired through `RealBillingRepository`
+  - Crashlytics is still docs-only, not implemented in code
+  - `android:allowBackup="true"` is still present and should be changed to `false` for V1 internal readiness
+- Recommended next action:
+  - user reviews and approves the Sprint 16.5 plan before any implementation begins.
+
 ## Update - 2026-05-17 (Pre-Internal-Testing UX Polish)
 
 - Implemented four small UX enhancements requested before continuing Play/internal testing:

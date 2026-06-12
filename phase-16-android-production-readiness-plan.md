@@ -837,7 +837,35 @@ Manual QA is pending a Web OAuth client/default web client ID in Firebase config
 - [ ] Wire entitlement resolver.
 - [ ] Add tests and Play license tester QA.
 
-### Sprint 16.5 - Crash Reporting, Security, and Release Build
+### Sprint 16.5 - Internal Testing Readiness Completion
+
+- Detailed sprint plan drafted:
+  - [phase-16-sprint-16-5-internal-testing-readiness-plan.md](/Users/ayushjaipuriar/Documents/GitHub/phone-down/phase-16-sprint-16-5-internal-testing-readiness-plan.md)
+- Clarified scope for Sprint 16.5:
+  - target internal testing readiness first, not full production release
+  - keep product IDs `pro_monthly`, `pro_yearly`, and `pro_lifetime`
+  - include hands-on Play Console setup
+  - include Crashlytics before closed testing
+  - use the engineering recommendation to disable Android OS backup for V1 and rely on app-managed Drive backup
+- Live Play Console baseline at planning time:
+  - internal testing release `3 (1.0.2)` is active and available to internal testers
+  - app remains Draft
+  - store listing setup is still the visible remaining app setup task
+  - `internal_release_testers` has 4 users
+  - no one-time products or subscriptions exist yet
+  - closed testing `Alpha` exists but has no release
+  - production access remains disabled with 0 opted-in testers
+
+- Phase checklist:
+  - [ ] Phase 1: finish store listing setup.
+  - [ ] Phase 2: create Play Billing products.
+  - [ ] Phase 3: verify Play App Signing fingerprints in Firebase/Google Cloud.
+  - [ ] Phase 4: resolve Android backup policy.
+  - [ ] Phase 5: add Firebase Crashlytics.
+  - [ ] Phase 6: build/upload fresh internal test release if code changes require it.
+  - [ ] Phase 7: run Play-installed internal QA.
+
+### Sprint 16.6 - Crash Reporting, Security, and Release Build
 
 - [ ] Add Firebase Crashlytics.
 - [ ] Update privacy/security docs.
@@ -846,7 +874,7 @@ Manual QA is pending a Web OAuth client/default web client ID in Firebase config
 - [ ] Build release AAB.
 - [ ] Upload internal test build.
 
-### Sprint 16.6 - Store Listing, Closed Testing, and Production Access
+### Sprint 16.7 - Store Listing, Closed Testing, and Production Access
 
 - [ ] Finalize store listing.
 - [ ] Complete policy declarations.

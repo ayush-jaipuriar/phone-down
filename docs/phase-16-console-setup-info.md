@@ -174,6 +174,32 @@ Fill these after creating the Play Console account and Phone Down app.
 | Closed testing track created | TODO: Yes / No | Needed if required by Google or useful for broader testing |
 | 12 tester list started | TODO: Yes / No | Helps avoid release delays if production access requires it |
 
+### Sprint 16.5 Store Listing Status - 2026-06-12
+
+| Field | Value | Why It Matters |
+|---|---|---|
+| Dashboard store setup status | Store listing setup no longer appears as the visible dashboard blocker | Confirms Phase 1 store-listing setup is done |
+| Remaining visible task | Closed testing setup: countries/regions, testers, preview/confirm release, send release for review | Next blocker moved from store listing to testing release workflow |
+| Default listing locale | English (United Kingdom) - `en-GB` | Store text is being entered into the default listing shown by Play Console |
+| App name field | `Phone Down` | Confirms the listing uses the intended public app name |
+| Short description prepared | `Focus by putting your phone face down` | Existing Fastlane metadata reused for Play Console consistency |
+| Full description prepared | Existing Fastlane full description | Reuses current product copy and avoids production overclaims |
+| App icon asset prepared | `fastlane/metadata/android/en-US/images/icon.png` - 512x512 | Matches Play's required app-icon size |
+| Feature graphic asset prepared | `fastlane/metadata/android/en-US/images/featureGraphic.png` - 1024x500 | Matches Play's required feature-graphic size |
+| Phone screenshots prepared | `fastlane/metadata/android/en-US/images/phoneScreenshots/*.png` - 1080x1920 | Provides 4 compliant phone screenshots |
+| 7-inch tablet screenshots prepared | `fastlane/metadata/android/en-US/images/sevenInchScreenshots/*.png` - 1080x1920 | Provides required tablet screenshot assets if Play asks for them |
+| 10-inch tablet screenshots prepared | `fastlane/metadata/android/en-US/images/tenInchScreenshots/*.png` - 1080x1920 | Provides required tablet screenshot assets if Play asks for them |
+| Store listing saved in Play Console | Yes | Play Console confirmed `Change saved. Send for review in Publishing overview.` |
+| Current blocker | Required closed-testing dashboard steps are incomplete | Select countries/regions, select testers, preview/confirm release, then send release for review |
+| Production-access tester status | 0 opted-in testers | The 12 tester / 14 day clock has not started |
+
+Why this matters:
+
+- Browser automation could not attach local files through the Chrome extension, even after file URL access was enabled.
+- Computer Use succeeded through the native macOS file picker and attached all required public assets: icon, feature graphic, phone screenshots, 7-inch tablet screenshots, and 10-inch tablet screenshots.
+- The listing is now saved. Play quick checks finished, but review submission is still blocked by required dashboard setup for the closed testing release.
+- The next Play Console work is not a store-listing fix; it is closed-test release setup and tester recruitment.
+
 ### Theory
 
 These values tell us where you are in the Play release lifecycle. They are not just admin details; they affect what engineering can test next.
