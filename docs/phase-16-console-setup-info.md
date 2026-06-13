@@ -200,6 +200,22 @@ Why this matters:
 - The listing is now saved. Play quick checks finished, but review submission is still blocked by required dashboard setup for the closed testing release.
 - The next Play Console work is not a store-listing fix; it is closed-test release setup and tester recruitment.
 
+### Sprint 16.5 Store Icon Correction - 2026-06-13
+
+| Field | Value | Why It Matters |
+|---|---|---|
+| Issue found | Play Console store-listing app icon did not match the intended app / launcher icon | Store presence should use one consistent visual identity |
+| Corrected local asset | `fastlane/metadata/android/en-US/images/icon.png` - 512x512 | Keeps Fastlane metadata aligned with the Play Console asset |
+| Source asset | `app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png` | Uses the same P/D mark family as the launcher icon |
+| Play Console status | Corrected icon uploaded and saved on 2026-06-13 | Confirms the live draft listing now uses the intended icon |
+| Review status | Saved to Publishing overview, not sent for review | Avoids submitting before closed-testing setup is ready |
+
+Why this matters:
+
+- Google Play uses the store-listing icon, not the Android launcher icon, for the public store front.
+- Android launcher icons and Play store icons are separate assets, so changing one does not automatically update the other.
+- The repo metadata and Play Console draft now point at the same intended P/D visual direction, reducing the risk of a future upload reintroducing the stale icon.
+
 ### Theory
 
 These values tell us where you are in the Play release lifecycle. They are not just admin details; they affect what engineering can test next.

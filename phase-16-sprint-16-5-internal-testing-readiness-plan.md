@@ -184,6 +184,15 @@ Complete the remaining Play Console setup item so internal testers see a coheren
   - send the release to Google for review
 - Production access still shows 0 opted-in testers, so the 12 tester / 14 day requirement is not started.
 
+### Phase 1 Icon Correction - 2026-06-13
+
+- User noticed the Play Console store-listing app icon did not match the intended Phone Down app / launcher icon.
+- Replaced `fastlane/metadata/android/en-US/images/icon.png` with a 512x512 resized copy of the intended P/D launcher-style icon from `app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png`.
+- Removed the stale Play Console app icon and uploaded the corrected 6/13/2026 `icon.png`.
+- Play Console now shows the corrected P/D mark in the App icon slot and still reports `1 / 1`.
+- Saved the corrected listing change. Play Console confirmed `Change saved. Send for review in Publishing overview.`
+- Review submission was not triggered; this saved draft should be sent together with the remaining closed-testing setup changes.
+
 ### Hands-On Play Console Steps
 
 - [x] Open Play Console > Phone Down > Dashboard.

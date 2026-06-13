@@ -1,5 +1,19 @@
 # Agent Handoff Summary
 
+## Update - 2026-06-13 (Play Store Icon Aligned With App Icon)
+
+- User noticed the Play Console app icon did not match the in-app / launcher icon direction they want used everywhere.
+- Local Fastlane Play icon metadata was replaced with the intended launcher-style P/D mark:
+  - `fastlane/metadata/android/en-US/images/icon.png` - 512x512
+  - source used for the resized store icon: `app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png`
+- Verified the local Play icon is 512x512.
+- In Play Console, removed the stale store-listing app icon and uploaded the corrected 6/13/2026 `icon.png` through Computer Use and the native macOS file picker.
+- Play Console now shows the corrected P/D mark in the Default store listing App icon slot and still reports `1 / 1`.
+- Saved the listing change; Play showed `Change saved. Send for review in Publishing overview.`
+- Did not send the change for review. Publishing overview still needs to be handled together with the remaining closed-testing setup work.
+- Next action:
+  - continue closed-testing country/tester/release-confirmation setup, then send all pending changes for review when the dashboard allows it.
+
 ## Update - 2026-06-12 (Sprint 16.5 Phase 1 Store Listing Saved)
 
 - User approved the Sprint 16.5 plan and authorized using browser automation if needed.
