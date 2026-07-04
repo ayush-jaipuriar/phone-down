@@ -1,0 +1,7 @@
+Technical testing update for Phone Down.
+
+- Added a detailed summary after focus sessions complete
+- Fixed the unresponsive action after clean-session status is lost
+- Added editable default focus duration in Settings
+- Kept one-time duration choices from changing the saved default
+- Improved Google Sign-In error guidance and Pro status clarity

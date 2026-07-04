@@ -1,5 +1,23 @@
 # Agent Handoff Summary
 
+## Update - 2026-07-04 (Version 1.0.3 Internal Test Artifacts)
+
+- Bumped Android release identity to version `1.0.3` / version code `4` for a new Play Console internal-testing upload.
+- Added tester-facing release notes at `fastlane/metadata/android/en-US/changelogs/4.txt`.
+- Local release build target includes both:
+  - signed AAB for Play Console upload
+  - signed APK for direct device installation
+- Verified artifacts:
+  - AAB: `app/build/outputs/bundle/release/PhoneDown-1.0.3-4/PhoneDown-1.0.3-4-release.aab`
+  - APK: `app/build/outputs/apk/release/PhoneDown-1.0.3-4/PhoneDown-1.0.3-4-release.apk`
+  - AAB SHA-256: `8cd1d06c6bea4b37679f8b97764af282dcf3039ddfd355b54391301b379ae1a0`
+  - APK SHA-256: `db644ea8bfe541309a59650443d597999244acfa18f2bb2c9c159ff9423994bb`
+  - package/version verified as `phonedown.app`, `1.0.3` (`4`)
+  - AAB and APK signatures verified against the expected upload certificate
+- Next action after artifact verification:
+  - upload the version-code-4 AAB to Play Console internal testing
+  - install/test the APK directly if faster local validation is useful
+
 ## Update - 2026-07-04 (Technical Backlog Defect Corrections)
 
 - Added `docs/technical-backlog-defect-analysis-2026-07-04.md` covering four user-reported defects.

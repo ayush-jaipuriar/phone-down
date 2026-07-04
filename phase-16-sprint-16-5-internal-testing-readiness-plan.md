@@ -541,8 +541,8 @@ Produce and, if needed, upload a fresh internal testing build after console/code
 ### Phase Checklist
 
 - [ ] Decide whether new version code/name is required.
-- [ ] Build fresh signed release AAB if code/config changed.
-- [ ] Verify signing and artifact contents.
+- [x] Build fresh signed release AAB if code/config changed.
+- [x] Verify signing and artifact contents.
 - [ ] Upload to internal testing if needed.
 - [ ] Confirm latest internal release is active.
 - [ ] Update docs with exact release version/date.
@@ -560,18 +560,18 @@ A fresh build is required if any code/config changes land, including:
 
 ### Code Steps
 
-- [ ] Bump version if uploading a new AAB:
+- [x] Bump version if uploading a new AAB:
   - `versionCode = 4`
-  - suggested `versionName = "1.0.3"`
-- [ ] Build fresh release AAB:
+  - `versionName = "1.0.3"`
+- [x] Build fresh release AAB:
 
 ```bash
 ./gradlew --no-daemon --no-configuration-cache :app:bundleRelease
 ```
 
-- [ ] Create version-labeled copy under release output if needed.
-- [ ] Verify AAB signing.
-- [ ] Scan AAB file list for forbidden bundled files:
+- [x] Create version-labeled copy under release output if needed.
+- [x] Verify AAB signing.
+- [x] Scan AAB file list for forbidden bundled files:
   - `.env`
   - `.pem`
   - `.p12`
@@ -581,6 +581,24 @@ A fresh build is required if any code/config changes land, including:
   - `google-services.json`
   - `client_secret*.json`
   - service-account JSON
+
+### Version 1.0.3 Artifact Record - 2026-07-04
+
+- Play Console artifact:
+  - `app/build/outputs/bundle/release/PhoneDown-1.0.3-4/PhoneDown-1.0.3-4-release.aab`
+  - SHA-256: `8cd1d06c6bea4b37679f8b97764af282dcf3039ddfd355b54391301b379ae1a0`
+- Direct-install artifact:
+  - `app/build/outputs/apk/release/PhoneDown-1.0.3-4/PhoneDown-1.0.3-4-release.apk`
+  - SHA-256: `db644ea8bfe541309a59650443d597999244acfa18f2bb2c9c159ff9423994bb`
+- APK metadata verified:
+  - package: `phonedown.app`
+  - version code: `4`
+  - version name: `1.0.3`
+  - min SDK: `26`
+  - target SDK: `36`
+- APK signature verified with the expected upload certificate SHA-256:
+  - `63:0E:62:5F:A1:14:13:C9:A0:FB:2B:53:E8:4B:5A:D2:B3:03:11:B5:0D:52:4F:42:B9:92:75:0E:2C:7E:F9:0A`
+- AAB signature verification returned `jar verified`; expected self-signed upload-key and no-timestamp warnings remain.
 
 ### Hands-On Play Console Steps
 
