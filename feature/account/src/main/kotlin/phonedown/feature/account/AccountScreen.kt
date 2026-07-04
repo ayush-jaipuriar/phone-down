@@ -259,26 +259,31 @@ private fun SignedInContent(
             }
         }
 
-        if (isProUser) {
-            PhoneDownCard {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.xs),
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Text(
-                        text = "Phone Down Pro",
-                        style = MaterialTheme.typography.titleSmall,
-                        color = PhoneDownDesign.colors.textPrimary,
-                        fontWeight = FontWeight.SemiBold,
-                    )
-                    Text(
-                        text = "You have unlimited access to advanced insights, backup, and export features.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = PhoneDownDesign.colors.textSecondary,
-                    )
-                }
+        PhoneDownCard {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.xs),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(
+                    text = if (isProUser) "Pro active" else "Free plan",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = PhoneDownDesign.colors.textPrimary,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Text(
+                    text =
+                        if (isProUser) {
+                            "Your Pro access comes from purchases on this device's Google Play account."
+                        } else {
+                            "Google Sign-In enables backup. Pro access is purchased or restored separately through Google Play."
+                        },
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = PhoneDownDesign.colors.textSecondary,
+                )
             }
+        }
 
+        if (isProUser) {
             PhoneDownCard {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.sm),

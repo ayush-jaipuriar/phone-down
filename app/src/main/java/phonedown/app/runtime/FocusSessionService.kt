@@ -78,7 +78,6 @@ class FocusSessionService : Service() {
                     if (state.shouldStopService) {
                         stopRuntimeLoops()
                         stopSelf()
-                        runtimeCoordinator.clearFinishedRuntime()
                     }
                 }
             }

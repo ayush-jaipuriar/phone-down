@@ -64,9 +64,10 @@ fun SettingsScreen(
     onSoundToggled: (Boolean) -> Unit,
     onHapticsToggled: (Boolean) -> Unit,
     onThemeModeSelected: (ThemeMode) -> Unit,
-    onDefaultDurationClick: () -> Unit = {},
+    onDefaultDurationSelected: (Long) -> Unit,
 ) {
     var showCallPauseEducation by remember { mutableStateOf(false) }
+    var showDefaultDurationPicker by remember { mutableStateOf(false) }
 
     PhoneDownScreen(
         modifier =
@@ -82,7 +83,7 @@ fun SettingsScreen(
             onSoundToggled = onSoundToggled,
             onHapticsToggled = onHapticsToggled,
             onThemeModeSelected = onThemeModeSelected,
-            onDefaultDurationClick = onDefaultDurationClick,
+            onDefaultDurationClick = { showDefaultDurationPicker = true },
             callPausePermissionGranted = callPausePermissionGranted,
             onCallPausePermissionClick = { showCallPauseEducation = true },
         )
@@ -126,6 +127,17 @@ fun SettingsScreen(
                     onCallPausePermissionRequested()
                 },
                 onDismiss = { showCallPauseEducation = false },
+            )
+        }
+
+        if (showDefaultDurationPicker) {
+            DefaultDurationDialog(
+                currentDurationSeconds = uiState.defaultDurationSeconds,
+                onSelect = { seconds ->
+                    onDefaultDurationSelected(seconds)
+                    showDefaultDurationPicker = false
+                },
+                onDismiss = { showDefaultDurationPicker = false },
             )
         }
     }
@@ -379,6 +391,45 @@ private fun formatBackupTime(epochMillis: Long): String {
 }
 
 @Composable
+private fun DefaultDurationDialog(
+    currentDurationSeconds: Long,
+    onSelect: (Long) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Default Duration") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.xs)) {
+                Text(
+                    text = "Used when starting a session without a one-time duration override.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = PhoneDownDesign.colors.textSecondary,
+                )
+                DURATION_PRESETS.forEach { minutes ->
+                    val seconds = minutes * 60L
+                    TextButton(
+                        onClick = { onSelect(seconds) },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(
+                            text = if (seconds == currentDurationSeconds) "$minutes minutes - Selected" else "$minutes minutes",
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        },
+    )
+}
+
+@Composable
 private fun DeleteConfirmationDialog(
     uiState: SettingsUiState,
     onConfirm: () -> Unit,
@@ -478,6 +529,7 @@ private fun SettingsScreenLightPreview() {
             onSoundToggled = {},
             onHapticsToggled = {},
             onThemeModeSelected = {},
+            onDefaultDurationSelected = {},
         )
     }
 }
@@ -502,6 +554,7 @@ private fun SettingsScreenDarkPreview() {
             onSoundToggled = {},
             onHapticsToggled = {},
             onThemeModeSelected = {},
+            onDefaultDurationSelected = {},
         )
     }
 }

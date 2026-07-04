@@ -50,7 +50,7 @@ class FocusViewModel
                 sessionRepository.observeSessionsInWindow(startOfDayMillis, endOfDayMillis),
                 localViewState,
             ) { runtimeState, settings, todaySessions, localView ->
-                val presentationState = mapToPresentationState(runtimeState, localView)
+                val presentationState = mapToPresentationState(runtimeState)
 
                 val defaultDuration = settings.defaultDurationSeconds
                 val session = runtimeState.session
@@ -85,6 +85,7 @@ class FocusViewModel
                     presentationState = presentationState,
                     selectedDurationSeconds = selectedDurationSeconds,
                     remainingSeconds = remainingSeconds,
+                    focusedSeconds = session?.validFocusSeconds ?: 0L,
                     elapsedSeconds = session?.actualElapsedSeconds ?: 0L,
                     penaltySeconds = session?.penaltySeconds ?: 0L,
                     interruptionCount = session?.interruptionCount ?: 0,
@@ -104,10 +105,7 @@ class FocusViewModel
                 initialValue = FocusUiState(),
             )
 
-        private fun mapToPresentationState(
-            runtimeState: ActiveSessionRuntimeState,
-            localView: LocalViewState,
-        ): FocusPresentationState {
+        private fun mapToPresentationState(runtimeState: ActiveSessionRuntimeState): FocusPresentationState {
             if (runtimeState.latestValidity?.reason == FocusValidityReason.SensorsUnavailable) {
                 return FocusPresentationState.SensorUnavailable
             }
@@ -122,15 +120,10 @@ class FocusViewModel
                 SessionState.PausedByPickup -> FocusPresentationState.PausedByPickup
                 SessionState.PausedByCall -> FocusPresentationState.PausedByCall
                 SessionState.PausedByUser -> FocusPresentationState.PausedByUser
-                SessionState.Completed ->
-                    if (session.clean) {
-                        FocusPresentationState.CompletedClean
-                    } else {
-                        FocusPresentationState.CompletedInterrupted
-                    }
+                SessionState.Completed -> completedPresentationState(session.clean)
                 SessionState.EndedEarly -> FocusPresentationState.EndedEarly
                 SessionState.Invalidated -> FocusPresentationState.Invalid
-                SessionState.Broken -> FocusPresentationState.Broken
+                SessionState.Broken -> brokenPresentationState(session.result == null)
                 SessionState.Abandoned -> FocusPresentationState.Idle
             }
         }
@@ -160,9 +153,11 @@ class FocusViewModel
                     localViewState.update { it.copy(showDurationSelector = false) }
                 }
                 is FocusEvent.DurationSelected -> {
-                    localViewState.update { it.copy(showDurationSelector = false, temporaryDurationSeconds = event.seconds) }
-                    viewModelScope.launch {
-                        settingsRepository.setDefaultDurationSeconds(event.seconds)
+                    localViewState.update {
+                        it.copy(
+                            showDurationSelector = false,
+                            temporaryDurationSeconds = event.seconds,
+                        )
                     }
                 }
                 FocusEvent.RetrySensorsClicked -> Unit
@@ -196,4 +191,10 @@ class FocusViewModel
             val temporaryDurationSeconds: Long? = null,
             val showAddTime: Boolean = false,
         )
+
+        private fun completedPresentationState(clean: Boolean): FocusPresentationState =
+            if (clean) FocusPresentationState.CompletedClean else FocusPresentationState.CompletedInterrupted
+
+        private fun brokenPresentationState(isRecoverable: Boolean): FocusPresentationState =
+            if (isRecoverable) FocusPresentationState.CleanStatusLost else FocusPresentationState.Broken
     }

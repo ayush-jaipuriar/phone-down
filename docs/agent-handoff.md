@@ -1,5 +1,30 @@
 # Agent Handoff Summary
 
+## Update - 2026-07-04 (Technical Backlog Defect Corrections)
+
+- Added `docs/technical-backlog-defect-analysis-2026-07-04.md` covering four user-reported defects.
+- Implemented session lifecycle corrections:
+  - completed results remain visible after foreground-service shutdown until user dismissal
+  - summary uses authoritative focused, elapsed, planned, penalty, and interruption values
+  - live broken sessions are recoverable and no longer show a no-op `Done`
+- Implemented default-duration editing:
+  - Settings provides explicit preset selection
+  - Focus-screen selection is a one-session override and no longer persists silently
+- Improved identity/Pro behavior:
+  - typed Credential Manager failures produce safe, actionable messages
+  - Account UI presents Google identity and Play Pro entitlement separately
+  - no separate Pro password/login system is introduced for V1
+- External Sign-In prerequisite remains:
+  - current `google-services.json` has a Web OAuth client but no Android certificate-bound OAuth clients
+  - register debug, upload/release, and Play App Signing fingerprints as appropriate, refresh config, then verify on device and Play-installed build
+- Verification results:
+  - app/domain/core JVM suites passed
+  - Focus and Settings Paparazzi verification passed
+  - Focus and Settings Android test sources compile; instrumentation execution skipped because no device was connected
+  - signed `:app:bundleRelease` passed
+  - two Insights Paparazzi snapshots remain date-dependent and failed only because retained May calendar dates differ from the July run; no Insights files changed
+  - global ktlint/detekt remain red from existing repository-wide baseline findings; one newly introduced test-formatting finding was corrected
+
 ## Update - 2026-06-13 (Play Store Icon Aligned With App Icon)
 
 - User noticed the Play Console app icon did not match the in-app / launcher icon direction they want used everywhere.

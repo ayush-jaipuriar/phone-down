@@ -36,6 +36,7 @@ class SettingsScreenTest {
                     onAccountClick = { accountClicks += 1 },
                     onProClick = { proClicks += 1 },
                     onBackupClick = {},
+                    onAutoBackupToggled = {},
                     onPrivacyPolicyClick = {},
                     onDeleteRequested = {},
                     onDeleteConfirmed = {},
@@ -45,6 +46,7 @@ class SettingsScreenTest {
                     onSoundToggled = {},
                     onHapticsToggled = {},
                     onThemeModeSelected = {},
+                    onDefaultDurationSelected = {},
                 )
             }
         }
@@ -69,6 +71,7 @@ class SettingsScreenTest {
                     onAccountClick = {},
                     onProClick = {},
                     onBackupClick = {},
+                    onAutoBackupToggled = {},
                     onPrivacyPolicyClick = {},
                     onDeleteRequested = {},
                     onDeleteConfirmed = {},
@@ -78,6 +81,7 @@ class SettingsScreenTest {
                     onSoundToggled = { soundEnabled = it },
                     onHapticsToggled = {},
                     onThemeModeSelected = {},
+                    onDefaultDurationSelected = {},
                 )
             }
         }
@@ -103,6 +107,7 @@ class SettingsScreenTest {
                     onAccountClick = {},
                     onProClick = {},
                     onBackupClick = {},
+                    onAutoBackupToggled = {},
                     onPrivacyPolicyClick = {},
                     onDeleteRequested = {},
                     onDeleteConfirmed = {},
@@ -112,6 +117,7 @@ class SettingsScreenTest {
                     onSoundToggled = {},
                     onHapticsToggled = { hapticsEnabled = it },
                     onThemeModeSelected = {},
+                    onDefaultDurationSelected = {},
                 )
             }
         }
@@ -137,6 +143,7 @@ class SettingsScreenTest {
                     onAccountClick = {},
                     onProClick = {},
                     onBackupClick = {},
+                    onAutoBackupToggled = {},
                     onPrivacyPolicyClick = {},
                     onDeleteRequested = { showDeleteConfirmation = true },
                     onDeleteConfirmed = {},
@@ -146,6 +153,7 @@ class SettingsScreenTest {
                     onSoundToggled = {},
                     onHapticsToggled = {},
                     onThemeModeSelected = {},
+                    onDefaultDurationSelected = {},
                 )
             }
         }
@@ -166,6 +174,7 @@ class SettingsScreenTest {
                     onAccountClick = {},
                     onProClick = {},
                     onBackupClick = {},
+                    onAutoBackupToggled = {},
                     onPrivacyPolicyClick = {},
                     onDeleteRequested = {},
                     onDeleteConfirmed = {},
@@ -175,11 +184,43 @@ class SettingsScreenTest {
                     onSoundToggled = {},
                     onHapticsToggled = {},
                     onThemeModeSelected = {},
+                    onDefaultDurationSelected = {},
                 )
             }
         }
 
         composeRule.onNodeWithText("Default Duration").assertIsDisplayed()
         composeRule.onNodeWithText("30 min").assertIsDisplayed()
+    }
+
+    @Test
+    fun defaultDurationRowOpensPickerAndEmitsSelection() {
+        var selectedDurationSeconds: Long? = null
+        composeRule.setContent {
+            PhoneDownTheme(themeMode = ThemeMode.Light) {
+                SettingsScreen(
+                    uiState = SettingsUiState(defaultDurationSeconds = 25 * 60L),
+                    onAccountClick = {},
+                    onProClick = {},
+                    onBackupClick = {},
+                    onAutoBackupToggled = {},
+                    onPrivacyPolicyClick = {},
+                    onDeleteRequested = {},
+                    onDeleteConfirmed = {},
+                    onDeleteDismissed = {},
+                    onDeleteConfirmationTextChanged = {},
+                    onDeleteIncludeBackupChanged = {},
+                    onSoundToggled = {},
+                    onHapticsToggled = {},
+                    onThemeModeSelected = {},
+                    onDefaultDurationSelected = { selectedDurationSeconds = it },
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("Default Duration").performClick()
+        composeRule.onNodeWithText("45 minutes").performClick()
+
+        assertEquals(45 * 60L, selectedDurationSeconds)
     }
 }

@@ -30,6 +30,7 @@ class SettingsScreenScreenshotTest {
                     onHapticsToggled = {},
                     onAutoBackupToggled = {},
                     onThemeModeSelected = {},
+                    onDefaultDurationSelected = {},
                 )
             }
         }
@@ -54,6 +55,7 @@ class SettingsScreenScreenshotTest {
                     onHapticsToggled = {},
                     onAutoBackupToggled = {},
                     onThemeModeSelected = {},
+                    onDefaultDurationSelected = {},
                 )
             }
         }

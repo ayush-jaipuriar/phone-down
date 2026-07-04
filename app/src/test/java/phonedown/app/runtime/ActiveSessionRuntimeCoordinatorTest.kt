@@ -161,6 +161,34 @@ class ActiveSessionRuntimeCoordinatorTest {
             assertFalse(coordinator.hasActiveRuntime())
         }
 
+    @Test
+    fun completedSessionRemainsVisibleUntilExplicitlyCleared() =
+        runTest {
+            val sessionRepository = FakeSessionRepository()
+            val settingsRepository = FakeSettingsRepository()
+            val coordinator = createCoordinator(sessionRepository, settingsRepository)
+
+            coordinator.ensureSessionStarted(plannedDurationSeconds = 1L)
+            coordinator.onSensorValidityChanged(faceDownStable())
+            clock.advanceBy(3_000L)
+            coordinator.onTick()
+            clock.advanceBy(1_000L)
+
+            val completed = coordinator.onTick().state
+
+            assertEquals(SessionState.Completed, completed.session?.state)
+            assertTrue(completed.shouldStopService)
+            assertFalse(coordinator.hasActiveRuntime())
+            assertEquals(
+                SessionState.Completed,
+                coordinator.state.value.session?.state,
+            )
+
+            coordinator.clearFinishedRuntime()
+
+            assertEquals(null, coordinator.state.value.session)
+        }
+
     private fun createCoordinator(
         sessionRepository: FakeSessionRepository,
         settingsRepository: FakeSettingsRepository,

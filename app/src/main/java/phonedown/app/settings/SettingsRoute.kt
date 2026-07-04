@@ -146,6 +146,7 @@ fun SettingsRoute(
         onDeleteIncludeBackupChanged = viewModel::setDeleteIncludeBackup,
         onSoundToggled = viewModel::setSoundEnabled,
         onHapticsToggled = viewModel::setHapticsEnabled,
+        onDefaultDurationSelected = viewModel::setDefaultDuration,
         onThemeModeSelected = { mode ->
             viewModel.setThemeMode(mode)
             onThemeModeSelected(mode)

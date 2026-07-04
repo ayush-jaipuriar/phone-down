@@ -232,6 +232,15 @@ private fun ActiveFocusContent(
                         )
                     }
 
+                    FocusPresentationState.CleanStatusLost -> {
+                        GuidanceState(
+                            title = "Clean status lost",
+                            body = "This session can continue, but it will not count as clean. Place your phone down to resume.",
+                            actionLabel = "End session",
+                            onAction = { onEvent(FocusEvent.EndClicked) },
+                        )
+                    }
+
                     FocusPresentationState.CompletedClean,
                     FocusPresentationState.CompletedInterrupted,
                     FocusPresentationState.EndedEarly,
@@ -241,7 +250,8 @@ private fun ActiveFocusContent(
                         SessionCompleteContent(
                             presentationState = state,
                             selectedDurationSeconds = uiState.selectedDurationSeconds,
-                            remainingSeconds = uiState.remainingSeconds,
+                            focusedSeconds = uiState.focusedSeconds,
+                            elapsedSeconds = uiState.elapsedSeconds,
                             penaltySeconds = uiState.penaltySeconds,
                             interruptionCount = uiState.interruptionCount,
                             clean = uiState.clean,
@@ -589,7 +599,8 @@ private fun PhonePickedUpIllustration() {
 private fun SessionCompleteContent(
     presentationState: FocusPresentationState,
     selectedDurationSeconds: Long,
-    remainingSeconds: Long,
+    focusedSeconds: Long,
+    elapsedSeconds: Long,
     penaltySeconds: Long,
     interruptionCount: Int,
     clean: Boolean,
@@ -619,8 +630,6 @@ private fun SessionCompleteContent(
     val showCircle =
         presentationState == FocusPresentationState.CompletedClean ||
             presentationState == FocusPresentationState.CompletedInterrupted
-
-    val focusTimeSeconds = (selectedDurationSeconds - remainingSeconds).coerceAtLeast(0L)
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -653,7 +662,7 @@ private fun SessionCompleteContent(
         ) {
             TimeBreakdownRow(
                 label = "Focus Time",
-                value = formatDurationMinsSecs(focusTimeSeconds),
+                value = formatDurationMinsSecs(focusedSeconds),
             )
             TimeBreakdownRow(
                 label = "Penalty Time",
@@ -669,7 +678,11 @@ private fun SessionCompleteContent(
                 },
             )
             TimeBreakdownRow(
-                label = "Total Time",
+                label = "Elapsed Time",
+                value = formatDurationMinsSecs(elapsedSeconds),
+            )
+            TimeBreakdownRow(
+                label = "Planned Time",
                 value = formatDurationMinsSecs(selectedDurationSeconds),
             )
         }

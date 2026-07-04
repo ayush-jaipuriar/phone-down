@@ -8,6 +8,10 @@ import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.GetCredentialException
+import androidx.credentials.exceptions.GetCredentialInterruptedException
+import androidx.credentials.exceptions.GetCredentialProviderConfigurationException
+import androidx.credentials.exceptions.GetCredentialUnsupportedException
+import androidx.credentials.exceptions.NoCredentialException
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
@@ -40,7 +44,7 @@ class GoogleSignInCoordinator(
             } catch (exception: GetCredentialCancellationException) {
                 throw GoogleSignInCancelledException()
             } catch (exception: GetCredentialException) {
-                throw GoogleSignInFailedException("Google Sign-In is unavailable right now.")
+                throw GoogleSignInFailedException(credentialFailureMessage(exception))
             }
 
         val credential = response.credential
@@ -98,14 +102,32 @@ class GoogleSignInCoordinator(
     }
 }
 
+internal fun credentialFailureMessage(exception: GetCredentialException): String =
+    when (exception) {
+        is GetCredentialProviderConfigurationException ->
+            SIGN_IN_CONFIGURATION_ERROR
+        is NoCredentialException ->
+            "No eligible Google account was available. Add or select a Google account on this device and try again."
+        is GetCredentialUnsupportedException ->
+            "Google Sign-In is not supported by this device configuration. Update Google Play services and try again."
+        is GetCredentialInterruptedException ->
+            "Google Sign-In was interrupted. Please try again."
+        else -> "Google Sign-In could not start. Check your connection and try again."
+    }
+
 sealed class GoogleSignInException(
     message: String,
 ) : Exception(message)
 
 class GoogleSignInCancelledException : GoogleSignInException("Sign-in was cancelled.")
 
-class GoogleSignInMissingConfigException : GoogleSignInException("Google Sign-In needs a Web OAuth client before it can run.")
+class GoogleSignInMissingConfigException :
+    GoogleSignInException("Google Sign-In needs a Web OAuth client before it can run.")
 
 class GoogleSignInFailedException(
     message: String,
 ) : GoogleSignInException(message)
+
+internal const val SIGN_IN_CONFIGURATION_ERROR =
+    "Google Sign-In is not configured for this app build. " +
+        "Verify its Android OAuth client and signing certificate."

@@ -102,6 +102,8 @@ class FocusScreenTest {
                 FocusScreen(
                     uiState = FocusUiState(
                         presentationState = FocusPresentationState.CompletedClean,
+                        selectedDurationSeconds = 1500,
+                        focusedSeconds = 1500,
                         elapsedSeconds = 1500,
                     ),
                     onEvent = {},
@@ -110,24 +112,31 @@ class FocusScreenTest {
         }
 
         composeRule.onNodeWithText("Great focus!").assertIsDisplayed()
+        composeRule.onNodeWithText("Focus Time").assertIsDisplayed()
+        composeRule.onNodeWithText("Elapsed Time").assertIsDisplayed()
+        composeRule.onNodeWithText("Planned Time").assertIsDisplayed()
         composeRule.onNodeWithText("Done").assertIsDisplayed()
     }
 
     @Test
-    fun focusScreenBrokenStateShowsBrokenMessage() {
+    fun focusScreenLiveBrokenStateOffersContinueGuidanceAndEndAction() {
+        var eventReceived: FocusEvent? = null
         composeRule.setContent {
             PhoneDownTheme(themeMode = ThemeMode.Light) {
                 FocusScreen(
                     uiState = FocusUiState(
-                        presentationState = FocusPresentationState.Broken,
+                        presentationState = FocusPresentationState.CleanStatusLost,
                         penaltySeconds = 60,
                     ),
-                    onEvent = {},
+                    onEvent = { eventReceived = it },
                 )
             }
         }
 
-        composeRule.onNodeWithText("Session broken").assertIsDisplayed()
+        composeRule.onNodeWithText("Clean status lost").assertIsDisplayed()
+        composeRule.onNodeWithText("Done").assertIsNotDisplayed()
+        composeRule.onNodeWithText("End session").performClick()
+        assert(eventReceived is FocusEvent.EndClicked)
     }
 
     @Test

@@ -109,6 +109,57 @@ The order follows dependency direction:
 
 Use this section as the top-level progress tracker. Each phase below has its own detailed checklist and acceptance criteria.
 
+### Approved Technical Defect Track - 2026-07-04
+
+The user approved the recommendations in `docs/technical-backlog-defect-analysis-2026-07-04.md` and requested technical backlog completion before remaining Console, rollout, and tester-administration work.
+
+Implementation order:
+
+- [x] Technical Slice A - Session terminal-state correction:
+  - preserve completed-session state after foreground-service shutdown
+  - show authoritative completion metrics until user taps `Done`
+  - treat live `Broken` state as recoverable instead of terminal
+  - ensure ending a broken session produces a terminal summary
+- [x] Technical Slice B - Duration editing correction:
+  - wire Settings default-duration editing
+  - persist only explicit default changes
+  - keep Focus-screen one-time duration selection temporary
+  - remove production no-op callback wiring
+- [~] Technical Slice C - Identity and entitlement correction:
+  - improve typed Google Sign-In diagnostics without exposing sensitive data
+  - present Google identity and Play Pro entitlement as separate statuses
+  - retain Play `Restore purchases` as the V1 Pro recovery mechanism
+  - document and complete external Android OAuth/fingerprint configuration
+
+Technical dependency rules:
+
+- Slice A comes first because it affects the core focus-session workflow and currently contains two high-severity state-contract defects.
+- Slice B follows because it is locally implementable and changes session-start defaults.
+- Slice C follows because code improvements can be completed locally, while final Sign-In proof also depends on Firebase/Google Cloud and Play signing configuration.
+- Remaining country, tester, review-submission, and production-access administration stays deferred until these technical slices pass verification.
+
+Implementation progress - 2026-07-04:
+
+- Slice A code complete:
+  - foreground-service shutdown no longer dismisses terminal session state
+  - completion summary uses persisted focus, elapsed, planned, penalty, and interruption values
+  - live broken sessions show recoverable `Clean status lost` guidance and an explicit end flow instead of a no-op `Done`
+- Slice B code complete:
+  - Settings now opens a default-duration picker and persists explicit selection
+  - Focus-screen duration selection is now a one-session override and no longer silently changes the default
+  - required callback wiring replaces the production no-op default
+- Slice C local code complete, external trust setup pending:
+  - Credential Manager failures now map to safe, actionable categories
+  - Account screen distinguishes Google backup identity from Google Play Pro entitlement
+  - separate Pro username/password login remains intentionally out of scope for V1
+  - Firebase/Google Cloud still needs Android OAuth clients for supported signing fingerprints, followed by refreshed config and device verification
+- Verification completed:
+  - app/domain/core JVM test suites passed
+  - Focus and Settings screenshot verification passed
+  - signed release bundle passed
+  - Android instrumentation execution remains pending because no device was connected
+  - Insights screenshot verification exposed an unrelated date-dependent baseline: expected May calendar dates versus current July dates; no Insights source changed
+
 | Phase | Status | Primary Owner | Blocks | Outcome |
 |---|---|---|---|---|
 | Phase 1 - Store Listing And Console Setup | Complete for store listing; review submission blocked by closed-testing dashboard steps | Play Console | Phase 7 QA quality | Store setup is complete enough for internal testers |
