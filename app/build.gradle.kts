@@ -2,6 +2,7 @@ import java.util.Properties
 
 plugins {
     id("phonedown.android.application")
+    id("com.google.firebase.crashlytics")
     id("com.google.gms.google-services")
     id("phonedown.hilt")
 }
@@ -40,6 +41,7 @@ android {
         applicationId = "phonedown.app"
         versionCode = 4
         versionName = "1.0.3"
+        manifestPlaceholders["crashlyticsCollectionEnabled"] = "false"
     }
 
     buildFeatures {
@@ -58,9 +60,14 @@ android {
     }
 
     buildTypes {
+        debug {
+            manifestPlaceholders["crashlyticsCollectionEnabled"] = "false"
+        }
+
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            manifestPlaceholders["crashlyticsCollectionEnabled"] = "true"
             if (hasReleaseSigningConfig) {
                 signingConfig = signingConfigs.getByName("release")
             }
@@ -128,6 +135,8 @@ dependencies {
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.work.runtime.ktx)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.crashlytics)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.googleid)
     implementation(libs.play.services.auth)

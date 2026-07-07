@@ -164,9 +164,9 @@ Implementation progress - 2026-07-04:
 |---|---|---|---|---|
 | Phase 1 - Store Listing And Console Setup | Complete for store listing; review submission blocked by closed-testing dashboard steps | Play Console | Phase 7 QA quality | Store setup is complete enough for internal testers |
 | Phase 2 - Billing Product Creation | Not started | Play Console | Billing QA | Required products exist and are active |
-| Phase 3 - Signing And Firebase Trust | Not started | Play Console/Firebase | Auth and Drive QA | Play-installed app can be trusted by Google services |
-| Phase 4 - Backup Policy Cleanup | Not started | Code/docs | Backup/privacy QA | One clear backup authority for V1 |
-| Phase 5 - Crashlytics Integration | Not started | Code/docs/Firebase | Closed testing readiness | Release/internal crashes are diagnosable |
+| Phase 3 - Signing And Firebase Trust | External setup pending | Play Console/Firebase | Auth and Drive QA | Play-installed app can be trusted by Google services |
+| Phase 4 - Backup Policy Cleanup | Complete | Code/docs | Backup/privacy QA | One clear backup authority for V1 |
+| Phase 5 - Crashlytics Integration | Code/build complete; Firebase console/device event verification pending | Code/docs/Firebase | Closed testing readiness | Release/internal crashes are diagnosable |
 | Phase 6 - Internal Release Sync | Not started | Code/Play Console | Play-installed QA | Current internal release contains required changes |
 | Phase 7 - Play-Installed Internal QA | Not started | Device QA | Sprint completion | Internal testing readiness is proven or blockers are logged |
 
@@ -175,8 +175,8 @@ Implementation progress - 2026-07-04:
 - [x] Phase 1 store listing complete: listing text/assets saved and no longer the visible dashboard setup blocker.
 - [ ] Phase 2 complete: `pro_monthly`, `pro_yearly`, and `pro_lifetime` active in Play Console.
 - [ ] Phase 3 complete: Play signing fingerprints verified and trusted by Firebase/Google Cloud.
-- [ ] Phase 4 complete: Android OS backup disabled for V1 and docs updated.
-- [ ] Phase 5 complete: Crashlytics integrated, privacy-safe, and verified.
+- [x] Phase 4 complete: Android OS backup disabled for V1 and docs updated.
+- [~] Phase 5 complete: Crashlytics integrated and privacy docs updated; Firebase console/device event verification pending.
 - [ ] Phase 6 complete: fresh internal release uploaded if code/config changed.
 - [ ] Phase 7 complete: Play-installed QA run and documented.
 - [ ] Sprint completion review done.
@@ -420,11 +420,11 @@ Make backup behavior unambiguous before testers exercise Drive backup/restore.
 
 ### Phase Checklist
 
-- [ ] Change manifest backup policy.
-- [ ] Update privacy/data-safety/readiness docs.
-- [ ] Run manifest/build verification.
-- [ ] Confirm no OS backup rules are needed after disabling OS backup.
-- [ ] Confirm phase acceptance criteria.
+- [x] Change manifest backup policy.
+- [x] Update privacy/data-safety/readiness docs.
+- [x] Run manifest/build verification.
+- [x] Confirm no OS backup rules are needed after disabling OS backup.
+- [x] Confirm phase acceptance criteria.
 
 ### Recommendation
 
@@ -448,28 +448,28 @@ For V1, one backup authority is simpler and safer: the in-app Drive backup featu
 
 ### Code Steps
 
-- [ ] Update `app/src/main/AndroidManifest.xml`.
-- [ ] Change `android:allowBackup="true"` to `android:allowBackup="false"`.
-- [ ] Confirm no backup rules are required after disabling OS backup.
+- [x] Update `app/src/main/AndroidManifest.xml`.
+- [x] Change `android:allowBackup="true"` to `android:allowBackup="false"`.
+- [x] Confirm no backup rules are required after disabling OS backup.
 
 ### Documentation Steps
 
-- [ ] Update `docs/privacy-policy.md` to reflect app-managed backup only.
-- [ ] Update `docs/play-store-data-safety.md` if backup behavior language needs adjustment.
-- [ ] Update `docs/pre-upload-go-no-go-checklist-2026-05-17.md` or add a newer readiness checklist entry marking backup policy resolved.
-- [ ] Update `docs/phase-16-console-setup-info.md` with backup policy decision.
+- [x] Update `docs/privacy-policy.md` to reflect app-managed backup only.
+- [x] Update `docs/play-store-data-safety.md` if backup behavior language needs adjustment.
+- [x] Update `docs/pre-upload-go-no-go-checklist-2026-05-17.md` or add a newer readiness checklist entry marking backup policy resolved.
+- [x] Update `docs/phase-16-console-setup-info.md` with backup policy decision.
 
 ### Verification
 
-- [ ] Run `./gradlew --no-daemon --no-configuration-cache :app:processDebugMainManifest`.
-- [ ] Run `./gradlew --no-daemon --no-configuration-cache :app:assembleDebug`.
-- [ ] Inspect merged manifest if needed.
+- [x] Run `./gradlew --no-daemon --no-configuration-cache :app:processDebugMainManifest`.
+- [x] Run `./gradlew --no-daemon --no-configuration-cache :app:assembleDebug`.
+- [x] Inspect merged manifest if needed.
 
 ### Acceptance Criteria
 
-- [ ] Manifest has `android:allowBackup="false"`.
-- [ ] Policy docs no longer imply OS-level backup is part of Phone Down's restore model.
-- [ ] Manual Drive backup/restore remains the explicit backup path.
+- [x] Manifest has `android:allowBackup="false"`.
+- [x] Policy docs no longer imply OS-level backup is part of Phone Down's restore model.
+- [x] Manual Drive backup/restore remains the explicit backup path.
 
 ## 10. Phase 5 - Crashlytics Before Closed Testing
 
@@ -479,11 +479,11 @@ Add privacy-conscious Crashlytics before moving from internal QA into closed tes
 
 ### Phase Checklist
 
-- [ ] Add Crashlytics Gradle/plugin dependencies.
-- [ ] Configure debug disabled/release enabled collection behavior.
-- [ ] Add privacy-safe runtime setup.
-- [ ] Update privacy/security/data-safety/manual-QA docs.
-- [ ] Run build/test verification.
+- [x] Add Crashlytics Gradle/plugin dependencies.
+- [x] Configure debug disabled/release enabled collection behavior.
+- [x] Add privacy-safe runtime setup.
+- [x] Update privacy/security/data-safety/manual-QA docs.
+- [x] Run build/test verification.
 - [ ] Verify safe release/internal Crashlytics event.
 - [ ] Confirm phase acceptance criteria.
 
@@ -493,16 +493,16 @@ Closed testing introduces more people, more devices, and less direct observation
 
 ### Code Steps
 
-- [ ] Add Firebase Crashlytics Gradle plugin to version catalog/build setup.
-- [ ] Apply Crashlytics plugin to `:app`.
-- [ ] Add Firebase Crashlytics dependency.
-- [ ] Ensure `google-services.json` remains ignored.
-- [ ] Configure Crashlytics collection:
+- [x] Add Firebase Crashlytics Gradle plugin to version catalog/build setup.
+- [x] Apply Crashlytics plugin to `:app`.
+- [x] Add Firebase Crashlytics dependency.
+- [x] Ensure `google-services.json` remains ignored.
+- [x] Configure Crashlytics collection:
   - disabled for debug builds
   - enabled for release/internal testing builds
-- [ ] Add app startup initialization if needed.
-- [ ] Add a debug-only or internal-only manual test hook only if safe and clearly removed/guarded.
-- [ ] Do not log:
+- [x] Add app startup initialization if needed.
+- [x] Add a debug-only or internal-only manual test hook only if safe and clearly removed/guarded.
+- [x] Do not log:
   - email
   - Google account ID
   - access tokens
@@ -512,25 +512,43 @@ Closed testing introduces more people, more devices, and less direct observation
 
 ### Documentation Steps
 
-- [ ] Update `docs/privacy-policy.md` to disclose crash diagnostics if not already accurate.
-- [ ] Update `docs/play-store-data-safety.md` if Crashlytics changes data collection declarations.
-- [ ] Update `docs/security.md` with Crashlytics redaction rules.
-- [ ] Update `docs/phase-16-manual-qa.md` Crashlytics QA section with exact verification steps.
+- [x] Update `docs/privacy-policy.md` to disclose crash diagnostics if not already accurate.
+- [x] Update `docs/play-store-data-safety.md` if Crashlytics changes data collection declarations.
+- [x] Update `docs/security.md` with Crashlytics redaction rules.
+- [x] Update `docs/phase-16-manual-qa.md` Crashlytics QA section with exact verification steps.
 
 ### Verification
 
-- [ ] Run `./gradlew --no-daemon --no-configuration-cache :app:assembleDebug`.
-- [ ] Run `./gradlew --no-daemon --no-configuration-cache :app:testDebugUnitTest`.
-- [ ] Run `./gradlew --no-daemon --no-configuration-cache :app:bundleRelease`.
-- [ ] Confirm debug builds do not send Crashlytics events.
+- [x] Run `./gradlew --no-daemon --no-configuration-cache :app:assembleDebug`.
+- [x] Run `./gradlew --no-daemon --no-configuration-cache :app:testDebugUnitTest`.
+- [x] Run `./gradlew --no-daemon --no-configuration-cache :app:bundleRelease`.
+- [x] Confirm debug builds do not send Crashlytics events.
 - [ ] Confirm release/internal test crash event appears in Firebase Crashlytics using a safe test event.
 
 ### Acceptance Criteria
 
-- [ ] Crashlytics integrated in release build.
-- [ ] Debug collection disabled.
-- [ ] No sensitive values are logged as keys, messages, or custom data.
-- [ ] Privacy/data-safety docs match actual Crashlytics behavior.
+- [x] Crashlytics integrated in release build.
+- [x] Debug collection disabled.
+- [x] No sensitive values are logged as keys, messages, or custom data.
+- [x] Privacy/data-safety docs match actual Crashlytics behavior.
+
+### Phase 4/5 Progress - 2026-07-07
+
+- Changed `app/src/main/AndroidManifest.xml` to disable Android OS automatic backup for V1.
+- Added Firebase Crashlytics through the version catalog, root Gradle plugin list, and app module dependencies.
+- Configured Crashlytics collection via manifest placeholders:
+  - debug build: `firebase_crashlytics_collection_enabled=false`
+  - release build: `firebase_crashlytics_collection_enabled=true`
+- Kept Crashlytics passive; no custom keys, user identifiers, or manual crash trigger were added.
+- Updated privacy, Data Safety, security, manual QA, console setup, and handoff docs.
+- Verification passed:
+  - `./gradlew --no-daemon --no-configuration-cache :app:processDebugMainManifest :app:assembleDebug :app:testDebugUnitTest --console=plain`
+  - `./gradlew --no-daemon --no-configuration-cache :app:bundleRelease --console=plain`
+  - merged debug/release manifest inspection confirmed `android:allowBackup="false"`
+  - merged debug manifest confirmed Crashlytics collection `false`
+  - merged release manifest confirmed Crashlytics collection `true`
+- Remaining Phase 5 proof:
+  - verify a safe release/internal Crashlytics event appears in Firebase after the next Play/internal build is installed.
 
 ## 11. Phase 6 - Internal Test Build And Console Sync
 

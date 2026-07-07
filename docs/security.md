@@ -7,6 +7,7 @@
 2. **User settings**: App preferences and configuration
 3. **Authentication tokens**: Google Sign-In tokens (when integrated)
 4. **Purchase data**: Pro subscription status
+5. **Crash diagnostics**: Release crash logs and basic stability metadata
 
 ### Threats We Address
 - **Data at rest**: Device theft or unauthorized access
@@ -49,18 +50,23 @@
 - **No sensitive data**: Auth tokens, PII never logged in plaintext
 - **Release stripping**: All debug logging removed by ProGuard
 
+### Crash Reporting
+- **Crashlytics release-only collection**: Firebase Crashlytics collection is disabled for debug builds and enabled for release/internal testing builds.
+- **No sensitive keys**: Crash reports must not attach Google account email, Google account ID, access tokens, purchase tokens, backup payloads, or raw session database content.
+- **Purpose limitation**: Crash diagnostics are used only for stability diagnosis.
+
 ### Data Deletion
 - **Complete local wipe**: Sessions, penalties, settings all cleared
 - **Cloud backup deletion**: Optional removal of Google Drive backup
 - **Account sign-out**: Automatic disconnection when deleting data
 - **Confirmation required**: User must type "DELETE" to confirm
+- **Android OS backup disabled**: App-managed Google Drive backup is the only restore path for V1.
 
 ## Known Limitations (V1)
 
-### Fake Repositories
-- All external service integrations use fake repositories
-- No real encryption implemented yet (deferred to real service integration)
-- Auth tokens are not actually stored in encrypted preferences (no real tokens exist)
+### External Configuration Still Required
+- Google Sign-In, Drive backup, Play Billing, and Crashlytics depend on correct Play Console, Firebase, OAuth, and signing-fingerprint setup.
+- Play-installed QA remains required before broader release because external trust configuration can fail even when local code builds.
 
 ### Certificate Pinning
 - Pins are placeholders (`AAAAAAAA...`) and must be replaced before release
@@ -108,6 +114,8 @@
 - [x] Network security config XML defined
 - [x] Cleartext traffic disabled
 - [x] Debug logs stripped in release builds
+- [x] Android OS automatic backup disabled
+- [x] Crashlytics collection disabled for debug builds
 
 ## Files Related to Security
 
@@ -118,6 +126,7 @@
 | `app/src/main/java/phonedown/app/security/CertificatePinningConfig.kt` | Certificate pin definitions |
 | `app/src/main/res/xml/network_security_config.xml` | Android network security configuration |
 | `app/proguard-rules.pro` | ProGuard/R8 obfuscation rules |
+| `app/src/main/AndroidManifest.xml` | Backup policy and Crashlytics collection flag |
 | `core/common/src/main/kotlin/phonedown/core/common/SecureRandomUtils.kt` | Cryptographically secure random generation |
 | `core/datastore/src/main/kotlin/phonedown/core/datastore/security/EncryptedDataStore.kt` | Encrypted preferences wrapper (prepared) |
 

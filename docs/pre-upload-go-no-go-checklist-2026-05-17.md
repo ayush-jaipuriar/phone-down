@@ -257,11 +257,11 @@ Some docs still describe older assumptions such as fake integrations, placeholde
 
 ### F1. Is Android system backup policy explicitly decided?
 
-- [ ] Not yet
+- [x] Yes - resolved on July 7, 2026
 
 ### Current state
 
-- `android:allowBackup="true"` in [AndroidManifest.xml](/Users/ayushjaipuriar/Documents/GitHub/phone-down/app/src/main/AndroidManifest.xml:11)
+- `android:allowBackup="false"` in [AndroidManifest.xml](/Users/ayushjaipuriar/Documents/GitHub/phone-down/app/src/main/AndroidManifest.xml:11)
 
 ### Why this matters
 
@@ -273,7 +273,7 @@ Phone Down now has a real app-managed Google Drive backup system. Leaving OS bac
 
 ### Required decision before broader release
 
-- [ ] set `allowBackup=false`
+- [x] set `allowBackup=false`
   - or
 - [ ] keep it on, but define explicit backup/data extraction rules
 
@@ -300,11 +300,11 @@ Phone Down now has a real app-managed Google Drive backup system. Leaving OS bac
 
 ### H1. Crash reporting operational
 
-- [ ] Not yet
+- [~] Code/build integrated; Firebase device event proof pending
 
 ### Current interpretation
 
-Crashlytics is still a production-readiness gap, but it is **not** a blocker for the first internal upload if we are disciplined about internal QA.
+Crashlytics is now integrated into release builds and disabled for debug builds. The remaining proof is a safe release/internal crash event appearing in Firebase Crashlytics.
 
 ## Pre-Upload Decision Rules
 

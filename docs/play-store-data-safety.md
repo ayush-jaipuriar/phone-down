@@ -133,7 +133,7 @@ This document provides the information needed to complete the Google Play Data S
 | Diagnostics | Optional | No | Analytics | Optional |
 | Other app performance data | No | N/A | N/A | N/A |
 
-**Notes**: Crash logs and diagnostics are collected only if the user opts in through their device settings (Android's default crash reporting).
+**Notes**: Release builds use Firebase Crashlytics for crash logs and basic diagnostics. Debug builds disable Crashlytics collection. Crash diagnostics are used only for app stability and must not include direct personal contact details, Google access tokens, purchase tokens, raw backup payloads, or full session database contents.
 
 ### Device or Other IDs
 
@@ -151,6 +151,7 @@ This document provides the information needed to complete the Google Play Data S
 - Google Play Billing API
 - Google Sign-In OAuth
 - Google Drive API (for backup)
+- Firebase Crashlytics (for release crash diagnostics)
 
 ### Data Deletion Request Mechanism
 
@@ -187,6 +188,7 @@ This document provides the information needed to complete the Google Play Data S
 - Backups stored in user's personal Google Drive app data folder
 - Only accessible by Phone Down app
 - Encrypted in transit using TLS
+- Android OS automatic backup is disabled; Phone Down uses explicit in-app Google Drive backup and restore.
 
 ## Compliance
 

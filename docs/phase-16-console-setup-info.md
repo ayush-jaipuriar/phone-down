@@ -102,8 +102,8 @@ These values define the technical Android identity of Phone Down.
 | App name | Phone Down | User-facing app name in Play and consent screens |
 | Android package / application ID | `phonedown.app` | Permanent Android identity used by Play, Firebase, and Google APIs |
 | Android namespace | `phonedown.app` | Build/config namespace in the app module |
-| Version name | `1.0.2` | Human-readable release version |
-| Version code | `3` | Internal monotonically increasing Android release number |
+| Version name | `1.0.3` | Human-readable release version |
+| Version code | `4` | Internal monotonically increasing Android release number |
 | App type | Free app with in-app purchases | Tells Play we monetize via Billing, not paid install |
 | Ads | No ads | Must match Play Console declaration and app behavior |
 | Support email | `jaipuriar.ayush@gmail.com` | Public support contact used in console and policy flows |
@@ -118,6 +118,17 @@ The package name is one of the most important identities in Android. Google serv
 That is why we treat `phonedown.app` as stable.
 
 ### Study Note
+
+## 4.1 Current Backup And Crash Reporting Policy
+
+| Field | Value | Why It Matters |
+|---|---|---|
+| Android OS backup | Disabled with `android:allowBackup="false"` | Keeps restore behavior under Phone Down's explicit Google Drive backup flow |
+| App-managed backup | Google Drive `appDataFolder`, opt-in | User-controlled backup and restore path |
+| Crash reporting | Firebase Crashlytics for release/internal builds | Lets tester crashes become diagnosable before closed testing |
+| Debug crash collection | Disabled | Keeps development crashes out of production diagnostics |
+
+No secrets belong in this section. Firebase/Play console values needed for this policy are public configuration status only.
 
 If you remember only one Android identity rule, remember this:
 

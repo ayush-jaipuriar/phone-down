@@ -5,7 +5,7 @@ permalink: /privacy-policy/
 
 # Privacy Policy for Phone Down
 
-**Last Updated:** May 20, 2026
+**Last Updated:** July 7, 2026
 
 ## Introduction
 
@@ -22,6 +22,7 @@ This Privacy Policy explains what data we collect, how we use it, and your right
 - **Focus Session Data**: Information about your focus sessions including duration, start/end times, interruption events, and completion status. This data is stored locally on your device.
 - **App Settings**: Your preferences including theme mode, sound/haptic settings, default timer duration, and backup preferences.
 - **Billing Information**: If you purchase Phone Down Pro, transaction details are handled by Google Play Billing. We do not store payment information.
+- **Crash Diagnostics**: Release builds may collect crash logs and basic diagnostics through Firebase Crashlytics so we can diagnose app crashes and stability issues.
 
 ### Data We Do NOT Collect
 - We do not collect your location.
@@ -36,11 +37,13 @@ This Privacy Policy explains what data we collect, how we use it, and your right
 - **App Functionality**: Session data is used to display your focus history, streaks, and insights within the app.
 - **Cloud Backup**: If you opt in, your session data and settings are backed up to your personal Google Drive app data folder.
 - **Billing**: Purchase verification is handled through Google Play's billing system.
+- **Crash Diagnosis**: Crash logs are used only to find and fix app stability problems.
 
 ### What We Don't Do
 - We do not use your data for advertising.
 - We do not profile you for marketing purposes.
 - We do not share data with analytics providers.
+- We do not use crash diagnostics for advertising or marketing.
 - We do not sell your data under any circumstances.
 
 ## Data Storage and Security
@@ -56,6 +59,10 @@ If you enable cloud backup:
 - Only the Phone Down app can access this data
 - Backup is encrypted in transit using TLS
 - You can delete your backup at any time through the app
+- Android OS automatic app-data backup is disabled for Phone Down; restore is handled through the app's explicit Google Drive backup feature.
+
+### Crash Diagnostics
+Crashlytics is enabled for release builds and disabled for debug builds. Crash reports must not include your Google access tokens, purchase tokens, raw backup payloads, full session database contents, or direct personal contact details.
 
 ### Security Measures
 - Auth tokens are stored in encrypted preferences
@@ -99,6 +106,9 @@ We use Google Play Billing for in-app purchases and Google Sign-In for optional 
 
 ### Google Drive
 If you enable backup, data is stored in your Google Drive app data folder. Google Drive's privacy and security policies apply.
+
+### Firebase Crashlytics
+Firebase Crashlytics collects release crash diagnostics to help identify and fix app stability problems.
 
 ## Policy Changes
 

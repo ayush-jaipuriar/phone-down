@@ -1,5 +1,28 @@
 # Agent Handoff Summary
 
+## Update - 2026-07-07 (Technical Backlog Priority 2+ Started)
+
+- User deferred manual Priority 1 Play-installed verification and asked to start Priority 2 onward.
+- Priority 2 remains external-console work:
+  - Firebase/Google Cloud must trust debug, upload/release, and Play App Signing certificate fingerprints.
+  - After Firebase/OAuth changes, refreshed local `app/google-services.json` must be downloaded and kept ignored.
+- Local code/docs work completed for Priority 4 and code-build portion of Priority 5:
+  - Android OS automatic backup disabled with `android:allowBackup="false"` so V1 has one restore authority: explicit in-app Google Drive backup.
+  - Firebase Crashlytics Gradle plugin and SDK wired into `:app`.
+  - Crashlytics collection configured off for debug builds and on for release/internal builds through manifest placeholders.
+  - Privacy, Data Safety, Security, Console Setup, Manual QA, and Sprint 16.5 docs updated with backup/Crashlytics behavior and redaction rules.
+- Verification passed:
+  - `./gradlew --no-daemon --no-configuration-cache :app:processDebugMainManifest :app:assembleDebug :app:testDebugUnitTest --console=plain`
+  - `./gradlew --no-daemon --no-configuration-cache :app:bundleRelease --console=plain`
+  - merged manifests confirm `android:allowBackup="false"` for debug and release
+  - merged debug manifest confirms Crashlytics collection `false`
+  - merged release manifest confirms Crashlytics collection `true`
+- Still pending:
+  - Firebase Console/OAuth fingerprint setup.
+  - Play Billing product creation.
+  - safe Crashlytics event verification from a release/internal build.
+  - new internal release artifact after verification passes.
+
 ## Update - 2026-07-04 (Version 1.0.3 Internal Test Artifacts)
 
 - Bumped Android release identity to version `1.0.3` / version code `4` for a new Play Console internal-testing upload.

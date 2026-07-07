@@ -1004,11 +1004,13 @@ Why this test exists:
 Steps:
 
 1. Install debug build.
-2. Trigger a controlled test crash if a debug-only trigger exists.
+2. Confirm manifest/BuildConfig uses debug collection disabled.
+3. Trigger a controlled test crash only if a debug-only trigger exists.
 
 Expected:
 
 - no debug crash appears in Firebase Crashlytics
+- debug builds do not upload Crashlytics reports
 
 Result:
 
@@ -1026,13 +1028,16 @@ Why this test exists:
 Steps:
 
 1. Install Play internal or release-equivalent build.
-2. Trigger a controlled test crash.
-3. Check Firebase Crashlytics console.
+2. Confirm the Firebase project is the intended Phone Down project.
+3. Trigger a controlled test crash only from a tester build where this is safe.
+4. Reopen the app once after the crash so Crashlytics can upload the report.
+5. Check Firebase Crashlytics console.
 
 Expected:
 
 - crash appears in Crashlytics
 - no sensitive user values are attached
+- no Google email, Google ID, access token, purchase token, backup payload, or raw session database content appears in keys/logs
 
 Result:
 
