@@ -53,6 +53,32 @@
   4. add US/default international pricing after monthly exists
   5. only then create `pro_yearly` and `pro_lifetime`
 
+## Update - 2026-07-09 (Priority 3 Billing Recovery Attempt)
+
+- Retried the recommended narrower recovery path in Play Console.
+- First cleared missing subscription setup task:
+  - opened `pro_monthly` subscription details
+  - added benefit: `Unlimited focus sessions and Pro tools`
+  - saved successfully; Play Console showed `Your changes have been saved`
+- Then retried monthly base-plan creation from clean form:
+  - base plan ID `monthly`
+  - type `Auto-renewing`
+  - billing period `Monthly`
+  - availability limited to India only
+  - entered INR 99; Play normalized row to INR 100.00
+- Final result:
+  - base-plan save still failed with `Your changes couldn't be saved`
+- Current conclusion:
+  - failure is not caused by all-region pricing
+  - failure is not caused by missing subscription benefits
+  - likely remaining blocker is Play Console/backend/account-state validation around creating the first base plan
+- Current browser state:
+  - Chrome remains on the failed `pro_monthly` base-plan create page.
+- Recommended next move:
+  1. user manually refreshes/retries same base-plan save once in Play Console
+  2. if it still fails, capture screenshot/error and contact Play Console support
+  3. keep `pro_yearly` and `pro_lifetime` creation paused until Play billing product saving works
+
 ## Update - 2026-07-07 (Technical Backlog Priority 2+ Started)
 
 - User deferred manual Priority 1 Play-installed verification and asked to start Priority 2 onward.

@@ -593,6 +593,26 @@ These product entries also matter for testing because:
 - Play Console rejected the monthly base-plan draft with `Your changes couldn't be saved`.
 - Current recommended recovery: create monthly with India-only pricing first for internal billing QA, then expand and override international prices after the base plan saves.
 
+### 2026-07-09 Billing Console Recovery Status
+
+- Added and saved subscription benefit for `pro_monthly`:
+  - `Unlimited focus sessions and Pro tools`
+- Retried `pro_monthly` monthly base plan after benefits were saved.
+- Minimal retry used:
+  - base plan ID `monthly`
+  - auto-renewing monthly billing period
+  - India-only availability
+  - INR 99 entered, normalized by Play to INR 100.00
+- Result:
+  - base-plan save still failed with `Your changes couldn't be saved`.
+- Current diagnosis:
+  - all-region pricing was not the blocker
+  - missing subscription benefits was not the blocker
+  - likely remaining issue is Play Console/backend/account-state validation for base-plan creation
+- Current next step:
+  - manually retry base-plan creation after refresh/new browser session
+  - escalate to Play Console support if the same save failure repeats
+
 ### What Makes A Good Product ID
 
 A good product ID is:

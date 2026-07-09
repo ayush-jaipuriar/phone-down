@@ -374,6 +374,24 @@ Use the Phase 16 launch pricing unless changed deliberately:
   - then add US/default international prices after the product exists
   - repeat for yearly and lifetime only after monthly save path is proven
 
+### 2026-07-09 Recovery Attempt Notes
+
+- Cleared the missing subscription-benefits task on `pro_monthly`.
+  - Added benefit text: `Unlimited focus sessions and Pro tools`.
+  - Play Console confirmed: `Your changes have been saved`.
+- Retried monthly base-plan creation from a clean create form.
+  - base plan ID: `monthly`
+  - type: `Auto-renewing`
+  - billing period: `Monthly`
+  - availability: India only
+  - entered price: INR 99
+  - Play-normalized price: INR 100.00
+- Final base-plan save still failed with Play Console message: `Your changes couldn't be saved`.
+- Conclusion: blocker is not all-region pricing and not missing benefits. It is likely a Play Console/backend/account-state validation issue around base-plan creation.
+- Next recommended action:
+  - manually retry base-plan creation in Play Console after a refresh/new browser session
+  - if it still fails, capture screenshot and contact Play Console support with product ID `pro_monthly`, base plan ID `monthly`, India-only INR 100.00, and error `Your changes couldn't be saved`
+
 ## 8. Phase 3 - Play Signing And Firebase/OAuth Fingerprint Verification
 
 ### Goal
