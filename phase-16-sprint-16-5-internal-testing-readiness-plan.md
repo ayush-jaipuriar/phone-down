@@ -164,7 +164,7 @@ Implementation progress - 2026-07-04:
 |---|---|---|---|---|
 | Phase 1 - Store Listing And Console Setup | Complete for store listing; review submission blocked by closed-testing dashboard steps | Play Console | Phase 7 QA quality | Store setup is complete enough for internal testers |
 | Phase 2 - Billing Product Creation | Not started | Play Console | Billing QA | Required products exist and are active |
-| Phase 3 - Signing And Firebase Trust | External setup pending | Play Console/Firebase | Auth and Drive QA | Play-installed app can be trusted by Google services |
+| Phase 3 - Signing And Firebase Trust | Console setup complete; Play-installed sign-in QA pending | Play Console/Firebase | Auth and Drive QA | Play-installed app can be trusted by Google services |
 | Phase 4 - Backup Policy Cleanup | Complete | Code/docs | Backup/privacy QA | One clear backup authority for V1 |
 | Phase 5 - Crashlytics Integration | Code/build complete; Firebase console/device event verification pending | Code/docs/Firebase | Closed testing readiness | Release/internal crashes are diagnosable |
 | Phase 6 - Internal Release Sync | Not started | Code/Play Console | Play-installed QA | Current internal release contains required changes |
@@ -174,7 +174,7 @@ Implementation progress - 2026-07-04:
 
 - [x] Phase 1 store listing complete: listing text/assets saved and no longer the visible dashboard setup blocker.
 - [ ] Phase 2 complete: `pro_monthly`, `pro_yearly`, and `pro_lifetime` active in Play Console.
-- [ ] Phase 3 complete: Play signing fingerprints verified and trusted by Firebase/Google Cloud.
+- [~] Phase 3 complete: Play signing fingerprints verified and trusted by Firebase/Google Cloud; Play-installed sign-in QA pending.
 - [x] Phase 4 complete: Android OS backup disabled for V1 and docs updated.
 - [~] Phase 5 complete: Crashlytics integrated and privacy docs updated; Firebase console/device event verification pending.
 - [ ] Phase 6 complete: fresh internal release uploaded if code/config changed.
@@ -363,12 +363,12 @@ Ensure Google Sign-In and Drive authorization work on the Play-installed app, no
 
 ### Phase Checklist
 
-- [ ] Find Play App Signing certificate fingerprints.
-- [ ] Compare upload-key fingerprints against local docs.
-- [ ] Add Play signing fingerprints to Firebase/Google Cloud if missing.
-- [ ] Refresh ignored `google-services.json` only if required.
-- [ ] Update repo docs with public fingerprint status.
-- [ ] Confirm phase acceptance criteria.
+- [x] Find Play App Signing certificate fingerprints.
+- [x] Compare upload-key fingerprints against local docs.
+- [x] Add Play signing fingerprints to Firebase/Google Cloud if missing.
+- [x] Refresh ignored `google-services.json` only if required.
+- [x] Update repo docs with public fingerprint status.
+- [~] Confirm phase acceptance criteria.
 
 ### Why This Matters
 
@@ -380,37 +380,56 @@ Debug builds use the debug certificate. Play-installed builds use Play signing. 
 
 ### Hands-On Play Console Steps
 
-- [ ] Open Play Console > Phone Down > test/release signing or app integrity signing details.
-- [ ] Locate Play App Signing certificate fingerprints.
-- [ ] Copy public SHA-1 and SHA-256 fingerprints only.
-- [ ] Confirm upload key SHA-1/SHA-256 still match local docs:
+- [x] Open Play Console > Phone Down > test/release signing or app integrity signing details.
+- [x] Locate Play App Signing certificate fingerprints.
+- [x] Copy public SHA-1 and SHA-256 fingerprints only.
+- [x] Confirm upload key SHA-1/SHA-256 still match local docs:
   - SHA-1: `EE:FA:73:EF:A2:F0:6A:A1:8F:03:A8:0E:C4:A4:20:F7:65:33:A3:9C`
   - SHA-256: `63:0E:62:5F:A1:14:13:C9:A0:FB:2B:53:E8:4B:5A:D2:B3:03:11:B5:0D:52:4F:42:B9:92:75:0E:2C:7E:F9:0A`
 
 ### Firebase/Google Cloud Steps
 
-- [ ] Open Firebase project for Phone Down.
-- [ ] Add Play signing SHA-1 to Android app `phonedown.app` if missing.
-- [ ] Add Play signing SHA-256 if available/needed.
-- [ ] Download refreshed `google-services.json` only if Firebase config changes require it.
-- [ ] Place `google-services.json` at `app/google-services.json`.
-- [ ] Confirm it remains ignored by Git.
-- [ ] Confirm no OAuth client secret JSON is added to repo.
+- [x] Open Firebase project for Phone Down.
+- [x] Add Play signing SHA-1 to Android app `phonedown.app` if missing.
+- [x] Add Play signing SHA-256 if available/needed.
+- [x] Download refreshed `google-services.json` only if Firebase config changes require it.
+- [x] Place `google-services.json` at `app/google-services.json`.
+- [x] Confirm it remains ignored by Git.
+- [x] Confirm no OAuth client secret JSON is added to repo.
 
 ### Repo Documentation Steps
 
-- [ ] Update `docs/phase-16-console-setup-info.md`:
+- [x] Update `docs/phase-16-console-setup-info.md`:
   - Play App Signing enabled: Yes/No
   - Play signing SHA-1
   - Play signing SHA-256
   - date verified
-- [ ] Keep only public fingerprints in docs.
+- [x] Keep only public fingerprints in docs.
 
 ### Acceptance Criteria
 
-- [ ] Play signing fingerprints are recorded.
-- [ ] Firebase/Google Cloud trusts Play signing fingerprints.
-- [ ] Play-installed Google Sign-In can be tested meaningfully.
+- [x] Play signing fingerprints are recorded.
+- [x] Firebase/Google Cloud trusts Play signing fingerprints.
+- [~] Play-installed Google Sign-In can be tested meaningfully after Google OAuth propagation.
+
+### Phase 3 Progress - 2026-07-09
+
+- Verified local debug and upload-key fingerprints with `./gradlew --no-daemon --no-configuration-cache :app:signingReport --console=plain`.
+- Verified Play App Signing certificate in Play Console:
+  - SHA-1: `3D:57:D0:6B:3F:38:A6:D7:40:4F:48:F1:9E:4C:68:07:55:30:D0:25`
+  - SHA-256: `E2:EA:8A:C4:27:76:1F:66:3F:96:9F:D7:5E:F6:45:3E:A8:93:17:10:21:CE:20:9F:D7:78:4A:DC:60:D7:95:66`
+- Added debug, upload, and Play App Signing SHA-1/SHA-256 values to the Firebase Android app.
+- Google Cloud Credentials initially had only `Phone Down Web Client` and `Phone Down Android Debug`.
+- Created missing Android OAuth clients:
+  - `Phone Down Android Upload`
+  - `Phone Down Android Play Signing`
+- Downloaded refreshed `app/google-services.json`; it remains ignored by Git.
+- Refreshed config now contains three Android OAuth clients and one Web client.
+- Verification passed:
+  - `./gradlew --no-daemon --no-configuration-cache :app:processDebugGoogleServices :app:processReleaseGoogleServices :app:assembleDebug --console=plain`
+  - generated debug and release resources include `default_web_client_id`.
+- Remaining proof:
+  - wait for Google OAuth propagation if needed, then test Google Sign-In from the Play-installed app.
 
 ## 9. Phase 4 - Android Backup Policy Cleanup
 

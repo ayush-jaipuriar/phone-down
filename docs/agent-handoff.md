@@ -1,5 +1,34 @@
 # Agent Handoff Summary
 
+## Update - 2026-07-09 (Priority 2 Firebase/OAuth Trust Complete)
+
+- User approved proceeding with Priority 2 console setup.
+- Verified local signing fingerprints with `:app:signingReport`:
+  - debug SHA-1/SHA-256 already documented
+  - upload SHA-1/SHA-256 still match local docs
+- Verified Play App Signing certificate in Play Console:
+  - SHA-1: `3D:57:D0:6B:3F:38:A6:D7:40:4F:48:F1:9E:4C:68:07:55:30:D0:25`
+  - SHA-256: `E2:EA:8A:C4:27:76:1F:66:3F:96:9F:D7:5E:F6:45:3E:A8:93:17:10:21:CE:20:9F:D7:78:4A:DC:60:D7:95:66`
+- Firebase Android app `phonedown.app` now has all six public fingerprints:
+  - debug SHA-1/SHA-256
+  - upload SHA-1/SHA-256
+  - Play App Signing SHA-1/SHA-256
+- Google Cloud OAuth clients now exist:
+  - `Phone Down Web Client`
+  - `Phone Down Android Debug`
+  - `Phone Down Android Upload`
+  - `Phone Down Android Play Signing`
+- Downloaded refreshed `google-services.json` from Firebase and replaced local ignored `app/google-services.json`.
+  - Local config now contains three Android OAuth clients and one Web client.
+  - `app/google-services.json` remains ignored by Git.
+- Verification passed:
+  - `./gradlew --no-daemon --no-configuration-cache :app:processDebugGoogleServices :app:processReleaseGoogleServices :app:assembleDebug --console=plain`
+  - generated debug/release resources include `default_web_client_id`.
+- Remaining Priority 2 proof:
+  - after possible Google OAuth propagation delay, test Google Sign-In on Play-installed build.
+- Next technical backlog item:
+  - Priority 3 Play Billing products: create/activate `pro_monthly`, `pro_yearly`, and `pro_lifetime`.
+
 ## Update - 2026-07-07 (Technical Backlog Priority 2+ Started)
 
 - User deferred manual Priority 1 Play-installed verification and asked to start Priority 2 onward.

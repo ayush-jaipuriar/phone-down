@@ -177,7 +177,8 @@ Fill these after creating the Play Console account and Phone Down app.
 |---|---|---|
 | Developer account type | TODO: Personal / Organization | Affects verification and sometimes release requirements |
 | Developer name | TODO | User-facing publisher name |
-| Play Console app created | TODO: Yes / No | Confirms Play-side app identity exists |
+| Play Console app created | Yes | Confirms Play-side app identity exists |
+| Play App Signing enabled | Yes | Play-installed builds use Google's app signing certificate |
 | Play app package | `phonedown.app` | Must exactly match Android application ID |
 | Play App Signing enabled | TODO: Yes / No | Needed for recommended release flow |
 | Internal testing track created | TODO: Yes / No | Needed for early Play-distributed testing |
@@ -329,6 +330,17 @@ keytool -list -v \
 
 The upload keystore is not an ordinary project file. It is long-lived release infrastructure.
 
+## 7.1 Play App Signing Certificate
+
+Google Play uses this certificate to sign builds delivered to users from Play. These values are public certificate fingerprints, not private keys.
+
+Verified in Play Console on July 9, 2026.
+
+| Fingerprint | Value | Why It Matters |
+|---|---|---|
+| Play App Signing SHA-1 | `3D:57:D0:6B:3F:38:A6:D7:40:4F:48:F1:9E:4C:68:07:55:30:D0:25` | Needed for Play-installed Google Sign-In and Drive trust |
+| Play App Signing SHA-256 | `E2:EA:8A:C4:27:76:1F:66:3F:96:9F:D7:5E:F6:45:3E:A8:93:17:10:21:CE:20:9F:D7:78:4A:DC:60:D7:95:66` | Needed for stronger certificate matching and Android app links/trust surfaces |
+
 ### Current Progress
 
 Recorded from local `keytool` output on `2026-05-15`:
@@ -384,6 +396,10 @@ These are the Android-specific OAuth client records that bind package name plus 
 | Android OAuth debug client name | `Phone Down Android Debug` | Human-readable client label in Google Cloud |
 | Android OAuth debug client type | Android | Confirms this is the correct client platform |
 | Android OAuth debug client ID | Created | Actual runtime client identity exists in Google Cloud |
+| Android OAuth upload client created | Yes | Needed for locally signed release/upload-key installs |
+| Android OAuth upload client name | `Phone Down Android Upload` | Human-readable client label in Google Cloud |
+| Android OAuth Play Signing client created | Yes | Needed for Play-installed builds |
+| Android OAuth Play Signing client name | `Phone Down Android Play Signing` | Human-readable client label in Google Cloud |
 | Web OAuth client for Credential Manager | Yes | Needed for `default_web_client_id` used by Sign in with Google |
 
 ### Theory
@@ -405,6 +421,15 @@ Recorded from user console progress on `2026-05-15`:
 - client name is `Phone Down Android Debug`
 - client type is `Android`
 
+Updated on `2026-07-09`:
+
+- Added Firebase Android app fingerprints for debug, upload, and Play App Signing SHA-1/SHA-256 values.
+- Created missing Google Cloud Android OAuth clients:
+  - `Phone Down Android Upload`
+  - `Phone Down Android Play Signing`
+- Downloaded refreshed local `app/google-services.json`.
+- Refreshed config now contains Android OAuth clients for debug, upload, and Play App Signing SHA-1 plus the existing Web client.
+
 Important operational note:
 
 - do not download the OAuth client JSON for this Android mobile flow
@@ -414,7 +439,7 @@ Current implementation note:
 
 - the Android app now uses Credential Manager for Google Sign-In
 - refreshed Firebase config now generates `default_web_client_id`
-- debug-build Google Sign-In is ready for manual device QA
+- debug, upload-key release, and Play-installed Google Sign-In are ready for manual device QA after Google propagation
 
 ## 9. Google Cloud / Firebase Project
 
@@ -453,6 +478,8 @@ Recorded from user console progress on `2026-05-15`:
 Current local config status:
 
 - `google-services.json` has been placed at `app/google-services.json`
+- refreshed on July 9, 2026 after Firebase/Google Cloud OAuth updates
+- ignored by Git
 - the file remains ignored by git
 - contents were intentionally not copied into docs
 
