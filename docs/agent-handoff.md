@@ -27,7 +27,31 @@
 - Remaining Priority 2 proof:
   - after possible Google OAuth propagation delay, test Google Sign-In on Play-installed build.
 - Next technical backlog item:
-  - Priority 3 Play Billing products: create/activate `pro_monthly`, `pro_yearly`, and `pro_lifetime`.
+  - Priority 3 Play Billing products: recover Play Console billing setup after monthly base-plan save failure, then create/activate `pro_monthly`, `pro_yearly`, and `pro_lifetime`.
+
+## Update - 2026-07-09 (Priority 3 Billing Console Attempt)
+
+- User approved proceeding with Priority 3 Play Billing products.
+- Play Console work performed in the existing Chrome session:
+  - created subscription shell `pro_monthly` named `Phone Down Pro Monthly`
+  - started base plan draft with ID `monthly`
+  - selected `Auto-renewing`
+  - confirmed billing period `Monthly`
+  - kept default grace/account-hold settings
+  - attempted all-region bulk pricing from INR 99
+- Important result:
+  - Play rounded India to INR 100.00.
+  - Play generated United States as USD 0.99.
+  - Manual United States USD 1.99 override did not persist.
+  - Bottom Save failed with Play Console error: `Your changes couldn't be saved`.
+- Current browser state:
+  - Chrome is left on `pro_monthly` base-plan create page with failed draft visible.
+- Recommended next move:
+  1. discard failed monthly base-plan draft
+  2. recreate monthly base plan with India-only availability/price first
+  3. save and activate monthly
+  4. add US/default international pricing after monthly exists
+  5. only then create `pro_yearly` and `pro_lifetime`
 
 ## Update - 2026-07-07 (Technical Backlog Priority 2+ Started)
 

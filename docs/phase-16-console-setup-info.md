@@ -557,19 +557,17 @@ Scope choice is both a security decision and a product-trust decision. Asking fo
 
 Recommended product setup:
 
-| Plan | Product ID / Base Plan | India Price | Default International Price | Status |
+| Plan | Product ID | India Price | Default International Price | Status |
 |---|---|---:|---:|---|
-| Monthly Pro | `pro` / `pro-monthly` | INR 99/month | USD 1.99/month | TODO |
-| Yearly Pro | `pro` / `pro-yearly` | INR 799/year | USD 14.99/year | TODO |
+| Monthly Pro | `pro_monthly` | INR 99/month | USD 1.99/month | Blocked: subscription shell created, monthly base-plan save failed |
+| Yearly Pro | `pro_yearly` | INR 799/year | USD 14.99/year | TODO |
 | Lifetime Pro | `pro_lifetime` | INR 1,999 | USD 39.99 | TODO |
 
-Fallback if separate subscription products are easier:
+Confirmed contract:
 
-| Plan | Product ID | Why This Might Be Used |
-|---|---|---|
-| Monthly Pro | `pro_monthly` | Simpler implementation if base-plan structure becomes awkward |
-| Yearly Pro | `pro_yearly` | Same reason |
-| Lifetime Pro | `pro_lifetime` | One-time product remains separate either way |
+- Use separate subscription product IDs `pro_monthly` and `pro_yearly`.
+- Use one-time product ID `pro_lifetime`.
+- Do not switch to a shared `pro` subscription unless app code and docs are deliberately changed together.
 
 ### Theory
 
@@ -582,6 +580,18 @@ These product entries also matter for testing because:
 - the app queries them from Play
 - the Pro screen shows their real prices/details
 - entitlement restoration depends on the same IDs
+
+### 2026-07-09 Billing Console Status
+
+- Created `pro_monthly` subscription shell as `Phone Down Pro Monthly`.
+- Started monthly auto-renewing base plan with base plan ID `monthly`.
+- Confirmed Play Console showed billing period `Monthly` after selecting `Auto-renewing`.
+- Attempted 177-country bulk pricing from INR 99.
+  - Play rounded India to INR 100.00.
+  - United States generated as USD 0.99, not the USD 1.99 launch reference.
+  - Manual United States USD 1.99 inline override did not persist.
+- Play Console rejected the monthly base-plan draft with `Your changes couldn't be saved`.
+- Current recommended recovery: create monthly with India-only pricing first for internal billing QA, then expand and override international prices after the base plan saves.
 
 ### What Makes A Good Product ID
 

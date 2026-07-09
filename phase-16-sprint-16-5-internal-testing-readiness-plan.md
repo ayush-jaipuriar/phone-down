@@ -312,12 +312,12 @@ Use the Phase 16 launch pricing unless changed deliberately:
 
 ### Hands-On Play Console Steps - Subscriptions
 
-- [ ] Open Play Console > Phone Down > Monetize with Play > Products > Subscriptions.
-- [ ] Create subscription `pro_monthly`.
+- [x] Open Play Console > Phone Down > Monetize with Play > Products > Subscriptions.
+- [x] Create subscription `pro_monthly`.
 - [ ] Add clear name, for example `Phone Down Pro Monthly`.
-- [ ] Add monthly base plan.
+- [x] Add monthly base plan.
 - [ ] Set base plan active.
-- [ ] Set regional prices, starting with India and default prices.
+- [~] Set regional prices, starting with India and default prices.
 - [ ] Confirm at least one purchasable offer/base plan exists.
 - [ ] Save/activate.
 - [ ] Create subscription `pro_yearly`.
@@ -354,6 +354,25 @@ Use the Phase 16 launch pricing unless changed deliberately:
 - [ ] Play Console one-time products page lists `pro_lifetime`.
 - [ ] Each product is active or otherwise available to the internal testing build.
 - [ ] App paywall can load real localized product details on Play-installed build.
+
+### 2026-07-09 Console Attempt Notes
+
+- `pro_monthly` subscription shell was created in Play Console as `Phone Down Pro Monthly`.
+- Monthly base-plan draft was configured with:
+  - base plan ID `monthly`
+  - type `Auto-renewing`
+  - billing period `Monthly`
+  - default grace/account-hold settings
+- Bulk regional pricing was attempted for all 177 countries/regions from INR 99.
+  - Play normalized India to INR 100.00.
+  - Play generated United States as USD 0.99, below the launch reference of USD 1.99.
+  - Manual US override to USD 1.99 did not persist in the inline editor.
+- Saving the monthly base-plan draft failed with Play Console message: `Your changes couldn't be saved`.
+- Next retry should use the narrower path first:
+  - set only India availability/price to create a valid internal-testing product
+  - save/activate monthly base plan
+  - then add US/default international prices after the product exists
+  - repeat for yearly and lifetime only after monthly save path is proven
 
 ## 8. Phase 3 - Play Signing And Firebase/OAuth Fingerprint Verification
 
