@@ -90,6 +90,12 @@
 - Connected Gmail search found no matching BillDesk email immediately after initiation; recheck Inbox and Spam after delivery.
 - Google Payments also sent an identity-verification notice requesting organization details and a readable government photo ID; PAN is named as an accepted example.
 - Console payment-account details still direct the user to await the BillDesk email; no verification form or upload action is currently exposed in Play Console.
+- BillDesk onboarding is now open. It includes Personal Info, Bank Account Details, Business Info, and a required Video KYC step.
+- Verified application details for BillDesk:
+  - public website: `https://ayush-jaipuriar.github.io/phone-down/`
+  - app name: `Phone Down`
+  - active internal-test install link: `https://play.google.com/apps/internaltest/4701515761564685039`
+- The public Play Store listing URL currently returns 404 because the app is draft/internal-testing only; use the internal-test link rather than presenting the unpublished public listing as live.
 - Priority 3 remains externally blocked until the user completes BillDesk KYC. After approval:
   1. retry and save the `pro_monthly` / `monthly` base plan
   2. create `pro_yearly`

@@ -622,6 +622,9 @@ These product entries also matter for testing because:
 - Next action is user completion of the BillDesk KYC instructions sent from `onboarding@billdesk.com`; check Inbox and Spam if delivery is delayed.
 - Google Payments may also send a separate identity-verification notice requesting organization details and a readable government photo ID; PAN is listed as an accepted example.
 - The Play Console payments view does not expose an upload form yet and continues to direct the user to the BillDesk email.
+- Live BillDesk onboarding includes Personal Info, Bank Account Details, Business Info, and Video KYC.
+- Current application values: website `https://ayush-jaipuriar.github.io/phone-down/`; app name `Phone Down`; internal-test install link `https://play.google.com/apps/internaltest/4701515761564685039`.
+- Do not claim the public Play Store listing is live: it remains draft/internal-only and currently returns 404 publicly.
 - Do not retry product creation until verification is approved. Then retry `pro_monthly` first and create `pro_yearly` / `pro_lifetime` only after monthly saves.
 
 ### What Makes A Good Product ID
