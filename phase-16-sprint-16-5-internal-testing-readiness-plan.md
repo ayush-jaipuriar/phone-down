@@ -399,6 +399,8 @@ Use the Phase 16 launch pricing unless changed deliberately:
 - Initiated BillDesk merchant verification; Play Console now shows `In progress`.
 - BillDesk instructions are delivered by email from `onboarding@billdesk.com` to the primary payments-profile contact.
 - Immediate Gmail search found no matching message, so delivery may still be pending; Inbox and Spam must be checked again.
+- A separate Google Payments identity-verification email requests organization details and a readable government photo ID, with PAN named as an accepted example.
+- Play Console payment-account details still say to await BillDesk; no identity-upload action is exposed there yet.
 - Phase 2 is externally blocked until BillDesk KYC is completed and approved.
 - After approval, retry `pro_monthly` base-plan creation before creating yearly or lifetime products.
 

@@ -88,6 +88,8 @@
 - Current Play Console status: `In progress`.
 - Play sent the next-step instructions to the primary payments-profile contact from `onboarding@billdesk.com`.
 - Connected Gmail search found no matching BillDesk email immediately after initiation; recheck Inbox and Spam after delivery.
+- Google Payments also sent an identity-verification notice requesting organization details and a readable government photo ID; PAN is named as an accepted example.
+- Console payment-account details still direct the user to await the BillDesk email; no verification form or upload action is currently exposed in Play Console.
 - Priority 3 remains externally blocked until the user completes BillDesk KYC. After approval:
   1. retry and save the `pro_monthly` / `monthly` base plan
   2. create `pro_yearly`

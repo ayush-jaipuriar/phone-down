@@ -620,6 +620,8 @@ These product entries also matter for testing because:
 - Verification was initiated from `Settings > Payments profile`.
 - Current status is `In progress`.
 - Next action is user completion of the BillDesk KYC instructions sent from `onboarding@billdesk.com`; check Inbox and Spam if delivery is delayed.
+- Google Payments may also send a separate identity-verification notice requesting organization details and a readable government photo ID; PAN is listed as an accepted example.
+- The Play Console payments view does not expose an upload form yet and continues to direct the user to the BillDesk email.
 - Do not retry product creation until verification is approved. Then retry `pro_monthly` first and create `pro_yearly` / `pro_lifetime` only after monthly saves.
 
 ### What Makes A Good Product ID
