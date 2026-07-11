@@ -559,7 +559,7 @@ Recommended product setup:
 
 | Plan | Product ID | India Price | Default International Price | Status |
 |---|---|---:|---:|---|
-| Monthly Pro | `pro_monthly` | INR 99/month | USD 1.99/month | Blocked: subscription shell created, monthly base-plan save failed |
+| Monthly Pro | `pro_monthly` | INR 99/month | USD 1.99/month | Blocked: BillDesk merchant verification in progress |
 | Yearly Pro | `pro_yearly` | INR 799/year | USD 14.99/year | TODO |
 | Lifetime Pro | `pro_lifetime` | INR 1,999 | USD 39.99 | TODO |
 
@@ -612,6 +612,15 @@ These product entries also matter for testing because:
 - Current next step:
   - manually retry base-plan creation after refresh/new browser session
   - escalate to Play Console support if the same save failure repeats
+
+### 2026-07-11 Merchant Verification Status
+
+- Account-level diagnosis confirmed PA-CB merchant verification was the billing blocker.
+- Play Console stated that an India payments-profile developer cannot sell until BillDesk verification completes.
+- Verification was initiated from `Settings > Payments profile`.
+- Current status is `In progress`.
+- Next action is user completion of the BillDesk KYC instructions sent from `onboarding@billdesk.com`; check Inbox and Spam if delivery is delayed.
+- Do not retry product creation until verification is approved. Then retry `pro_monthly` first and create `pro_yearly` / `pro_lifetime` only after monthly saves.
 
 ### What Makes A Good Product ID
 

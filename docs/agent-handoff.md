@@ -79,6 +79,21 @@
   2. if it still fails, capture screenshot/error and contact Play Console support
   3. keep `pro_yearly` and `pro_lifetime` creation paused until Play billing product saving works
 
+## Update - 2026-07-11 (Priority 3 Merchant Verification Root Cause)
+
+- Inspected Play Console account-level monetization settings after repeated base-plan save failures.
+- Confirmed root cause: Payment Aggregator Cross Border (PA-CB) merchant verification was `Not started`.
+- Play Console explicitly stated that developers with an India payments profile cannot sell on Google Play until BillDesk merchant verification is complete.
+- Initiated verification from `Settings > Payments profile`.
+- Current Play Console status: `In progress`.
+- Play sent the next-step instructions to the primary payments-profile contact from `onboarding@billdesk.com`.
+- Connected Gmail search found no matching BillDesk email immediately after initiation; recheck Inbox and Spam after delivery.
+- Priority 3 remains externally blocked until the user completes BillDesk KYC. After approval:
+  1. retry and save the `pro_monthly` / `monthly` base plan
+  2. create `pro_yearly`
+  3. create `pro_lifetime`
+  4. run Play-installed billing purchase and restore QA
+
 ## Update - 2026-07-07 (Technical Backlog Priority 2+ Started)
 
 - User deferred manual Priority 1 Play-installed verification and asked to start Priority 2 onward.

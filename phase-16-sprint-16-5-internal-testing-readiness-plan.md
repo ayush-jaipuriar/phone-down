@@ -392,6 +392,16 @@ Use the Phase 16 launch pricing unless changed deliberately:
   - manually retry base-plan creation in Play Console after a refresh/new browser session
   - if it still fails, capture screenshot and contact Play Console support with product ID `pro_monthly`, base plan ID `monthly`, India-only INR 100.00, and error `Your changes couldn't be saved`
 
+### 2026-07-11 Merchant Verification Diagnosis
+
+- Inspected `Settings > Payments profile` in Play Console.
+- Confirmed PA-CB merchant verification was `Not started`; Play stated that selling is disabled until verification completes.
+- Initiated BillDesk merchant verification; Play Console now shows `In progress`.
+- BillDesk instructions are delivered by email from `onboarding@billdesk.com` to the primary payments-profile contact.
+- Immediate Gmail search found no matching message, so delivery may still be pending; Inbox and Spam must be checked again.
+- Phase 2 is externally blocked until BillDesk KYC is completed and approved.
+- After approval, retry `pro_monthly` base-plan creation before creating yearly or lifetime products.
+
 ## 8. Phase 3 - Play Signing And Firebase/OAuth Fingerprint Verification
 
 ### Goal
