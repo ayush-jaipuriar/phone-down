@@ -68,11 +68,9 @@ class RoomSessionRepository
                 it.toDomainModel()
             }
 
-        override suspend fun getAllSessions(): List<FocusSession> =
-            sessionDao.getAllSessions().map { it.toDomainModel() }
+        override suspend fun getAllSessions(): List<FocusSession> = sessionDao.getAllSessions().map { it.toDomainModel() }
 
-        override suspend fun getAllPenaltyEvents(): List<PenaltyEvent> =
-            penaltyEventDao.getAllPenaltyEvents().map { it.toDomainModel() }
+        override suspend fun getAllPenaltyEvents(): List<PenaltyEvent> = penaltyEventDao.getAllPenaltyEvents().map { it.toDomainModel() }
 
         override suspend fun replaceAllData(
             sessions: List<FocusSession>,

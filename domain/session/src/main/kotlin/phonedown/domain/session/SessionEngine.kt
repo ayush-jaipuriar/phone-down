@@ -253,6 +253,7 @@ class SessionEngine(
             SessionState.WaitingForPhoneDown,
             SessionState.Arming,
             SessionState.Active,
+            SessionState.PausedByPickup,
             -> {
                 SessionTransition(
                     runtime =
@@ -267,6 +268,7 @@ class SessionEngine(
                             activeStartedAtElapsedMillis = null,
                             activeBaseFocusSeconds = workingRuntime.session.validFocusSeconds,
                             armingStartedAtElapsedMillis = null,
+                            interruptionStartedAtElapsedMillis = null,
                             manualPauseStartedAtElapsedMillis = nowElapsed,
                         ),
                 )
@@ -376,6 +378,7 @@ class SessionEngine(
                             activeBaseFocusSeconds = activeRuntime.session.validFocusSeconds,
                             callStartedAtElapsedMillis = nowElapsed,
                             armingStartedAtElapsedMillis = null,
+                            interruptionStartedAtElapsedMillis = null,
                         ),
                 )
             }
@@ -383,6 +386,8 @@ class SessionEngine(
             SessionState.WaitingForPhoneDown,
             SessionState.Arming,
             SessionState.PausedByUser,
+            SessionState.PausedByPickup,
+            SessionState.Broken,
             ->
                 SessionTransition(
                     runtime =
@@ -397,6 +402,7 @@ class SessionEngine(
                                 ),
                             phoneIsValid = false,
                             armingStartedAtElapsedMillis = null,
+                            interruptionStartedAtElapsedMillis = null,
                             callStartedAtElapsedMillis = nowElapsed,
                         ),
                 )

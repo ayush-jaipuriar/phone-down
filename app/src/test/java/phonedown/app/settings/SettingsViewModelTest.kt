@@ -265,6 +265,27 @@ class SettingsViewModelTest {
             assertFalse(sessionRepo.clearAllPenaltyEventsCalled)
             assertFalse(settingsRepo.resetToDefaultsCalled)
         }
+
+    @Test
+    fun `transient delete confirmation state survives repository flow emission`() =
+        runTest(testDispatcher) {
+            val settingsRepo = FakeSettingsRepository()
+            val viewModel = createViewModel(settingsRepo = settingsRepo)
+            testScheduler.advanceUntilIdle()
+
+            viewModel.showDeleteConfirmation()
+            viewModel.setDeleteConfirmationText("DELETE")
+            viewModel.setDeleteIncludeBackup(false)
+
+            settingsRepo.setSoundEnabled(false)
+            testScheduler.advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertFalse(state.soundEnabled)
+            assertTrue(state.showDeleteConfirmation)
+            assertEquals("DELETE", state.deleteConfirmationText)
+            assertFalse(state.deleteIncludeBackup)
+        }
 }
 
 private class FakeBillingRepository(

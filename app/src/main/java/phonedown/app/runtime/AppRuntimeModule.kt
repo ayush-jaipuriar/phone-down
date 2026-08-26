@@ -218,9 +218,8 @@ object AppRuntimeModule {
 
     @Provides
     @Singleton
-    fun providesBillingActivityProvider(
-        foregroundActivityProvider: ForegroundActivityProvider,
-    ): BillingActivityProvider = foregroundActivityProvider
+    fun providesBillingActivityProvider(foregroundActivityProvider: ForegroundActivityProvider): BillingActivityProvider =
+        foregroundActivityProvider
 
     @Provides
     @Singleton
@@ -236,9 +235,8 @@ object AppRuntimeModule {
 
     @Provides
     @Singleton
-    fun providesDriveAccessTokenProvider(
-        googleDriveAuthorizationManager: GoogleDriveAuthorizationManager,
-    ): DriveAccessTokenProvider = googleDriveAuthorizationManager
+    fun providesDriveAccessTokenProvider(googleDriveAuthorizationManager: GoogleDriveAuthorizationManager): DriveAccessTokenProvider =
+        googleDriveAuthorizationManager
 
     @Provides
     @Singleton
@@ -248,9 +246,7 @@ object AppRuntimeModule {
 
     @Provides
     @Singleton
-    fun providesAutoBackupScheduling(
-        autoBackupScheduler: AutoBackupScheduler,
-    ): AutoBackupScheduling = autoBackupScheduler
+    fun providesAutoBackupScheduling(autoBackupScheduler: AutoBackupScheduler): AutoBackupScheduling = autoBackupScheduler
 
     @Provides
     @Singleton

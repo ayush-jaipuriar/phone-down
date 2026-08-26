@@ -1,3 +1,5 @@
+@file:Suppress("MagicNumber")
+
 package phonedown.feature.focus.state
 
 data class FocusUiState(

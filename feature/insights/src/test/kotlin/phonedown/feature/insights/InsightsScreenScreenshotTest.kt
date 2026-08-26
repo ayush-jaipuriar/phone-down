@@ -33,11 +33,13 @@ class InsightsScreenScreenshotTest {
 
     private val loadingState = InsightsUiState(isLoading = true)
 
+    private val testReferenceDate = java.time.LocalDate.of(2026, 5, 12)
+
     @Test
     fun insightsContentLight() {
         paparazzi.snapshot {
             PhoneDownTheme(themeMode = ThemeMode.Light) {
-                InsightsContent(uiState = sampleState, onRefresh = {})
+                InsightsContent(uiState = sampleState, onRefresh = {}, referenceDate = testReferenceDate)
             }
         }
     }
@@ -46,7 +48,7 @@ class InsightsScreenScreenshotTest {
     fun insightsContentDark() {
         paparazzi.snapshot {
             PhoneDownTheme(themeMode = ThemeMode.Dark) {
-                InsightsContent(uiState = sampleState, onRefresh = {})
+                InsightsContent(uiState = sampleState, onRefresh = {}, referenceDate = testReferenceDate)
             }
         }
     }
@@ -55,7 +57,7 @@ class InsightsScreenScreenshotTest {
     fun insightsContentEmptyLight() {
         paparazzi.snapshot {
             PhoneDownTheme(themeMode = ThemeMode.Light) {
-                InsightsContent(uiState = emptyState, onRefresh = {})
+                InsightsContent(uiState = emptyState, onRefresh = {}, referenceDate = testReferenceDate)
             }
         }
     }
@@ -64,7 +66,7 @@ class InsightsScreenScreenshotTest {
     fun insightsContentLoadingLight() {
         paparazzi.snapshot {
             PhoneDownTheme(themeMode = ThemeMode.Light) {
-                InsightsContent(uiState = loadingState, onRefresh = {})
+                InsightsContent(uiState = loadingState, onRefresh = {}, referenceDate = testReferenceDate)
             }
         }
     }

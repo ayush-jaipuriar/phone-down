@@ -8,12 +8,12 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
@@ -64,7 +64,10 @@ fun SettingsRoute(
                 is DriveAuthorizationUiStep.LaunchResolution -> {
                     when (pendingAuthorizationAction) {
                         DriveAuthorizationAction.Backup -> viewModel.showBackupError("Google Drive authorization could not be completed.")
-                        DriveAuthorizationAction.DeleteCloudBackup -> viewModel.showDeleteError("Google Drive authorization could not be completed.")
+                        DriveAuthorizationAction.DeleteCloudBackup ->
+                            viewModel.showDeleteError(
+                                "Google Drive authorization could not be completed.",
+                            )
                         null -> Unit
                     }
                     pendingAuthorizationAction = null

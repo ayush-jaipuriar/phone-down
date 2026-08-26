@@ -1,3 +1,5 @@
+@file:Suppress("FunctionName", "MaxLineLength", "LongMethod", "MagicNumber")
+
 package phonedown.feature.focus
 
 import androidx.compose.animation.AnimatedContent
@@ -205,12 +207,18 @@ private fun ActiveFocusContent(
                             penaltySeconds = uiState.penaltySeconds,
                             showAddTime = uiState.showAddTime,
                             onEndClick = { onEvent(FocusEvent.EndClicked) },
-                            onPauseClick = if (state == FocusPresentationState.Active) {
-                                { onEvent(FocusEvent.PauseClicked) }
-                            } else { null },
-                            onAddTimeClick = if (state == FocusPresentationState.Active) {
-                                { onEvent(FocusEvent.AddTimeClicked) }
-                            } else { null },
+                            onPauseClick =
+                                if (state == FocusPresentationState.Active) {
+                                    { onEvent(FocusEvent.PauseClicked) }
+                                } else {
+                                    null
+                                },
+                            onAddTimeClick =
+                                if (state == FocusPresentationState.Active) {
+                                    { onEvent(FocusEvent.AddTimeClicked) }
+                                } else {
+                                    null
+                                },
                             onAddTimeSelected = { onEvent(FocusEvent.AddTimeSelected(it)) },
                         )
                     }
@@ -487,10 +495,11 @@ private fun PausedByPickupActions(
     penaltySeconds: Long,
     onEndClick: () -> Unit,
 ) {
-    val countdownColor = when {
-        graceRemainingSeconds > 2 -> PhoneDownDesign.colors.warning
-        else -> PhoneDownDesign.colors.danger
-    }
+    val countdownColor =
+        when {
+            graceRemainingSeconds > 2 -> PhoneDownDesign.colors.warning
+            else -> PhoneDownDesign.colors.danger
+        }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -551,18 +560,32 @@ private fun PhonePickedUpIllustration() {
         // Phone body
         drawRoundRect(
             color = primaryColor,
-            topLeft = androidx.compose.ui.geometry.Offset(phoneLeft, phoneTop),
-            size = androidx.compose.ui.geometry.Size(phoneWidth, phoneHeight),
-            cornerRadius = androidx.compose.ui.geometry.CornerRadius(8f, 8f),
-            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 4f),
+            topLeft =
+                androidx.compose.ui.geometry
+                    .Offset(phoneLeft, phoneTop),
+            size =
+                androidx.compose.ui.geometry
+                    .Size(phoneWidth, phoneHeight),
+            cornerRadius =
+                androidx.compose.ui.geometry
+                    .CornerRadius(8f, 8f),
+            style =
+                androidx.compose.ui.graphics.drawscope
+                    .Stroke(width = 4f),
         )
 
         // Screen
         drawRoundRect(
             color = primaryColor.copy(alpha = 0.3f),
-            topLeft = androidx.compose.ui.geometry.Offset(phoneLeft + 4f, phoneTop + 8f),
-            size = androidx.compose.ui.geometry.Size(phoneWidth - 8f, phoneHeight - 16f),
-            cornerRadius = androidx.compose.ui.geometry.CornerRadius(4f, 4f),
+            topLeft =
+                androidx.compose.ui.geometry
+                    .Offset(phoneLeft + 4f, phoneTop + 8f),
+            size =
+                androidx.compose.ui.geometry
+                    .Size(phoneWidth - 8f, phoneHeight - 16f),
+            cornerRadius =
+                androidx.compose.ui.geometry
+                    .CornerRadius(4f, 4f),
         )
 
         // Upward arrow
@@ -573,22 +596,34 @@ private fun PhonePickedUpIllustration() {
 
         drawLine(
             color = dangerColor,
-            start = androidx.compose.ui.geometry.Offset(arrowCenterX, arrowBottom),
-            end = androidx.compose.ui.geometry.Offset(arrowCenterX, arrowTop),
+            start =
+                androidx.compose.ui.geometry
+                    .Offset(arrowCenterX, arrowBottom),
+            end =
+                androidx.compose.ui.geometry
+                    .Offset(arrowCenterX, arrowTop),
             strokeWidth = 4f,
             cap = androidx.compose.ui.graphics.StrokeCap.Round,
         )
         drawLine(
             color = dangerColor,
-            start = androidx.compose.ui.geometry.Offset(arrowCenterX - arrowWidth, arrowTop + arrowWidth),
-            end = androidx.compose.ui.geometry.Offset(arrowCenterX, arrowTop),
+            start =
+                androidx.compose.ui.geometry
+                    .Offset(arrowCenterX - arrowWidth, arrowTop + arrowWidth),
+            end =
+                androidx.compose.ui.geometry
+                    .Offset(arrowCenterX, arrowTop),
             strokeWidth = 4f,
             cap = androidx.compose.ui.graphics.StrokeCap.Round,
         )
         drawLine(
             color = dangerColor,
-            start = androidx.compose.ui.geometry.Offset(arrowCenterX + arrowWidth, arrowTop + arrowWidth),
-            end = androidx.compose.ui.geometry.Offset(arrowCenterX, arrowTop),
+            start =
+                androidx.compose.ui.geometry
+                    .Offset(arrowCenterX + arrowWidth, arrowTop + arrowWidth),
+            end =
+                androidx.compose.ui.geometry
+                    .Offset(arrowCenterX, arrowTop),
             strokeWidth = 4f,
             cap = androidx.compose.ui.graphics.StrokeCap.Round,
         )
@@ -666,16 +701,18 @@ private fun SessionCompleteContent(
             )
             TimeBreakdownRow(
                 label = "Penalty Time",
-                value = if (penaltySeconds > 0L) {
-                    "+${formatDurationMinsSecs(penaltySeconds)}"
-                } else {
-                    "+0:00"
-                },
-                valueColor = if (penaltySeconds > 0L) {
-                    PhoneDownDesign.colors.danger
-                } else {
-                    PhoneDownDesign.colors.textTertiary
-                },
+                value =
+                    if (penaltySeconds > 0L) {
+                        "+${formatDurationMinsSecs(penaltySeconds)}"
+                    } else {
+                        "+0:00"
+                    },
+                valueColor =
+                    if (penaltySeconds > 0L) {
+                        PhoneDownDesign.colors.danger
+                    } else {
+                        PhoneDownDesign.colors.textTertiary
+                    },
             )
             TimeBreakdownRow(
                 label = "Elapsed Time",
@@ -753,24 +790,28 @@ private fun CompletionCircle(clean: Boolean) {
         drawCircle(
             color = circleColor,
             radius = radius,
-            center = androidx.compose.ui.geometry.Offset(centerX, centerY),
+            center =
+                androidx.compose.ui.geometry
+                    .Offset(centerX, centerY),
         )
 
         // Checkmark
         val scale = radius / 48f
-        val path = androidx.compose.ui.graphics.Path().apply {
-            moveTo(centerX - 18f * scale, centerY + 2f * scale)
-            lineTo(centerX - 6f * scale, centerY + 18f * scale)
-            lineTo(centerX + 20f * scale, centerY - 14f * scale)
-        }
+        val path =
+            androidx.compose.ui.graphics.Path().apply {
+                moveTo(centerX - 18f * scale, centerY + 2f * scale)
+                lineTo(centerX - 6f * scale, centerY + 18f * scale)
+                lineTo(centerX + 20f * scale, centerY - 14f * scale)
+            }
         drawPath(
             path = path,
             color = checkColor,
-            style = androidx.compose.ui.graphics.drawscope.Stroke(
-                width = 5f,
-                cap = androidx.compose.ui.graphics.StrokeCap.Round,
-                join = androidx.compose.ui.graphics.StrokeJoin.Round,
-            ),
+            style =
+                androidx.compose.ui.graphics.drawscope.Stroke(
+                    width = 5f,
+                    cap = androidx.compose.ui.graphics.StrokeCap.Round,
+                    join = androidx.compose.ui.graphics.StrokeJoin.Round,
+                ),
         )
     }
 }
@@ -852,7 +893,10 @@ private fun ReadyToFocusContent(onBackClick: () -> Unit) {
 }
 
 @Composable
-private fun InstructionStep(number: String, text: String) {
+private fun InstructionStep(
+    number: String,
+    text: String,
+) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(PhoneDownSpacing.sm),
         verticalAlignment = Alignment.CenterVertically,
@@ -885,25 +929,41 @@ private fun PhoneFaceDownIllustration() {
         // Phone body
         drawRoundRect(
             color = primaryColor,
-            topLeft = androidx.compose.ui.geometry.Offset(phoneLeft, phoneTop),
-            size = androidx.compose.ui.geometry.Size(phoneWidth, phoneHeight),
-            cornerRadius = androidx.compose.ui.geometry.CornerRadius(10f, 10f),
-            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 4f),
+            topLeft =
+                androidx.compose.ui.geometry
+                    .Offset(phoneLeft, phoneTop),
+            size =
+                androidx.compose.ui.geometry
+                    .Size(phoneWidth, phoneHeight),
+            cornerRadius =
+                androidx.compose.ui.geometry
+                    .CornerRadius(10f, 10f),
+            style =
+                androidx.compose.ui.graphics.drawscope
+                    .Stroke(width = 4f),
         )
 
         // Screen
         drawRoundRect(
             color = primaryColor.copy(alpha = 0.3f),
-            topLeft = androidx.compose.ui.geometry.Offset(phoneLeft + 6f, phoneTop + 10f),
-            size = androidx.compose.ui.geometry.Size(phoneWidth - 12f, phoneHeight - 20f),
-            cornerRadius = androidx.compose.ui.geometry.CornerRadius(6f, 6f),
+            topLeft =
+                androidx.compose.ui.geometry
+                    .Offset(phoneLeft + 6f, phoneTop + 10f),
+            size =
+                androidx.compose.ui.geometry
+                    .Size(phoneWidth - 12f, phoneHeight - 20f),
+            cornerRadius =
+                androidx.compose.ui.geometry
+                    .CornerRadius(6f, 6f),
         )
 
         // Small dot (home button / camera)
         drawCircle(
             color = primaryColor,
             radius = 4f,
-            center = androidx.compose.ui.geometry.Offset(size.width / 2f, phoneTop + phoneHeight - 10f),
+            center =
+                androidx.compose.ui.geometry
+                    .Offset(size.width / 2f, phoneTop + phoneHeight - 10f),
         )
     }
 }

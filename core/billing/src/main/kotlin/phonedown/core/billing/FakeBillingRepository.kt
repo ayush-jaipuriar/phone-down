@@ -2,10 +2,10 @@ package phonedown.core.billing
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import phonedown.core.model.BillingEvent
 import phonedown.core.model.PRO_LIFETIME_PRODUCT_ID
 import phonedown.core.model.PRO_MONTHLY_PRODUCT_ID
@@ -28,32 +28,32 @@ import phonedown.core.model.repository.EntitlementCache
 class FakeBillingRepository(
     private val cache: EntitlementCache? = null,
 ) : BillingRepository {
-
-    private val _products = MutableStateFlow(
-        listOf(
-            ProProduct(
-                id = PRO_MONTHLY_PRODUCT_ID,
-                type = ProProductType.Monthly,
-                priceAmountMicros = 4_990_000,
-                formattedPrice = "$4.99",
-                billingPeriod = "P1M",
+    private val _products =
+        MutableStateFlow(
+            listOf(
+                ProProduct(
+                    id = PRO_MONTHLY_PRODUCT_ID,
+                    type = ProProductType.Monthly,
+                    priceAmountMicros = 4_990_000,
+                    formattedPrice = "$4.99",
+                    billingPeriod = "P1M",
+                ),
+                ProProduct(
+                    id = PRO_YEARLY_PRODUCT_ID,
+                    type = ProProductType.Yearly,
+                    priceAmountMicros = 29_990_000,
+                    formattedPrice = "$29.99",
+                    billingPeriod = "P1Y",
+                ),
+                ProProduct(
+                    id = PRO_LIFETIME_PRODUCT_ID,
+                    type = ProProductType.Lifetime,
+                    priceAmountMicros = 79_990_000,
+                    formattedPrice = "$79.99",
+                    billingPeriod = null,
+                ),
             ),
-            ProProduct(
-                id = PRO_YEARLY_PRODUCT_ID,
-                type = ProProductType.Yearly,
-                priceAmountMicros = 29_990_000,
-                formattedPrice = "$29.99",
-                billingPeriod = "P1Y",
-            ),
-            ProProduct(
-                id = PRO_LIFETIME_PRODUCT_ID,
-                type = ProProductType.Lifetime,
-                priceAmountMicros = 79_990_000,
-                formattedPrice = "$79.99",
-                billingPeriod = null,
-            ),
-        ),
-    )
+        )
     override val products: Flow<List<ProProduct>> = _products.asStateFlow()
 
     private val _purchases = MutableStateFlow<List<ProPurchase>>(emptyList())
@@ -79,16 +79,18 @@ class FakeBillingRepository(
 
     override suspend fun launchPurchaseFlow(product: ProProduct) {
         delay(2_000)
-        val purchase = ProPurchase(
-            productId = product.id,
-            purchaseToken = "fake_token_${System.currentTimeMillis()}",
-            state = ProPurchaseState.Acknowledged,
-            purchaseTimeMillis = System.currentTimeMillis(),
-        )
+        val purchase =
+            ProPurchase(
+                productId = product.id,
+                purchaseToken = "fake_token_${System.currentTimeMillis()}",
+                state = ProPurchaseState.Acknowledged,
+                purchaseTimeMillis = System.currentTimeMillis(),
+            )
         _purchases.value = _purchases.value + purchase
-        val newEntitlement = ProEntitlement.Pro(
-            expiryDateMillis = if (product.type == ProProductType.Lifetime) null else System.currentTimeMillis() + 365L.daysInMillis(),
-        )
+        val newEntitlement =
+            ProEntitlement.Pro(
+                expiryDateMillis = if (product.type == ProProductType.Lifetime) null else System.currentTimeMillis() + 365L.daysInMillis(),
+            )
         _entitlement.value = newEntitlement
         cache?.write(newEntitlement)
         _events.tryEmit(BillingEvent.PurchaseCompleted(product.id))
@@ -100,9 +102,17 @@ class FakeBillingRepository(
             val latestPurchase = _purchases.value.maxByOrNull { it.purchaseTimeMillis }
             if (latestPurchase != null) {
                 val product = _products.value.find { it.id == latestPurchase.productId }
-                val newEntitlement = ProEntitlement.Pro(
-                    expiryDateMillis = if (product?.type == ProProductType.Lifetime) null else System.currentTimeMillis() + 365L.daysInMillis(),
-                )
+                val newEntitlement =
+                    ProEntitlement.Pro(
+                        expiryDateMillis =
+                            if (product?.type ==
+                                ProProductType.Lifetime
+                            ) {
+                                null
+                            } else {
+                                System.currentTimeMillis() + 365L.daysInMillis()
+                            },
+                    )
                 _entitlement.value = newEntitlement
                 cache?.write(newEntitlement)
                 _events.tryEmit(BillingEvent.RestoreCompleted(_purchases.value.size))
@@ -113,20 +123,24 @@ class FakeBillingRepository(
     }
 
     override suspend fun syncPurchases() {
-        if (_purchases.value.isEmpty()) {
+        val cached = cache?.read()
+        if (cached != null) {
+            _entitlement.value = cached
+        } else if (_purchases.value.isEmpty()) {
             _entitlement.value = ProEntitlement.Free
             cache?.write(ProEntitlement.Free)
         }
     }
 
     override suspend fun acknowledgePurchase(purchaseToken: String) {
-        _purchases.value = _purchases.value.map { purchase ->
-            if (purchase.purchaseToken == purchaseToken) {
-                purchase.copy(state = ProPurchaseState.Acknowledged)
-            } else {
-                purchase
+        _purchases.value =
+            _purchases.value.map { purchase ->
+                if (purchase.purchaseToken == purchaseToken) {
+                    purchase.copy(state = ProPurchaseState.Acknowledged)
+                } else {
+                    purchase
+                }
             }
-        }
     }
 
     private fun Long.daysInMillis(): Long = this * 24 * 60 * 60 * 1000

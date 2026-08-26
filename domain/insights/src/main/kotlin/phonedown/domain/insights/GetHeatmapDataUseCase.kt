@@ -33,13 +33,14 @@ class GetHeatmapDataUseCase(
         while (!date.isAfter(today)) {
             val epochDay = date.toEpochDay()
             val minutes = (minutesByDay[epochDay] ?: 0).toInt()
-            val level = when {
-                minutes == 0 -> 0
-                minutes <= 15 -> 1
-                minutes <= 30 -> 2
-                minutes <= 60 -> 3
-                else -> 4
-            }
+            val level =
+                when {
+                    minutes == 0 -> 0
+                    minutes <= 15 -> 1
+                    minutes <= 30 -> 2
+                    minutes <= 60 -> 3
+                    else -> 4
+                }
             result.add(HeatmapDay(dateEpochDay = epochDay, focusMinutes = minutes, level = level))
             date = date.plusDays(1)
         }
@@ -47,6 +48,8 @@ class GetHeatmapDataUseCase(
         return result
     }
 
-    private suspend fun fetchSessions(startMillis: Long, endMillis: Long): List<FocusSession> =
-        sessionRepository.observeSessionsInWindow(startMillis, endMillis).first()
+    private suspend fun fetchSessions(
+        startMillis: Long,
+        endMillis: Long,
+    ): List<FocusSession> = sessionRepository.observeSessionsInWindow(startMillis, endMillis).first()
 }

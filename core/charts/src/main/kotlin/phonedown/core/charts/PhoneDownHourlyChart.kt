@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.nativeCanvas
 import phonedown.core.designsystem.PhoneDownDesign
 
 @Composable
+@Suppress("FunctionName")
 fun PhoneDownHourlyChart(
     values: List<Int>,
     modifier: Modifier = Modifier,

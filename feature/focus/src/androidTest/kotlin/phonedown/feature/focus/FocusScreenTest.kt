@@ -3,7 +3,6 @@ package phonedown.feature.focus
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
-import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
@@ -77,11 +76,12 @@ class FocusScreenTest {
         composeRule.setContent {
             PhoneDownTheme(themeMode = ThemeMode.Light) {
                 FocusScreen(
-                    uiState = FocusUiState(
-                        presentationState = FocusPresentationState.Active,
-                        remainingSeconds = 1200,
-                        elapsedSeconds = 300,
-                    ),
+                    uiState =
+                        FocusUiState(
+                            presentationState = FocusPresentationState.Active,
+                            remainingSeconds = 1200,
+                            elapsedSeconds = 300,
+                        ),
                     onEvent = {},
                 )
             }
@@ -100,12 +100,13 @@ class FocusScreenTest {
         composeRule.setContent {
             PhoneDownTheme(themeMode = ThemeMode.Light) {
                 FocusScreen(
-                    uiState = FocusUiState(
-                        presentationState = FocusPresentationState.CompletedClean,
-                        selectedDurationSeconds = 1500,
-                        focusedSeconds = 1500,
-                        elapsedSeconds = 1500,
-                    ),
+                    uiState =
+                        FocusUiState(
+                            presentationState = FocusPresentationState.CompletedClean,
+                            selectedDurationSeconds = 1500,
+                            focusedSeconds = 1500,
+                            elapsedSeconds = 1500,
+                        ),
                     onEvent = {},
                 )
             }
@@ -124,10 +125,11 @@ class FocusScreenTest {
         composeRule.setContent {
             PhoneDownTheme(themeMode = ThemeMode.Light) {
                 FocusScreen(
-                    uiState = FocusUiState(
-                        presentationState = FocusPresentationState.CleanStatusLost,
-                        penaltySeconds = 60,
-                    ),
+                    uiState =
+                        FocusUiState(
+                            presentationState = FocusPresentationState.CleanStatusLost,
+                            penaltySeconds = 60,
+                        ),
                     onEvent = { eventReceived = it },
                 )
             }
@@ -161,10 +163,11 @@ class FocusScreenTest {
         composeRule.setContent {
             PhoneDownTheme(themeMode = ThemeMode.Light) {
                 FocusScreen(
-                    uiState = FocusUiState(
-                        presentationState = FocusPresentationState.Active,
-                        showEndConfirmation = true,
-                    ),
+                    uiState =
+                        FocusUiState(
+                            presentationState = FocusPresentationState.Active,
+                            showEndConfirmation = true,
+                        ),
                     onEvent = { eventReceived = it },
                 )
             }
@@ -180,10 +183,11 @@ class FocusScreenTest {
         composeRule.setContent {
             PhoneDownTheme(themeMode = ThemeMode.Light) {
                 FocusScreen(
-                    uiState = FocusUiState(
-                        presentationState = FocusPresentationState.Idle,
-                        showDurationSelector = true,
-                    ),
+                    uiState =
+                        FocusUiState(
+                            presentationState = FocusPresentationState.Idle,
+                            showDurationSelector = true,
+                        ),
                     onEvent = {},
                 )
             }
@@ -214,10 +218,11 @@ class FocusScreenTest {
         composeRule.setContent {
             PhoneDownTheme(themeMode = ThemeMode.Light) {
                 FocusScreen(
-                    uiState = FocusUiState(
-                        presentationState = FocusPresentationState.PausedByPickup,
-                        penaltySeconds = 60,
-                    ),
+                    uiState =
+                        FocusUiState(
+                            presentationState = FocusPresentationState.PausedByPickup,
+                            penaltySeconds = 60,
+                        ),
                     onEvent = {},
                 )
             }
@@ -233,12 +238,13 @@ class FocusScreenTest {
         composeRule.setContent {
             PhoneDownTheme(themeMode = ThemeMode.Light) {
                 FocusScreen(
-                    uiState = FocusUiState(
-                        presentationState = FocusPresentationState.Idle,
-                        todayTotalFocusSeconds = 3600,
-                        todaySessionsCount = 2,
-                        todayCleanCount = 1,
-                    ),
+                    uiState =
+                        FocusUiState(
+                            presentationState = FocusPresentationState.Idle,
+                            todayTotalFocusSeconds = 3600,
+                            todaySessionsCount = 2,
+                            todayCleanCount = 1,
+                        ),
                     onEvent = {},
                 )
             }

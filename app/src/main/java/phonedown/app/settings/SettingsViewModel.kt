@@ -9,10 +9,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import phonedown.app.backup.AutoBackupScheduling
-import phonedown.app.backup.DriveAuthorizationUiStep
 import phonedown.app.backup.DriveAuthorizationCoordinator
+import phonedown.app.backup.DriveAuthorizationUiStep
 import phonedown.core.model.AccountState
 import phonedown.core.model.ProEntitlement
 import phonedown.core.model.ThemeMode
@@ -47,19 +48,21 @@ class SettingsViewModel
                     billingRepository.entitlement,
                     authRepository.accountState,
                 ) { settings, entitlement, accountState ->
-                    SettingsUiState(
-                        defaultDurationSeconds = settings.defaultDurationSeconds,
-                        soundEnabled = settings.soundEnabled,
-                        hapticsEnabled = settings.hapticsEnabled,
-                        themeMode = settings.themeMode,
-                        autoBackupEnabled = settings.autoBackupEnabled,
-                        lastBackupEpochMillis = settings.lastBackupEpochMillis,
-                        backupOptIn = settings.backupOptIn,
-                        isProUser = entitlement is ProEntitlement.Pro,
-                        isSignedIn = accountState is AccountState.SignedIn,
-                    )
-                }.collect { state ->
-                    _uiState.value = state
+                    Triple(settings, entitlement, accountState)
+                }.collect { (settings, entitlement, accountState) ->
+                    _uiState.update { current ->
+                        current.copy(
+                            defaultDurationSeconds = settings.defaultDurationSeconds,
+                            soundEnabled = settings.soundEnabled,
+                            hapticsEnabled = settings.hapticsEnabled,
+                            themeMode = settings.themeMode,
+                            autoBackupEnabled = settings.autoBackupEnabled,
+                            lastBackupEpochMillis = settings.lastBackupEpochMillis,
+                            backupOptIn = settings.backupOptIn,
+                            isProUser = entitlement is ProEntitlement.Pro,
+                            isSignedIn = accountState is AccountState.SignedIn,
+                        )
+                    }
                 }
             }
         }
@@ -81,46 +84,49 @@ class SettingsViewModel
         }
 
         fun showDeleteConfirmation() {
-                _uiState.value = _uiState.value.copy(showDeleteConfirmation = true)
+            _uiState.update { it.copy(showDeleteConfirmation = true) }
         }
 
         fun dismissDeleteConfirmation() {
-            _uiState.value =
-                _uiState.value.copy(
+            _uiState.update {
+                it.copy(
                     showDeleteConfirmation = false,
                     deleteConfirmationText = "",
                     deleteIncludeBackup = true,
                     deleteSuccess = false,
                     deleteError = null,
                 )
+            }
         }
 
         fun setDeleteConfirmationText(text: String) {
-            _uiState.value = _uiState.value.copy(deleteConfirmationText = text)
+            _uiState.update { it.copy(deleteConfirmationText = text) }
         }
 
         fun setDeleteIncludeBackup(include: Boolean) {
-            _uiState.value = _uiState.value.copy(deleteIncludeBackup = include, deleteError = null)
+            _uiState.update { it.copy(deleteIncludeBackup = include, deleteError = null) }
         }
 
         fun showDeleteError(message: String) {
-            _uiState.value = _uiState.value.copy(isDeleting = false, deleteError = message)
+            _uiState.update { it.copy(isDeleting = false, deleteError = message) }
         }
 
         fun deleteAllData() {
             viewModelScope.launch {
-                _uiState.value = _uiState.value.copy(isDeleting = true, deleteError = null, backupError = null)
+                _uiState.update { it.copy(isDeleting = true, deleteError = null, backupError = null) }
                 try {
                     if (_uiState.value.deleteIncludeBackup && _uiState.value.isSignedIn) {
                         when (val deleteResult = backupRepository.deleteBackup()) {
                             DeleteBackupResult.Deleted,
-                            DeleteBackupResult.NoBackupFound -> Unit
+                            DeleteBackupResult.NoBackupFound,
+                            -> Unit
                             is DeleteBackupResult.Failure -> {
-                                _uiState.value =
-                                    _uiState.value.copy(
+                                _uiState.update {
+                                    it.copy(
                                         isDeleting = false,
                                         deleteError = deleteResult.reason,
                                     )
+                                }
                                 return@launch
                             }
                         }
@@ -133,20 +139,22 @@ class SettingsViewModel
                         authRepository.signOut()
                     }
                     autoBackupScheduler.refreshSchedule()
-                    _uiState.value =
-                        _uiState.value.copy(
+                    _uiState.update {
+                        it.copy(
                             isDeleting = false,
                             deleteSuccess = true,
                             showDeleteConfirmation = false,
                             deleteConfirmationText = "",
                             deleteError = null,
                         )
+                    }
                 } catch (e: Exception) {
-                    _uiState.value =
-                        _uiState.value.copy(
+                    _uiState.update {
+                        it.copy(
                             isDeleting = false,
                             deleteError = e.message ?: "Delete failed",
                         )
+                    }
                 }
             }
         }
@@ -159,7 +167,7 @@ class SettingsViewModel
         ): DriveAuthorizationUiStep = driveAuthorizationManager.completeAuthorization(resultCode, data)
 
         fun showBackupError(message: String) {
-            _uiState.value = _uiState.value.copy(backupError = message, isBackingUp = false)
+            _uiState.update { it.copy(backupError = message, isBackingUp = false) }
         }
 
         fun setAutoBackupEnabled(enabled: Boolean) {
@@ -171,7 +179,7 @@ class SettingsViewModel
 
         fun triggerBackup() {
             viewModelScope.launch {
-                _uiState.value = _uiState.value.copy(isBackingUp = true, backupError = null)
+                _uiState.update { it.copy(isBackingUp = true, backupError = null) }
                 try {
                     val sessions = sessionRepository.getAllSessions()
                     val penalties = sessionRepository.getAllPenaltyEvents()
@@ -195,28 +203,31 @@ class SettingsViewModel
                             }
                             settingsRepository.setLastBackupEpochMillis(result.timestampMillis)
                             autoBackupScheduler.refreshSchedule()
-                            _uiState.value =
-                                _uiState.value.copy(
+                            _uiState.update {
+                                it.copy(
                                     autoBackupEnabled = settingsForBackup.autoBackupEnabled,
                                     backupOptIn = true,
                                     isBackingUp = false,
                                     lastBackupEpochMillis = result.timestampMillis,
                                 )
+                            }
                         }
                         is phonedown.core.model.repository.BackupResult.Failure -> {
-                            _uiState.value =
-                                _uiState.value.copy(
+                            _uiState.update {
+                                it.copy(
                                     isBackingUp = false,
                                     backupError = result.reason,
                                 )
+                            }
                         }
                     }
                 } catch (e: Exception) {
-                    _uiState.value =
-                        _uiState.value.copy(
+                    _uiState.update {
+                        it.copy(
                             isBackingUp = false,
                             backupError = e.message ?: "Backup failed",
                         )
+                    }
                 }
             }
         }

@@ -3,7 +3,6 @@ package phonedown.core.common
 import java.security.SecureRandom
 
 object SecureRandomUtils {
-
     private val secureRandom = SecureRandom()
 
     fun generateSecureId(length: Int = 16): String {

@@ -25,13 +25,15 @@ private val Context.encryptedDataStore: DataStore<Preferences> by preferencesDat
  * encryptedDataStore.clearToken()
  * ```
  */
-class EncryptedDataStore(private val context: Context) {
-
+class EncryptedDataStore(
+    private val context: Context,
+) {
     private val dataStore: DataStore<Preferences> = context.encryptedDataStore
 
-    val token: Flow<String?> = dataStore.data.map { prefs ->
-        prefs[AUTH_TOKEN_KEY]
-    }
+    val token: Flow<String?> =
+        dataStore.data.map { prefs ->
+            prefs[AUTH_TOKEN_KEY]
+        }
 
     suspend fun saveToken(token: String) {
         dataStore.edit { prefs ->

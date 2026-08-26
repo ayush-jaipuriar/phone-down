@@ -1,4 +1,4 @@
-@file:Suppress("LongMethod", "MagicNumber")
+@file:Suppress("LongMethod", "MagicNumber", "FunctionName")
 
 package phonedown.feature.settings
 
@@ -29,8 +29,8 @@ import phonedown.core.designsystem.PhoneDownCard
 import phonedown.core.designsystem.PhoneDownDesign
 import phonedown.core.designsystem.PhoneDownProBadge
 import phonedown.core.designsystem.PhoneDownScreen
-import phonedown.core.designsystem.PhoneDownSettingRow
 import phonedown.core.designsystem.PhoneDownSectionHeaderTextStyle
+import phonedown.core.designsystem.PhoneDownSettingRow
 import phonedown.core.designsystem.PhoneDownSpacing
 import phonedown.core.designsystem.PhoneDownSwitchRow
 import phonedown.core.designsystem.PhoneDownTheme
@@ -216,7 +216,9 @@ private fun CallPausePermissionDialog(
         title = { Text("Allow call pause?") },
         text = {
             Text(
-                "Phone Down can pause your focus timer when a phone call starts. Android requires phone-state permission for this, but the app does not read call audio, contacts, numbers, or call contents.",
+                "Phone Down can pause your focus timer when a phone call starts. " +
+                    "Android requires phone-state permission for this, " +
+                    "but the app does not read call audio, contacts, numbers, or call contents.",
             )
         },
         confirmButton = {
@@ -243,11 +245,12 @@ private fun AccountSection(
     SettingsSectionHeader(title = "Account") {
         PhoneDownSettingRow(
             title = "Google Account",
-            supportingText = if (uiState.isSignedIn) {
-                "Manage your account and backup"
-            } else {
-                "Sign in to enable cloud backup"
-            },
+            supportingText =
+                if (uiState.isSignedIn) {
+                    "Manage your account and backup"
+                } else {
+                    "Sign in to enable cloud backup"
+                },
             trailing = if (uiState.isSignedIn) "Manage" else "Sign In",
             showChevron = true,
             modifier = Modifier.testTag(SettingsTestTags.ACCOUNT_ROW),
@@ -292,15 +295,16 @@ private fun AccountSection(
             else -> {
                 PhoneDownSettingRow(
                     title = "Backup & Restore",
-                    supportingText = if (uiState.backupError != null) {
-                        uiState.backupError
-                    } else if (uiState.isBackingUp) {
-                        "Backing up..."
-                    } else if (uiState.lastBackupEpochMillis != null) {
-                        "Last backup: ${formatBackupTime(uiState.lastBackupEpochMillis)}"
-                    } else {
-                        "No backup yet. Tap to back up now."
-                    },
+                    supportingText =
+                        if (uiState.backupError != null) {
+                            uiState.backupError
+                        } else if (uiState.isBackingUp) {
+                            "Backing up..."
+                        } else if (uiState.lastBackupEpochMillis != null) {
+                            "Last backup: ${formatBackupTime(uiState.lastBackupEpochMillis)}"
+                        } else {
+                            "No backup yet. Tap to back up now."
+                        },
                     trailing = if (uiState.isBackingUp) "..." else "Back Up",
                     showChevron = true,
                     onClick = onBackupClick,
@@ -315,7 +319,6 @@ private fun AccountSection(
                 }
             }
         }
-
     }
 }
 
@@ -382,7 +385,7 @@ private fun SettingsSectionHeader(
 
 private fun formatDuration(seconds: Long): String {
     val minutes = seconds / 60
-    return "${minutes} min"
+    return "$minutes min"
 }
 
 private fun formatBackupTime(epochMillis: Long): String {

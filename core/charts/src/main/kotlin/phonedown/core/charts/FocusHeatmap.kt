@@ -39,6 +39,7 @@ private const val LEFT_LABEL_WIDTH_PX = 28f
 private const val CORNER_PX = 2f
 
 @Composable
+@Suppress("FunctionName")
 fun FocusHeatmap(
     days: List<HeatmapDay>,
     modifier: Modifier = Modifier,

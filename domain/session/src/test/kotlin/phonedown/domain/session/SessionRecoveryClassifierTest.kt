@@ -43,6 +43,21 @@ class SessionRecoveryClassifierTest {
         assertEquals(SessionResult.Abandoned, recovered.result)
     }
 
+    @Test
+    fun sessionRecoversActualElapsedSecondsFromWallClockAcrossReboot() {
+        // Even if nowElapsed (80,000) > startElapsedRealtime (20,000), wall time elapsed (40s) is correctly used
+        val recovered =
+            classifier.classify(
+                session(state = SessionState.Active).copy(
+                    startedAtEpochMillis = 10_000L,
+                    startElapsedRealtime = 20_000L,
+                    actualElapsedSeconds = 15L,
+                ),
+            )
+
+        assertEquals(40L, recovered.actualElapsedSeconds)
+    }
+
     private fun session(state: SessionState): FocusSession =
         FocusSession(
             id = "session-1",

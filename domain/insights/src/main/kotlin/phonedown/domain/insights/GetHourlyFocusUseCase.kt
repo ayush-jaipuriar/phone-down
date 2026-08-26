@@ -16,9 +16,14 @@ class GetHourlyFocusUseCase(
         return invoke(today)
     }
 
-    suspend fun invoke(date: LocalDate): List<HourFocus> {
+    suspend operator fun invoke(date: LocalDate): List<HourFocus> {
         val startMillis = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
-        val endMillis = date.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli() - 1
+        val endMillis =
+            date
+                .plusDays(1)
+                .atStartOfDay(ZoneId.systemDefault())
+                .toInstant()
+                .toEpochMilli() - 1
 
         val sessions = sessionRepository.observeSessionsInWindow(startMillis, endMillis).first()
 

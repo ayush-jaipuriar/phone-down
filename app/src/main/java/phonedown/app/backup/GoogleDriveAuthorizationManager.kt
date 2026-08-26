@@ -4,14 +4,14 @@ import android.accounts.Account
 import android.app.Activity
 import android.app.PendingIntent
 import android.content.Context
-import dagger.hilt.android.qualifiers.ApplicationContext
 import android.content.Intent
 import com.google.android.gms.auth.api.identity.AuthorizationRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.common.api.Scope
 import com.google.android.gms.tasks.Task
-import kotlinx.coroutines.suspendCancellableCoroutine
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.suspendCancellableCoroutine
 import phonedown.core.model.AccountState
 import phonedown.core.model.repository.AuthRepository
 import phonedown.core.model.repository.DriveAccessTokenProvider
@@ -25,7 +25,8 @@ class GoogleDriveAuthorizationManager
     constructor(
         @ApplicationContext private val applicationContext: Context,
         private val authRepository: AuthRepository,
-    ) : DriveAccessTokenProvider, DriveAuthorizationCoordinator {
+    ) : DriveAccessTokenProvider,
+        DriveAuthorizationCoordinator {
         private val authorizationClient by lazy {
             Identity.getAuthorizationClient(applicationContext)
         }

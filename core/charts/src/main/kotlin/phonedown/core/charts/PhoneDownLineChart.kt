@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.nativeCanvas
 import phonedown.core.designsystem.PhoneDownDesign
 
 @Composable
+@Suppress("FunctionName")
 fun PhoneDownLineChart(
     values: List<Float>,
     labels: List<String>,

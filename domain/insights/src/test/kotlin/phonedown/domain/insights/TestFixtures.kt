@@ -1,3 +1,5 @@
+@file:Suppress("FunctionName")
+
 package phonedown.domain.insights
 
 import kotlinx.coroutines.flow.Flow
@@ -5,7 +7,6 @@ import kotlinx.coroutines.flow.flowOf
 import phonedown.core.common.Clock
 import phonedown.core.model.FocusSession
 import phonedown.core.model.PenaltyEvent
-import phonedown.core.model.PenaltyEventType
 import phonedown.core.model.SessionResult
 import phonedown.core.model.SessionState
 import phonedown.core.model.repository.SessionRepository
@@ -24,28 +25,29 @@ object TestFixtures {
         penaltyInterruptionCount: Int = 0,
         penaltySeconds: Long = 0,
         plannedDurationSeconds: Long = 1500,
-    ): FocusSession = FocusSession(
-        id = id,
-        plannedDurationSeconds = plannedDurationSeconds,
-        requiredDurationSeconds = 1200,
-        validFocusSeconds = validFocusSeconds,
-        actualElapsedSeconds = 1500,
-        penaltySeconds = penaltySeconds,
-        interruptionCount = interruptionCount,
-        minorInterruptionCount = 0,
-        penaltyInterruptionCount = penaltyInterruptionCount,
-        startedAtEpochMillis = startedAtEpochMillis,
-        endedAtEpochMillis = startedAtEpochMillis + 1500_000L,
-        startElapsedRealtime = 0,
-        endElapsedRealtime = 1500_000L,
-        state = SessionState.Completed,
-        result = result,
-        clean = clean,
-        broken = broken,
-        callInterrupted = false,
-        createdAtEpochMillis = startedAtEpochMillis,
-        updatedAtEpochMillis = startedAtEpochMillis,
-    )
+    ): FocusSession =
+        FocusSession(
+            id = id,
+            plannedDurationSeconds = plannedDurationSeconds,
+            requiredDurationSeconds = 1200,
+            validFocusSeconds = validFocusSeconds,
+            actualElapsedSeconds = 1500,
+            penaltySeconds = penaltySeconds,
+            interruptionCount = interruptionCount,
+            minorInterruptionCount = 0,
+            penaltyInterruptionCount = penaltyInterruptionCount,
+            startedAtEpochMillis = startedAtEpochMillis,
+            endedAtEpochMillis = startedAtEpochMillis + 1500_000L,
+            startElapsedRealtime = 0,
+            endElapsedRealtime = 1500_000L,
+            state = SessionState.Completed,
+            result = result,
+            clean = clean,
+            broken = broken,
+            callInterrupted = false,
+            createdAtEpochMillis = startedAtEpochMillis,
+            updatedAtEpochMillis = startedAtEpochMillis,
+        )
 
     fun jan15_2026_10am(): Long = Instant.parse("2026-01-15T10:00:00Z").toEpochMilli()
 
@@ -80,8 +82,7 @@ class FakeSessionRepository(
     override fun observeSessionsInWindow(
         startEpochMillis: Long,
         endEpochMillis: Long,
-    ): Flow<List<FocusSession>> =
-        flowOf(sessions.filter { it.startedAtEpochMillis in startEpochMillis until endEpochMillis })
+    ): Flow<List<FocusSession>> = flowOf(sessions.filter { it.startedAtEpochMillis in startEpochMillis until endEpochMillis })
 
     override suspend fun getRecoverableSessions(): List<FocusSession> = emptyList()
 
@@ -89,7 +90,10 @@ class FakeSessionRepository(
         penaltyEvents = penaltyEvents + event
     }
 
-    override suspend fun upsertSessionWithPenaltyEvent(session: FocusSession, event: PenaltyEvent) {
+    override suspend fun upsertSessionWithPenaltyEvent(
+        session: FocusSession,
+        event: PenaltyEvent,
+    ) {
         upsertSession(session)
         recordPenaltyEvent(event)
     }
@@ -97,8 +101,7 @@ class FakeSessionRepository(
     override fun observePenaltyEvents(sessionId: String): Flow<List<PenaltyEvent>> =
         flowOf(penaltyEvents.filter { it.sessionId == sessionId })
 
-    override suspend fun getPenaltyEvents(sessionId: String): List<PenaltyEvent> =
-        penaltyEvents.filter { it.sessionId == sessionId }
+    override suspend fun getPenaltyEvents(sessionId: String): List<PenaltyEvent> = penaltyEvents.filter { it.sessionId == sessionId }
 
     override suspend fun getAllSessions(): List<FocusSession> = sessions
 
@@ -113,7 +116,9 @@ class FakeSessionRepository(
     }
 }
 
-class TestClock(private var timeMillis: Long) : Clock {
+class TestClock(
+    private var timeMillis: Long,
+) : Clock {
     fun setTime(timeMillis: Long) {
         this.timeMillis = timeMillis
     }

@@ -121,8 +121,7 @@ sealed class GoogleSignInException(
 
 class GoogleSignInCancelledException : GoogleSignInException("Sign-in was cancelled.")
 
-class GoogleSignInMissingConfigException :
-    GoogleSignInException("Google Sign-In needs a Web OAuth client before it can run.")
+class GoogleSignInMissingConfigException : GoogleSignInException("Google Sign-In needs a Web OAuth client before it can run.")
 
 class GoogleSignInFailedException(
     message: String,

@@ -35,21 +35,27 @@ class FocusViewModel
         private val localViewState = MutableStateFlow(LocalViewState())
         private var interruptionStartTime: Long? = null
 
-        private val startOfDayMillis =
-            LocalDate
-                .now()
-                .atStartOfDay(ZoneId.systemDefault())
-                .toInstant()
-                .toEpochMilli()
-        private val endOfDayMillis = startOfDayMillis + 24 * 60 * 60 * 1000L
-
         val uiState: StateFlow<FocusUiState> =
             combine(
                 runtimeCoordinator.state,
                 settingsRepository.settings,
-                sessionRepository.observeSessionsInWindow(startOfDayMillis, endOfDayMillis),
+                sessionRepository.observeLatestSessions(RECENT_SESSIONS_LIMIT),
                 localViewState,
-            ) { runtimeState, settings, todaySessions, localView ->
+            ) { runtimeState, settings, recentSessions, localView ->
+                val zone = ZoneId.systemDefault()
+                val today = LocalDate.now()
+                val todayStart =
+                    today
+                        .atStartOfDay(zone)
+                        .toInstant()
+                        .toEpochMilli()
+                val todayEnd =
+                    today
+                        .plusDays(1)
+                        .atStartOfDay(zone)
+                        .toInstant()
+                        .toEpochMilli()
+                val todaySessions = recentSessions.filter { it.startedAtEpochMillis in todayStart until todayEnd }
                 val presentationState = mapToPresentationState(runtimeState)
 
                 val defaultDuration = settings.defaultDurationSeconds
@@ -197,4 +203,8 @@ class FocusViewModel
 
         private fun brokenPresentationState(isRecoverable: Boolean): FocusPresentationState =
             if (isRecoverable) FocusPresentationState.CleanStatusLost else FocusPresentationState.Broken
+
+        private companion object {
+            const val RECENT_SESSIONS_LIMIT = 100
+        }
     }

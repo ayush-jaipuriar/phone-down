@@ -12,6 +12,7 @@ import phonedown.core.designsystem.PhoneDownDesign
 private const val BAR_CORNER_PX = 4f
 
 @Composable
+@Suppress("FunctionName")
 fun PhoneDownBarChart(
     values: List<Float>,
     labels: List<String>,
@@ -28,7 +29,6 @@ fun PhoneDownBarChart(
         val chartHeight = size.height - labelAreaHeight
         val barAreaWidth = size.width
         val barCount = values.size
-        val totalGaps = barCount + 1
         val barWidth = barAreaWidth / ((barCount * 2) + 1)
         val gap = barWidth
 

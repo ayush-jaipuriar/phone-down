@@ -5,8 +5,14 @@ import phonedown.core.model.PenaltyEvent
 import phonedown.core.model.UserSettings
 
 sealed class BackupResult {
-    data class Success(val backupId: String, val timestampMillis: Long) : BackupResult()
-    data class Failure(val reason: String) : BackupResult()
+    data class Success(
+        val backupId: String,
+        val timestampMillis: Long,
+    ) : BackupResult()
+
+    data class Failure(
+        val reason: String,
+    ) : BackupResult()
 }
 
 sealed class RestoreResult {
@@ -14,20 +20,34 @@ sealed class RestoreResult {
         val sessionsRestored: Int,
         val settingsRestored: Boolean,
     ) : RestoreResult()
-    data class Failure(val reason: String) : RestoreResult()
+
+    data class Failure(
+        val reason: String,
+    ) : RestoreResult()
+
     data object NoBackupFound : RestoreResult()
 }
 
 sealed class RestorePayloadResult {
-    data class Success(val payload: RestorePayload) : RestorePayloadResult()
-    data class Failure(val reason: String) : RestorePayloadResult()
+    data class Success(
+        val payload: RestorePayload,
+    ) : RestorePayloadResult()
+
+    data class Failure(
+        val reason: String,
+    ) : RestorePayloadResult()
+
     data object NoBackupFound : RestorePayloadResult()
 }
 
 sealed class DeleteBackupResult {
     data object Deleted : DeleteBackupResult()
+
     data object NoBackupFound : DeleteBackupResult()
-    data class Failure(val reason: String) : DeleteBackupResult()
+
+    data class Failure(
+        val reason: String,
+    ) : DeleteBackupResult()
 }
 
 data class RestorePayload(

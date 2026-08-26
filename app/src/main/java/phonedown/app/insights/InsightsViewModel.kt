@@ -3,10 +3,12 @@ package phonedown.app.insights
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import phonedown.core.model.ProEntitlement
 import phonedown.core.model.repository.BillingRepository
@@ -48,25 +50,51 @@ class InsightsViewModel
 
         private val entitlementFlow = billingRepository.entitlement
 
+        private var daySelectionJob: Job? = null
+
         init {
             refresh()
         }
 
         fun onDaySelected(epochDay: Long) {
-            _uiState.value = _uiState.value.copy(selectedDateEpochDay = epochDay)
-            viewModelScope.launch {
-                val summary = getDayInsights(epochDay)
-                _uiState.value = _uiState.value.copy(selectedDaySummary = summary)
-            }
+            daySelectionJob?.cancel()
+            _uiState.update { it.copy(selectedDateEpochDay = epochDay) }
+            daySelectionJob =
+                viewModelScope.launch {
+                    val summary = getDayInsights(epochDay)
+                    val selectedDate = java.time.LocalDate.ofEpochDay(epochDay)
+                    val hourly = getHourlyFocus.invoke(selectedDate)
+                    _uiState.update { current ->
+                        if (current.selectedDateEpochDay == epochDay) {
+                            current.copy(
+                                selectedDaySummary = summary,
+                                hourlyFocus = hourly,
+                            )
+                        } else {
+                            current
+                        }
+                    }
+                }
         }
 
         fun onBackToToday() {
-            _uiState.value = _uiState.value.copy(selectedDateEpochDay = null, selectedDaySummary = null)
+            daySelectionJob?.cancel()
+            daySelectionJob =
+                viewModelScope.launch {
+                    val hourly = getHourlyFocus()
+                    _uiState.update { current ->
+                        current.copy(
+                            selectedDateEpochDay = null,
+                            selectedDaySummary = null,
+                            hourlyFocus = hourly,
+                        )
+                    }
+                }
         }
 
         fun refresh() {
             viewModelScope.launch {
-                _uiState.value = _uiState.value.copy(isLoading = true)
+                _uiState.update { it.copy(isLoading = true) }
 
                 val today = getTodayInsights()
                 val weekly = getWeeklyInsights()
@@ -78,16 +106,24 @@ class InsightsViewModel
                 val bestDay = getBestDay()
                 val trends = getTrends()
                 val advanced = getAdvancedInsights()
-                val hourly = getHourlyFocus()
                 val entitlement = entitlementFlow.first()
+
+                val selectedDay = _uiState.value.selectedDateEpochDay
+                val selectedSummary = if (selectedDay != null) getDayInsights(selectedDay) else null
+                val hourly =
+                    if (selectedDay != null) {
+                        getHourlyFocus(java.time.LocalDate.ofEpochDay(selectedDay))
+                    } else {
+                        getHourlyFocus()
+                    }
 
                 val isEmpty =
                     today.sessionCount == 0 &&
-                        weekly == null &&
+                        weekly.totalFocusSeconds == 0L &&
                         focusQuality == null
 
-                _uiState.value =
-                    InsightsUiState(
+                _uiState.update { current ->
+                    current.copy(
                         today = today,
                         weekly = weekly,
                         focusQuality = focusQuality,
@@ -105,7 +141,10 @@ class InsightsViewModel
                         isLoading = false,
                         isProUser = entitlement is ProEntitlement.Pro,
                         hourlyFocus = hourly,
+                        selectedDateEpochDay = selectedDay,
+                        selectedDaySummary = selectedSummary,
                     )
+                }
             }
         }
     }

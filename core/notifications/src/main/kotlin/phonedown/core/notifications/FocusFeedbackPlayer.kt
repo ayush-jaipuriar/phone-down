@@ -32,22 +32,42 @@ class FocusFeedbackPlayer(
     private val soundIds = mutableMapOf<FocusFeedbackEvent, Int>()
 
     init {
+        ensureSoundPool()
+    }
+
+    @Synchronized
+    private fun ensureSoundPool(): SoundPool {
+        val currentPool = soundPool
+        if (currentPool != null) {
+            return currentPool
+        }
         val pool =
-            SoundPool.Builder()
+            SoundPool
+                .Builder()
                 .setMaxStreams(2)
                 .setAudioAttributes(
-                    AudioAttributes.Builder()
+                    AudioAttributes
+                        .Builder()
                         .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
                         .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
                         .build(),
                 ).build()
         pool.setOnLoadCompleteListener { _, sampleId, status ->
             if (status != 0) return@setOnLoadCompleteListener
-            soundIds.entries.firstOrNull { it.value == sampleId }?.key?.let { loadedSoundEvents += it }
+            soundIds.entries
+                .firstOrNull { it.value == sampleId }
+                ?.key
+                ?.let { loadedSoundEvents += it }
         }
         soundIds[FocusFeedbackEvent.TimerStarted] = pool.load(context, R.raw.focus_start_chime, 1)
         soundIds[FocusFeedbackEvent.SessionCompleted] = pool.load(context, R.raw.focus_complete_chime, 1)
         soundPool = pool
+        return pool
+    }
+
+    @Synchronized
+    fun prepare() {
+        ensureSoundPool()
     }
 
     fun play(
@@ -88,6 +108,7 @@ class FocusFeedbackPlayer(
     }
 
     private fun playCustomSoundIfAvailable(event: FocusFeedbackEvent): Boolean {
+        val pool = ensureSoundPool()
         val sampleId = soundIds[event] ?: return false
         if (event !in loadedSoundEvents) {
             return false
@@ -98,7 +119,7 @@ class FocusFeedbackPlayer(
                 FocusFeedbackEvent.SessionCompleted -> 1.0f
                 else -> 1.0f
             }
-        soundPool?.play(sampleId, 1f, 1f, 2, 0, playbackRate)
+        pool.play(sampleId, 1f, 1f, 2, 0, playbackRate)
         return true
     }
 

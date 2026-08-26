@@ -81,12 +81,13 @@ android {
 
 tasks
     .matching { task ->
-        task.name in setOf(
-            "assembleRelease",
-            "bundleRelease",
-            "packageReleaseBundle",
-            "signReleaseBundle",
-        )
+        task.name in
+            setOf(
+                "assembleRelease",
+                "bundleRelease",
+                "packageReleaseBundle",
+                "signReleaseBundle",
+            )
     }.configureEach {
         doFirst {
             check(hasReleaseSigningConfig) {

@@ -170,6 +170,7 @@ fun AccountScreen(
 }
 
 @Composable
+@Suppress("FunctionName")
 private fun SignedOutContent(
     isSigningIn: Boolean,
     onSignIn: () -> Unit,
@@ -212,6 +213,7 @@ private fun SignedOutContent(
 }
 
 @Composable
+@Suppress("FunctionName")
 private fun SignedInContent(
     accountState: AccountState.SignedIn,
     isProUser: Boolean,
@@ -229,10 +231,11 @@ private fun SignedInContent(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Box(
-                    modifier = Modifier
-                        .size(64.dp)
-                        .clip(MaterialTheme.shapes.medium)
-                        .background(PhoneDownDesign.colors.surface),
+                    modifier =
+                        Modifier
+                            .size(64.dp)
+                            .clip(MaterialTheme.shapes.medium)
+                            .background(PhoneDownDesign.colors.surface),
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
@@ -358,11 +361,12 @@ private fun AccountScreenSignedOutPreview() {
 private fun AccountScreenSignedInPreview() {
     PhoneDownTheme(themeMode = ThemeMode.Light) {
         AccountScreen(
-            accountState = AccountState.SignedIn(
-                displayName = "Test User",
-                email = "test@example.com",
-                photoUrl = null,
-            ),
+            accountState =
+                AccountState.SignedIn(
+                    displayName = "Test User",
+                    email = "test@example.com",
+                    photoUrl = null,
+                ),
             isProUser = true,
             isSigningIn = false,
             signInError = null,

@@ -18,26 +18,42 @@ private const val CACHE_TTL_MILLIS = 24 * 60 * 60 * 1000L // 24 hours
 class ProEntitlementCache(
     private val dataStore: DataStore<Preferences>,
 ) : EntitlementCache {
+    override suspend fun read(): ProEntitlement? =
+        dataStore.data
+            .map { preferences ->
+                val type = preferences[ENTITLEMENT_TYPE_KEY]
+                val expiry = preferences[ENTITLEMENT_EXPIRY_KEY]
+                val cachedAt = preferences[ENTITLEMENT_CACHED_AT_KEY]
 
-    override suspend fun read(): ProEntitlement? {
-        return dataStore.data.map { preferences ->
-            val type = preferences[ENTITLEMENT_TYPE_KEY]
-            val expiry = preferences[ENTITLEMENT_EXPIRY_KEY]
-            val cachedAt = preferences[ENTITLEMENT_CACHED_AT_KEY]
+                if (type == null || cachedAt == null) {
+                    null
+                } else {
+                    val isExpired =
+                        when (type) {
+                            "free" -> System.currentTimeMillis() - cachedAt > CACHE_TTL_MILLIS
+                            "pro" -> {
+                                if (expiry == null || expiry == -1L) {
+                                    // Lifetime Pro never expires offline
+                                    false
+                                } else {
+                                    // Subscriptions remain valid until expiry date
+                                    System.currentTimeMillis() > expiry
+                                }
+                            }
+                            else -> true
+                        }
 
-            if (type == null || cachedAt == null) {
-                null
-            } else if (System.currentTimeMillis() - cachedAt > CACHE_TTL_MILLIS) {
-                null
-            } else {
-                when (type) {
-                    "free" -> ProEntitlement.Free
-                    "pro" -> ProEntitlement.Pro(expiryDateMillis = if (expiry == -1L) null else expiry)
-                    else -> null
+                    if (isExpired) {
+                        null
+                    } else {
+                        when (type) {
+                            "free" -> ProEntitlement.Free
+                            "pro" -> ProEntitlement.Pro(expiryDateMillis = if (expiry == -1L) null else expiry)
+                            else -> null
+                        }
+                    }
                 }
-            }
-        }.firstOrNull()
-    }
+            }.firstOrNull()
 
     override suspend fun write(entitlement: ProEntitlement) {
         dataStore.edit { preferences ->
@@ -63,10 +79,27 @@ class ProEntitlementCache(
         }
     }
 
-    override suspend fun isValid(): Boolean {
-        return dataStore.data.map { preferences ->
-            val cachedAt = preferences[ENTITLEMENT_CACHED_AT_KEY]
-            cachedAt != null && (System.currentTimeMillis() - cachedAt <= CACHE_TTL_MILLIS)
-        }.firstOrNull() ?: false
-    }
+    override suspend fun isValid(): Boolean =
+        dataStore.data
+            .map { preferences ->
+                val type = preferences[ENTITLEMENT_TYPE_KEY]
+                val expiry = preferences[ENTITLEMENT_EXPIRY_KEY]
+                val cachedAt = preferences[ENTITLEMENT_CACHED_AT_KEY]
+
+                if (type == null || cachedAt == null) {
+                    false
+                } else {
+                    when (type) {
+                        "free" -> System.currentTimeMillis() - cachedAt <= CACHE_TTL_MILLIS
+                        "pro" -> {
+                            if (expiry == null || expiry == -1L) {
+                                true
+                            } else {
+                                System.currentTimeMillis() <= expiry
+                            }
+                        }
+                        else -> false
+                    }
+                }
+            }.firstOrNull() ?: false
 }

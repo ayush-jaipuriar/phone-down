@@ -17,8 +17,9 @@ class GetAdvancedInsightsUseCase(
         val now = clock.currentTimeMillis()
         val windowStart = now - 365L * 24 * 60 * 60 * 1000L
 
-        val sessions = fetchSessions(windowStart, now)
-            .filter { it.result != SessionResult.Abandoned && it.validFocusSeconds > 0 }
+        val sessions =
+            fetchSessions(windowStart, now)
+                .filter { it.result != SessionResult.Abandoned && it.validFocusSeconds > 0 }
 
         if (sessions.isEmpty()) return null
 
@@ -46,6 +47,8 @@ class GetAdvancedInsightsUseCase(
         )
     }
 
-    private suspend fun fetchSessions(startMillis: Long, endMillis: Long): List<FocusSession> =
-        sessionRepository.observeSessionsInWindow(startMillis, endMillis).first()
+    private suspend fun fetchSessions(
+        startMillis: Long,
+        endMillis: Long,
+    ): List<FocusSession> = sessionRepository.observeSessionsInWindow(startMillis, endMillis).first()
 }

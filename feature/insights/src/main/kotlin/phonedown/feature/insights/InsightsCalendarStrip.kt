@@ -1,3 +1,5 @@
+@file:Suppress("FunctionName", "MaxLineLength", "LongMethod", "MagicNumber")
+
 package phonedown.feature.insights
 
 import androidx.compose.foundation.background
@@ -19,7 +21,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import phonedown.core.designsystem.PhoneDownDesign
-import phonedown.core.designsystem.PhoneDownSpacing
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale
@@ -30,11 +31,12 @@ fun InsightsCalendarStrip(
     selectedDateEpochDay: Long?,
     onDaySelected: (Long) -> Unit,
     modifier: Modifier = Modifier,
+    today: LocalDate = LocalDate.now(),
 ) {
-    val today = LocalDate.now()
     // Determine the Monday of the current week
     val monday = today.minusDays((today.dayOfWeek.value - 1).toLong())
     val weekDays = (0..6).map { monday.plusDays(it.toLong()) }
+    val locale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0]
 
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -53,6 +55,7 @@ fun InsightsCalendarStrip(
                 isSelected = isSelected,
                 isFuture = isFuture,
                 onClick = { onDaySelected(epochDay) },
+                locale = locale,
             )
         }
     }
@@ -65,27 +68,31 @@ private fun CalendarDayItem(
     isSelected: Boolean,
     isFuture: Boolean,
     onClick: () -> Unit,
+    locale: Locale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0],
 ) {
-    val dayName = date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault())
+    val dayName = date.dayOfWeek.getDisplayName(TextStyle.SHORT, locale)
     val dayNumber = date.dayOfMonth.toString()
 
-    val backgroundColor = when {
-        isToday -> PhoneDownDesign.colors.progress
-        isSelected -> PhoneDownDesign.colors.surfaceRaised
-        else -> PhoneDownDesign.colors.background
-    }
+    val backgroundColor =
+        when {
+            isToday -> PhoneDownDesign.colors.progress
+            isSelected -> PhoneDownDesign.colors.surfaceRaised
+            else -> PhoneDownDesign.colors.background
+        }
 
-    val textColor = when {
-        isToday -> PhoneDownDesign.colors.surface
-        isFuture -> PhoneDownDesign.colors.textTertiary
-        else -> PhoneDownDesign.colors.textPrimary
-    }
+    val textColor =
+        when {
+            isToday -> PhoneDownDesign.colors.surface
+            isFuture -> PhoneDownDesign.colors.textTertiary
+            else -> PhoneDownDesign.colors.textPrimary
+        }
 
-    val secondaryTextColor = when {
-        isToday -> PhoneDownDesign.colors.surface
-        isFuture -> PhoneDownDesign.colors.textTertiary
-        else -> PhoneDownDesign.colors.textSecondary
-    }
+    val secondaryTextColor =
+        when {
+            isToday -> PhoneDownDesign.colors.surface
+            isFuture -> PhoneDownDesign.colors.textTertiary
+            else -> PhoneDownDesign.colors.textSecondary
+        }
 
     Column(
         modifier =
@@ -98,8 +105,7 @@ private fun CalendarDayItem(
                     } else {
                         Modifier
                     },
-                )
-                .padding(horizontal = 8.dp, vertical = 6.dp),
+                ).padding(horizontal = 8.dp, vertical = 6.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {

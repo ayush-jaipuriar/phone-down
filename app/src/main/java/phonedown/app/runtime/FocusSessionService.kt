@@ -59,6 +59,7 @@ class FocusSessionService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        feedbackPlayer.prepare()
         notificationManager.ensureChannel()
         stateJob =
             serviceScope.launch {
@@ -145,7 +146,6 @@ class FocusSessionService : Service() {
                 android.util.Log.w("FocusSessionService", "Failed to flush session on destroy", e)
             }
         }
-        feedbackPlayer.release()
         serviceScope.cancel()
         super.onDestroy()
     }

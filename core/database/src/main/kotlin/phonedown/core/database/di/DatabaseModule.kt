@@ -28,8 +28,7 @@ object DatabaseModule {
                 context,
                 PhoneDownDatabase::class.java,
                 "phone_down_database",
-            )
-            .fallbackToDestructiveMigration(true)
+            ).fallbackToDestructiveMigration(true)
             .build()
 
     @Provides

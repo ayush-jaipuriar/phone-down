@@ -12,7 +12,6 @@ import kotlinx.coroutines.launch
 import phonedown.core.model.BillingEvent
 import phonedown.core.model.ProEntitlement
 import phonedown.core.model.ProProduct
-import phonedown.core.model.ProPurchase
 import phonedown.core.model.isSubscriptionProductId
 import phonedown.core.model.repository.BillingRepository
 import javax.inject.Inject
@@ -145,12 +144,6 @@ class ProViewModel
                         it.copy(
                             isLoadingProducts = false,
                             productLoadError = message,
-                            message =
-                                ProMessage(
-                                    title = "Products Unavailable",
-                                    body = message,
-                                    tone = ProMessageTone.Error,
-                                ),
                         )
                     }
                 }
@@ -180,7 +173,9 @@ class ProViewModel
                             message =
                                 ProMessage(
                                     title = "Purchase Pending",
-                                    body = "Google Play is still processing this purchase. Your Pro access will unlock as soon as the purchase completes.",
+                                    body =
+                                        "Google Play is still processing this purchase. " +
+                                            "Your Pro access will unlock as soon as the purchase completes.",
                                     tone = ProMessageTone.Info,
                                 ),
                         )

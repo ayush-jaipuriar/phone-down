@@ -36,7 +36,9 @@ class DriveBackupRepository
                     when (val tokenResult = driveAccessTokenProvider.getAccessToken()) {
                         is DriveAccessTokenResult.Success -> tokenResult.accessToken
                         DriveAccessTokenResult.RequiresUserAction -> {
-                            return@withContext BackupResult.Failure("Google Drive permission is needed. Open Backup & Restore and try again.")
+                            return@withContext BackupResult.Failure(
+                                "Google Drive permission is needed. Open Backup & Restore and try again.",
+                            )
                         }
                         DriveAccessTokenResult.SignedOut -> {
                             return@withContext BackupResult.Failure("Sign in to Google before using backup.")
@@ -88,7 +90,9 @@ class DriveBackupRepository
                     when (val tokenResult = driveAccessTokenProvider.getAccessToken()) {
                         is DriveAccessTokenResult.Success -> tokenResult.accessToken
                         DriveAccessTokenResult.RequiresUserAction -> {
-                            return@withContext RestorePayloadResult.Failure("Google Drive permission is needed. Open Backup & Restore and try again.")
+                            return@withContext RestorePayloadResult.Failure(
+                                "Google Drive permission is needed. Open Backup & Restore and try again.",
+                            )
                         }
                         DriveAccessTokenResult.SignedOut -> {
                             return@withContext RestorePayloadResult.Failure("Sign in to Google before restoring from backup.")
@@ -99,8 +103,9 @@ class DriveBackupRepository
                     }
 
                 try {
-                    val latestBackup = driveAppDataClient.listBackupFiles(accessToken).firstOrNull()
-                        ?: return@withContext RestorePayloadResult.NoBackupFound
+                    val latestBackup =
+                        driveAppDataClient.listBackupFiles(accessToken).firstOrNull()
+                            ?: return@withContext RestorePayloadResult.NoBackupFound
                     val payloadJson = driveAppDataClient.downloadBackup(accessToken, latestBackup.id)
                     val backupData = BackupSerializer.deserialize(payloadJson)
                     if (!BackupSerializer.validateSchemaVersion(backupData)) {
@@ -133,7 +138,9 @@ class DriveBackupRepository
                     when (val tokenResult = driveAccessTokenProvider.getAccessToken()) {
                         is DriveAccessTokenResult.Success -> tokenResult.accessToken
                         DriveAccessTokenResult.RequiresUserAction -> {
-                            return@withContext DeleteBackupResult.Failure("Google Drive permission is needed before deleting your cloud backup.")
+                            return@withContext DeleteBackupResult.Failure(
+                                "Google Drive permission is needed before deleting your cloud backup.",
+                            )
                         }
                         DriveAccessTokenResult.SignedOut -> {
                             return@withContext DeleteBackupResult.Failure("Sign in to Google before deleting your cloud backup.")

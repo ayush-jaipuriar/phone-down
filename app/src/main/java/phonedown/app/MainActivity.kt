@@ -50,10 +50,10 @@ class MainActivity : ComponentActivity() {
     private var callPermissionGranted by mutableStateOf(false)
 
     private val notificationPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { _ ->
             val duration = pendingStartDurationSeconds
             pendingStartDurationSeconds = null
-            if (granted && duration != null) {
+            if (duration != null) {
                 FocusSessionService.start(this, duration)
             }
         }

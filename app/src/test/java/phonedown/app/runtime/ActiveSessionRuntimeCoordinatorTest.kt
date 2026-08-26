@@ -181,7 +181,8 @@ class ActiveSessionRuntimeCoordinatorTest {
             assertFalse(coordinator.hasActiveRuntime())
             assertEquals(
                 SessionState.Completed,
-                coordinator.state.value.session?.state,
+                coordinator.state.value.session
+                    ?.state,
             )
 
             coordinator.clearFinishedRuntime()

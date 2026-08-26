@@ -108,8 +108,10 @@ class DataStoreSettingsRepository
                 prefs[ONBOARDING_COMPLETED_KEY] = settings.onboardingCompleted
                 prefs[BACKUP_OPT_IN_KEY] = settings.backupOptIn
                 prefs[AUTO_BACKUP_ENABLED_KEY] = settings.autoBackupEnabled
-                settings.lastBackupEpochMillis?.let { prefs[LAST_BACKUP_EPOCH_MILLIS_KEY] = it } ?: prefs.remove(LAST_BACKUP_EPOCH_MILLIS_KEY)
-                settings.freeCustomDurationSeconds?.let { prefs[FREE_CUSTOM_DURATION_SECONDS_KEY] = it } ?: prefs.remove(FREE_CUSTOM_DURATION_SECONDS_KEY)
+                settings.lastBackupEpochMillis?.let { prefs[LAST_BACKUP_EPOCH_MILLIS_KEY] = it }
+                    ?: prefs.remove(LAST_BACKUP_EPOCH_MILLIS_KEY)
+                settings.freeCustomDurationSeconds?.let { prefs[FREE_CUSTOM_DURATION_SECONDS_KEY] = it }
+                    ?: prefs.remove(FREE_CUSTOM_DURATION_SECONDS_KEY)
             }
         }
 

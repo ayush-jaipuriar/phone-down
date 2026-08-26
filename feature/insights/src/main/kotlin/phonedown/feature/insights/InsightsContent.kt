@@ -1,4 +1,4 @@
-@file:Suppress("MagicNumber", "LongMethod")
+@file:Suppress("MagicNumber", "LongMethod", "FunctionName", "MaxLineLength", "MatchingDeclarationName", "UnusedParameter")
 
 package phonedown.feature.insights
 
@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -51,9 +52,9 @@ import phonedown.domain.insights.SessionHistoryItem
 import phonedown.domain.insights.StreakResult
 import phonedown.domain.insights.TrendPoint
 import phonedown.domain.insights.WeeklyInsight
+import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.format.TextStyle
-import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
@@ -86,6 +87,7 @@ fun InsightsContent(
     onRefresh: () -> Unit,
     onDaySelected: (Long) -> Unit = {},
     onBackToToday: () -> Unit = {},
+    referenceDate: LocalDate = LocalDate.now(),
 ) {
     PhoneDownScreen(
         modifier =
@@ -129,11 +131,12 @@ fun InsightsContent(
                 InsightsCalendarStrip(
                     selectedDateEpochDay = uiState.selectedDateEpochDay,
                     onDaySelected = onDaySelected,
+                    today = referenceDate,
                 )
             }
 
             if (uiState.selectedDateEpochDay != null &&
-                uiState.selectedDateEpochDay != LocalDate.now().toEpochDay()
+                uiState.selectedDateEpochDay != referenceDate.toEpochDay()
             ) {
                 item {
                     BackToTodayButton(onClick = onBackToToday)
@@ -144,6 +147,7 @@ fun InsightsContent(
                 TodaySection(
                     summary = uiState.selectedDaySummary ?: uiState.today,
                     selectedDateEpochDay = uiState.selectedDateEpochDay,
+                    referenceDate = referenceDate,
                 )
             }
 
@@ -212,15 +216,18 @@ fun InsightsContent(
 private fun TodaySection(
     summary: InsightSummary,
     selectedDateEpochDay: Long? = null,
+    referenceDate: LocalDate = LocalDate.now(),
 ) {
-    val label = when (selectedDateEpochDay) {
-        null -> "Today"
-        LocalDate.now().toEpochDay() -> "Today"
-        else -> {
-            val date = LocalDate.ofEpochDay(selectedDateEpochDay)
-            date.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault())
+    val locale = LocalConfiguration.current.locales[0]
+    val label =
+        when (selectedDateEpochDay) {
+            null -> "Today"
+            referenceDate.toEpochDay() -> "Today"
+            else -> {
+                val date = LocalDate.ofEpochDay(selectedDateEpochDay)
+                date.dayOfWeek.getDisplayName(TextStyle.FULL, locale)
+            }
         }
-    }
     PhoneDownCard {
         Column(verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.md)) {
             InsightsCardTitle(text = label)
@@ -402,8 +409,11 @@ private fun WeeklyChartSection(weekly: WeeklyInsight) {
                 weekly.changePercent?.let { pct ->
                     val label = if (pct >= 0) "+${pct.toInt()}%" else "${pct.toInt()}%"
                     val color =
-                        if (pct >= 0) PhoneDownDesign.colors.success
-                        else PhoneDownDesign.colors.danger
+                        if (pct >= 0) {
+                            PhoneDownDesign.colors.success
+                        } else {
+                            PhoneDownDesign.colors.danger
+                        }
                     Text(
                         text = label,
                         color = color,
@@ -411,11 +421,13 @@ private fun WeeklyChartSection(weekly: WeeklyInsight) {
                     )
                 }
             }
+            val locale = LocalConfiguration.current.locales[0]
             val values = weekly.days.map { it.focusSeconds / 3600f }
-            val labels = weekly.days.map { day ->
-                val date = java.time.LocalDate.ofEpochDay(day.dateEpochDay)
-                date.dayOfWeek.getDisplayName(java.time.format.TextStyle.SHORT, Locale.getDefault())
-            }
+            val labels =
+                weekly.days.map { day ->
+                    val date = java.time.LocalDate.ofEpochDay(day.dateEpochDay)
+                    date.dayOfWeek.getDisplayName(java.time.format.TextStyle.SHORT, locale)
+                }
             PhoneDownBarChart(
                 values = values,
                 labels = labels,

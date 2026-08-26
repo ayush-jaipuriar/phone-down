@@ -208,6 +208,61 @@ class SessionEngineTest {
         runtime = engine.processInput(runtime, SessionInput.Tick).runtime
         return engine.processInput(runtime, SessionInput.ManualEndRequested).session.result!!
     }
+
+    @Test
+    fun callStartedWhilePausedByPickupTransitionsToPausedByCall() {
+        var runtime = engine.startSession(plannedDurationSeconds = 300L)
+        runtime = engine.processInput(runtime, SessionInput.PhoneBecameValid).runtime
+        clock.advanceBy(3_000L)
+        runtime = engine.processInput(runtime, SessionInput.Tick).runtime
+        assertEquals(SessionState.Active, runtime.session.state)
+
+        // User picks up phone to answer
+        runtime = engine.processInput(runtime, SessionInput.PhoneBecameInvalid).runtime
+        assertEquals(SessionState.PausedByPickup, runtime.session.state)
+
+        // Incoming call is detected
+        runtime = engine.processInput(runtime, SessionInput.CallStarted).runtime
+        assertEquals(SessionState.PausedByCall, runtime.session.state)
+        assertTrue(runtime.session.callInterrupted)
+
+        // Talking on the phone for 2 minutes should not break the session or add pickup penalties
+        clock.advanceBy(120_000L)
+        runtime = engine.processInput(runtime, SessionInput.Tick).runtime
+        assertEquals(SessionState.PausedByCall, runtime.session.state)
+        assertEquals(0, runtime.session.penaltyInterruptionCount)
+
+        // Call ends, user puts phone face down
+        runtime = engine.processInput(runtime, SessionInput.CallEnded).runtime
+        runtime = engine.processInput(runtime, SessionInput.PhoneBecameValid).runtime
+        clock.advanceBy(3_000L)
+        runtime = engine.processInput(runtime, SessionInput.Tick).runtime
+        assertEquals(SessionState.Active, runtime.session.state)
+    }
+
+    @Test
+    fun manualPauseWhilePausedByPickupTransitionsToPausedByUser() {
+        var runtime = engine.startSession(plannedDurationSeconds = 300L)
+        runtime = engine.processInput(runtime, SessionInput.PhoneBecameValid).runtime
+        clock.advanceBy(3_000L)
+        runtime = engine.processInput(runtime, SessionInput.Tick).runtime
+        assertEquals(SessionState.Active, runtime.session.state)
+
+        // User picks up phone to tap Pause button on screen
+        runtime = engine.processInput(runtime, SessionInput.PhoneBecameInvalid).runtime
+        assertEquals(SessionState.PausedByPickup, runtime.session.state)
+
+        // User taps Pause
+        runtime = engine.processInput(runtime, SessionInput.ManualPauseRequested).runtime
+        assertEquals(SessionState.PausedByUser, runtime.session.state)
+        assertFalse(runtime.session.clean)
+
+        // Leaving the phone paused for 5 minutes does not accumulate pickup penalties
+        clock.advanceBy(300_000L)
+        runtime = engine.processInput(runtime, SessionInput.Tick).runtime
+        assertEquals(SessionState.PausedByUser, runtime.session.state)
+        assertEquals(0, runtime.session.penaltyInterruptionCount)
+    }
 }
 
 private class FakeClock : Clock {

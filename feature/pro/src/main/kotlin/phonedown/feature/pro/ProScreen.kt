@@ -1,3 +1,5 @@
+@file:Suppress("FunctionName", "MaxLineLength", "LongMethod")
+
 package phonedown.feature.pro
 
 import androidx.compose.foundation.background
@@ -27,7 +29,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import phonedown.core.designsystem.PhoneDownButton
-import phonedown.core.designsystem.PhoneDownCard
 import phonedown.core.designsystem.PhoneDownDesign
 import phonedown.core.designsystem.PhoneDownScreen
 import phonedown.core.designsystem.PhoneDownSpacing
@@ -120,7 +121,9 @@ private fun LoadingState() {
             textAlign = TextAlign.Center,
         )
         Text(
-            text = "We are fetching live pricing and availability from Google Play so the paywall stays accurate for this device and region.",
+            text =
+                "We are fetching live pricing and availability from Google Play " +
+                    "so the paywall stays accurate for this device and region.",
             style = MaterialTheme.typography.bodyMedium,
             color = PhoneDownDesign.colors.textSecondary,
             textAlign = TextAlign.Center,

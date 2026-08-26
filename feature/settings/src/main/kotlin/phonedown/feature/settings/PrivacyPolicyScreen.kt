@@ -1,3 +1,5 @@
+@file:Suppress("FunctionName", "MaxLineLength")
+
 package phonedown.feature.settings
 
 import androidx.compose.foundation.clickable
@@ -7,7 +9,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
@@ -46,34 +47,49 @@ fun PrivacyPolicyScreen(onBack: () -> Unit) {
         Spacer(modifier = Modifier.height(PhoneDownSpacing.md))
 
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .verticalScroll(scrollState),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(scrollState),
             verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.lg),
         ) {
             PolicySection(
                 title = "Introduction",
-                content = "Phone Down is a focus and productivity application designed to help you stay present. We take your privacy seriously and are committed to protecting your personal information.",
+                content =
+                    "Phone Down is a focus and productivity application designed to help you stay present. " +
+                        "We take your privacy seriously and are committed to protecting your personal information.",
             )
 
             PolicySection(
                 title = "Data We Collect",
-                content = "We collect focus session data (duration, start/end times, interruptions) and app settings. If you sign in with Google, we access your display name and email. We do not collect location, contacts, or advertising identifiers.",
+                content =
+                    "We collect focus session data (duration, start/end times, interruptions) and app settings. " +
+                        "If you sign in with Google, we access your display name and email. " +
+                        "We do not collect location, contacts, or advertising identifiers.",
             )
 
             PolicySection(
                 title = "How We Use Your Data",
-                content = "Session data is used to display your focus history and insights. Settings are used to personalize your experience. If you enable backup, data is stored in your personal Google Drive. We do not sell or share your data with third parties.",
+                content =
+                    "Session data is used to display your focus history and insights. " +
+                        "Settings are used to personalize your experience. If you enable backup, " +
+                        "data is stored in your personal Google Drive. We do not sell or share your data with third parties.",
             )
 
             PolicySection(
                 title = "Data Storage and Security",
-                content = "Phone Down operates primarily offline. All data is stored locally on your device. Optional cloud backup uses your personal Google Drive app data folder. Auth tokens are stored in encrypted preferences.",
+                content =
+                    "Phone Down operates primarily offline. All data is stored locally on your device. " +
+                        "Optional cloud backup uses your personal Google Drive app data folder. " +
+                        "Auth tokens are stored in encrypted preferences.",
             )
 
             PolicySection(
                 title = "Your Rights",
-                content = "You can delete all local data at any time through Settings > Privacy. You can export your data if you are a Pro user. You can sign out and revoke access through your Google Account settings.",
+                content =
+                    "You can delete all local data at any time through Settings > Privacy. " +
+                        "You can export your data if you are a Pro user. " +
+                        "You can sign out and revoke access through your Google Account settings.",
             )
 
             PolicySection(
@@ -83,17 +99,23 @@ fun PrivacyPolicyScreen(onBack: () -> Unit) {
 
             PolicySection(
                 title = "Third-Party Services",
-                content = "We use Google Play Billing for purchases and Google Sign-In for optional backup. These services are governed by Google's Privacy Policy.",
+                content =
+                    "We use Google Play Billing for purchases and Google Sign-In for optional backup. " +
+                        "These services are governed by Google's Privacy Policy.",
             )
 
             PolicySection(
                 title = "Policy Changes",
-                content = "We may update this Privacy Policy from time to time. Changes will be posted in the app and updated in this document.",
+                content =
+                    "We may update this Privacy Policy from time to time. " +
+                        "Changes will be posted in the app and updated in this document.",
             )
 
             PolicySection(
                 title = "Contact Us",
-                content = "If you have questions about this Privacy Policy or your data, contact us at support@phonedown.app or through Settings > About > Support.",
+                content =
+                    "If you have questions about this Privacy Policy or your data, " +
+                        "contact us at support@phonedown.app or through Settings > About > Support.",
             )
 
             Text(
@@ -106,7 +128,10 @@ fun PrivacyPolicyScreen(onBack: () -> Unit) {
 }
 
 @Composable
-private fun PolicySection(title: String, content: String) {
+private fun PolicySection(
+    title: String,
+    content: String,
+) {
     Column(
         verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.xs),
     ) {

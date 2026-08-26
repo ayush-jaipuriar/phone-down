@@ -1,13 +1,15 @@
 package phonedown.domain.insights
 
 import kotlinx.coroutines.flow.first
-import phonedown.core.model.FocusSession
 import phonedown.core.model.repository.SessionRepository
 
 class GetHistoryUseCase(
     private val sessionRepository: SessionRepository,
 ) {
-    suspend operator fun invoke(page: Int = 0, pageSize: Int = 20): List<SessionHistoryItem> {
+    suspend operator fun invoke(
+        page: Int = 0,
+        pageSize: Int = 20,
+    ): List<SessionHistoryItem> {
         val sessions = sessionRepository.observeLatestSessions(limit = (page + 1) * pageSize).first()
 
         val startIndex = page * pageSize

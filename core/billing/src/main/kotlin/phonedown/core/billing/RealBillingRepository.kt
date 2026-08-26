@@ -24,10 +24,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.suspendCancellableCoroutine
 import phonedown.core.model.BillingEvent
 import phonedown.core.model.PRO_LIFETIME_PRODUCT_ID
 import phonedown.core.model.PRO_MONTHLY_PRODUCT_ID
@@ -48,10 +47,11 @@ class RealBillingRepository(
     context: Context,
     private val cache: EntitlementCache,
     private val activityProvider: BillingActivityProvider,
-) : BillingRepository, PurchasesUpdatedListener {
+) : BillingRepository,
+    PurchasesUpdatedListener {
     private val repositoryScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val connectionMutex = Mutex()
-    private val productDetailsById = mutableMapOf<String, ProductDetails>()
+    private val productDetailsById = java.util.concurrent.ConcurrentHashMap<String, ProductDetails>()
 
     private val _products = MutableStateFlow<List<ProProduct>>(emptyList())
     override val products: Flow<List<ProProduct>> = _products.asStateFlow()
@@ -77,7 +77,7 @@ class RealBillingRepository(
             ).build()
 
     init {
-        runBlocking {
+        repositoryScope.launch {
             cache.read()?.let { cachedEntitlement ->
                 _entitlement.value = cachedEntitlement
             }
@@ -220,13 +220,14 @@ class RealBillingRepository(
                 }
             }
             BillingResponseCode.USER_CANCELED -> repositoryScope.launch { _events.emit(BillingEvent.PurchaseCancelled) }
-            else -> repositoryScope.launch {
-                _events.emit(
-                    BillingEvent.PurchaseFailed(
-                        billingResult.toFriendlyMessage(defaultMessage = "Google Play could not complete the purchase."),
-                    ),
-                )
-            }
+            else ->
+                repositoryScope.launch {
+                    _events.emit(
+                        BillingEvent.PurchaseFailed(
+                            billingResult.toFriendlyMessage(defaultMessage = "Google Play could not complete the purchase."),
+                        ),
+                    )
+                }
         }
     }
 
@@ -260,7 +261,9 @@ class RealBillingRepository(
                     )
                 }
             if (connectionResult.responseCode != BillingResponseCode.OK) {
-                throw IllegalStateException(connectionResult.toFriendlyMessage(defaultMessage = "Google Play Billing is unavailable right now."))
+                throw IllegalStateException(
+                    connectionResult.toFriendlyMessage(defaultMessage = "Google Play Billing is unavailable right now."),
+                )
             }
         }
     }
@@ -289,7 +292,11 @@ class RealBillingRepository(
         return suspendCancellableCoroutine { continuation ->
             billingClient.queryProductDetailsAsync(params) { billingResult, queryResult ->
                 if (billingResult.responseCode != BillingResponseCode.OK) {
-                    continuation.resumeWith(Result.failure(IllegalStateException(billingResult.toFriendlyMessage(defaultMessage = "Could not load Play products."))))
+                    continuation.resumeWith(
+                        Result.failure(
+                            IllegalStateException(billingResult.toFriendlyMessage(defaultMessage = "Could not load Play products.")),
+                        ),
+                    )
                     return@queryProductDetailsAsync
                 }
                 continuation.resume(queryResult.productDetailsList)
@@ -313,7 +320,13 @@ class RealBillingRepository(
         return suspendCancellableCoroutine { continuation ->
             billingClient.queryPurchasesAsync(params) { billingResult, purchases ->
                 if (billingResult.responseCode != BillingResponseCode.OK) {
-                    continuation.resumeWith(Result.failure(IllegalStateException(billingResult.toFriendlyMessage(defaultMessage = "Could not refresh purchases from Google Play."))))
+                    continuation.resumeWith(
+                        Result.failure(
+                            IllegalStateException(
+                                billingResult.toFriendlyMessage(defaultMessage = "Could not refresh purchases from Google Play."),
+                            ),
+                        ),
+                    )
                     return@queryPurchasesAsync
                 }
                 continuation.resume(purchases)
@@ -332,7 +345,7 @@ class RealBillingRepository(
                         if (!purchase.isAcknowledged) {
                             acknowledgePurchase(purchase.purchaseToken)
                         }
-                        if (purchase.isAcknowledged) ProPurchaseState.Acknowledged else ProPurchaseState.Completed
+                        ProPurchaseState.Acknowledged
                     }
                     else -> continue
                 }

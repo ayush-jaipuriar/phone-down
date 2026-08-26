@@ -13,8 +13,8 @@ class SessionRecoveryClassifier(
     fun classify(session: FocusSession): FocusSession {
         val nowWall = clock.currentTimeMillis()
         val nowElapsed = clock.elapsedRealtimeMillis()
-        val actualElapsedSeconds =
-            ((nowElapsed - session.startElapsedRealtime).coerceAtLeast(0L) / 1_000L)
+        val elapsedFromWall = (nowWall - session.startedAtEpochMillis).coerceAtLeast(0L) / 1_000L
+        val actualElapsedSeconds = maxOf(session.actualElapsedSeconds, elapsedFromWall)
 
         return when (session.state) {
             SessionState.Created,

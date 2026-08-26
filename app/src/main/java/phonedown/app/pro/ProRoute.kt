@@ -7,10 +7,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import phonedown.feature.pro.ProScreen
 import phonedown.feature.pro.ProScreenMessage
 import phonedown.feature.pro.ProScreenMessageTone
 import phonedown.feature.pro.ProScreenState
-import phonedown.feature.pro.ProScreen
 
 @Composable
 @Suppress("FunctionName")

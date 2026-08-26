@@ -1,3 +1,5 @@
+@file:Suppress("MagicNumber", "FunctionName")
+
 package phonedown.feature.onboarding
 
 import androidx.compose.animation.core.animateDpAsState

@@ -8,7 +8,10 @@ import phonedown.core.model.ProEntitlement
  */
 interface EntitlementCache {
     suspend fun read(): ProEntitlement?
+
     suspend fun write(entitlement: ProEntitlement)
+
     suspend fun clear()
+
     suspend fun isValid(): Boolean
 }

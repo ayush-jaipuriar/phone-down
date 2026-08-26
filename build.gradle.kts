@@ -16,4 +16,9 @@ plugins {
 subprojects {
     apply(plugin = "io.gitlab.arturbosch.detekt")
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
+
+    tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
+        config.setFrom(files("${rootDir}/config/detekt/detekt.yml"))
+        buildUponDefaultConfig = true
+    }
 }

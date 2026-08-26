@@ -43,7 +43,7 @@ class AutoBackupWorker(
             return Result.success()
         }
 
-        when (val accessTokenResult = driveAccessTokenProvider.getAccessToken()) {
+        when (driveAccessTokenProvider.getAccessToken()) {
             is DriveAccessTokenResult.Success -> Unit
             DriveAccessTokenResult.RequiresUserAction,
             DriveAccessTokenResult.SignedOut,

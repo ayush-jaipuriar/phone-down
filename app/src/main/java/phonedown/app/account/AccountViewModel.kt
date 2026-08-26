@@ -12,8 +12,8 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import phonedown.app.backup.AutoBackupScheduling
-import phonedown.app.backup.DriveAuthorizationUiStep
 import phonedown.app.backup.DriveAuthorizationCoordinator
+import phonedown.app.backup.DriveAuthorizationUiStep
 import phonedown.core.model.AccountState
 import phonedown.core.model.GoogleAccount
 import phonedown.core.model.ProEntitlement

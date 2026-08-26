@@ -8,6 +8,7 @@ import phonedown.feature.focus.FocusScreen
 import phonedown.feature.focus.state.FocusEvent
 
 @Composable
+@Suppress("FunctionName")
 fun FocusRoute(
     onStartFocusClick: (Long) -> Unit,
     onRetrySensorsClick: (Long) -> Unit,

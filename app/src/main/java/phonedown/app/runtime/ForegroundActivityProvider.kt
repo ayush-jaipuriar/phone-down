@@ -36,13 +36,13 @@ class ForegroundActivityProvider
             currentActivityRef = WeakReference(activity)
         }
 
-        override fun onActivityPaused(activity: Activity) {
+        override fun onActivityPaused(activity: Activity) = Unit
+
+        override fun onActivityStopped(activity: Activity) {
             if (currentActivityRef?.get() === activity) {
                 currentActivityRef = null
             }
         }
-
-        override fun onActivityStopped(activity: Activity) = Unit
 
         override fun onActivitySaveInstanceState(
             activity: Activity,

@@ -91,7 +91,6 @@ fun PhoneDownApp(
             PhoneDownNavHost(
                 navController = navController,
                 initialRoute = initialRoute,
-                themeMode = themeMode,
                 onThemeModeSelected = { mode ->
                     coroutineScope.launch {
                         onThemeModeSelected(mode)
@@ -112,7 +111,6 @@ fun PhoneDownApp(
 private fun PhoneDownNavHost(
     navController: NavHostController,
     initialRoute: PhoneDownRoute,
-    themeMode: ThemeMode,
     onThemeModeSelected: (ThemeMode) -> Unit,
     onStartFocusClick: (Long) -> Unit,
     onRetrySensorsClick: (Long) -> Unit,

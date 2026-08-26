@@ -1,6 +1,9 @@
 package phonedown.feature.settings
 
 import androidx.activity.ComponentActivity
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.hasAnyAncestor
@@ -11,9 +14,6 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -87,9 +87,10 @@ class SettingsScreenTest {
         }
 
         composeRule.onNodeWithText("Sounds").assertIsDisplayed()
-        val switch = composeRule.onAllNodes(
-            isToggleable() and hasAnyAncestor(hasTestTag(SettingsTestTags.SOUND_SWITCH)),
-        )[0]
+        val switch =
+            composeRule.onAllNodes(
+                isToggleable() and hasAnyAncestor(hasTestTag(SettingsTestTags.SOUND_SWITCH)),
+            )[0]
         switch.assertIsOn()
         switch.performClick()
 
@@ -123,9 +124,10 @@ class SettingsScreenTest {
         }
 
         composeRule.onNodeWithText("Haptics").assertIsDisplayed()
-        val switch = composeRule.onAllNodes(
-            isToggleable() and hasAnyAncestor(hasTestTag(SettingsTestTags.HAPTICS_SWITCH)),
-        )[0]
+        val switch =
+            composeRule.onAllNodes(
+                isToggleable() and hasAnyAncestor(hasTestTag(SettingsTestTags.HAPTICS_SWITCH)),
+            )[0]
         switch.assertIsOn()
         switch.performClick()
 

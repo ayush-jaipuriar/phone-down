@@ -4,7 +4,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -118,7 +117,11 @@ class ProViewModelTest {
             advanceUntilIdle()
 
             assertNull(viewModel.uiState.value.purchaseInProgressProductId)
-            assertEquals("Purchase Unavailable", viewModel.uiState.value.message?.title)
+            assertEquals(
+                "Purchase Unavailable",
+                viewModel.uiState.value.message
+                    ?.title,
+            )
         }
 
     @Test
@@ -131,7 +134,11 @@ class ProViewModelTest {
             billingRepo.emitEvent(BillingEvent.PurchaseCompleted("pro_yearly"))
             advanceUntilIdle()
 
-            assertEquals("Pro Unlocked", viewModel.uiState.value.message?.title)
+            assertEquals(
+                "Pro Unlocked",
+                viewModel.uiState.value.message
+                    ?.title,
+            )
             assertNull(viewModel.uiState.value.purchaseInProgressProductId)
         }
 
@@ -163,7 +170,11 @@ class ProViewModelTest {
             advanceUntilIdle()
 
             assertFalse(viewModel.uiState.value.isRestoringPurchases)
-            assertEquals("No Purchases Found", viewModel.uiState.value.message?.title)
+            assertEquals(
+                "No Purchases Found",
+                viewModel.uiState.value.message
+                    ?.title,
+            )
         }
 
     @Test
@@ -175,7 +186,7 @@ class ProViewModelTest {
                 )
             val viewModel = createViewModel(billingRepo = billingRepo)
             advanceUntilIdle()
-            assertEquals("Products Unavailable", viewModel.uiState.value.message?.title)
+            assertEquals("No products", viewModel.uiState.value.productLoadError)
 
             billingRepo.loadProductsException = null
             billingRepo.productsFlow.value =
@@ -200,7 +211,11 @@ class ProViewModelTest {
 
             billingRepo.emitEvent(BillingEvent.PurchaseCancelled)
             advanceUntilIdle()
-            assertEquals("Purchase Cancelled", viewModel.uiState.value.message?.title)
+            assertEquals(
+                "Purchase Cancelled",
+                viewModel.uiState.value.message
+                    ?.title,
+            )
 
             viewModel.dismissMessage()
 

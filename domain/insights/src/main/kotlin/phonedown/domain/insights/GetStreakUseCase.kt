@@ -17,13 +17,14 @@ class GetStreakUseCase(
         val now = clock.currentTimeMillis()
         val todayEpochDay = LocalDate.ofInstant(Instant.ofEpochMilli(now), ZoneId.systemDefault()).toEpochDay()
 
-        val distantPast = now - 365L * 24 * 60 * 60 * 1000L
+        val distantPast = 0L
         val sessions = fetchSessions(distantPast, now)
 
-        val daysWithSessions = sessions
-            .filter { it.result != SessionResult.Abandoned && it.validFocusSeconds > 0 }
-            .map { epochDayOf(it.startedAtEpochMillis) }
-            .toSet()
+        val daysWithSessions =
+            sessions
+                .filter { it.result != SessionResult.Abandoned && it.validFocusSeconds > 0 }
+                .map { epochDayOf(it.startedAtEpochMillis) }
+                .toSet()
 
         if (daysWithSessions.isEmpty()) return StreakResult(currentStreakDays = 0, longestStreakDays = 0)
 
@@ -36,17 +37,22 @@ class GetStreakUseCase(
         )
     }
 
-    private suspend fun fetchSessions(startMillis: Long, endMillis: Long): List<FocusSession> =
-        sessionRepository.observeSessionsInWindow(startMillis, endMillis).first()
+    private suspend fun fetchSessions(
+        startMillis: Long,
+        endMillis: Long,
+    ): List<FocusSession> = sessionRepository.observeSessionsInWindow(startMillis, endMillis).first()
 
     companion object {
-        fun epochDayOf(epochMillis: Long): Long {
-            return LocalDate.ofInstant(Instant.ofEpochMilli(epochMillis), ZoneId.systemDefault()).toEpochDay()
-        }
+        fun epochDayOf(epochMillis: Long): Long =
+            LocalDate.ofInstant(Instant.ofEpochMilli(epochMillis), ZoneId.systemDefault()).toEpochDay()
 
-        fun computeCurrentStreak(todayEpochDay: Long, activeDays: Set<Long>): Int {
+        fun computeCurrentStreak(
+            todayEpochDay: Long,
+            activeDays: Set<Long>,
+        ): Int {
+            if (activeDays.isEmpty()) return 0
             var streak = 0
-            var day = todayEpochDay
+            var day = if (todayEpochDay in activeDays) todayEpochDay else todayEpochDay - 1
             while (day in activeDays) {
                 streak++
                 day--
