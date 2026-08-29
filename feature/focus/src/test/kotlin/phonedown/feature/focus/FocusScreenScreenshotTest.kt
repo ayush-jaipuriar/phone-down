@@ -76,4 +76,16 @@ class FocusScreenScreenshotTest {
             }
         }
     }
+
+    @Test
+    fun customDurationSelector_Dark() {
+        paparazzi.snapshot {
+            PhoneDownTheme(themeMode = ThemeMode.Dark) {
+                DurationSelectorSheetContent(
+                    currentDurationSeconds = baseState.selectedDurationSeconds,
+                    onSelect = {},
+                )
+            }
+        }
+    }
 }

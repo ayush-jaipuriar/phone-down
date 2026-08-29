@@ -104,7 +104,6 @@ fun FocusScreen(
     if (uiState.showDurationSelector) {
         DurationSelectorSheet(
             currentDurationSeconds = uiState.selectedDurationSeconds,
-            freeCustomDurationSeconds = uiState.freeCustomDurationSeconds,
             onDismiss = { onEvent(FocusEvent.DurationSelectorDismissed) },
             onSelect = { onEvent(FocusEvent.DurationSelected(it)) },
         )
@@ -1164,11 +1163,27 @@ private fun FocusRingSection(uiState: FocusUiState) {
 @Composable
 private fun DurationSelectorSheet(
     currentDurationSeconds: Long,
-    freeCustomDurationSeconds: Long?,
     onDismiss: () -> Unit,
     onSelect: (Long) -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = PhoneDownDesign.colors.background,
+    ) {
+        DurationSelectorSheetContent(
+            currentDurationSeconds = currentDurationSeconds,
+            onSelect = onSelect,
+        )
+    }
+}
+
+@Composable
+internal fun DurationSelectorSheetContent(
+    currentDurationSeconds: Long,
+    onSelect: (Long) -> Unit,
+) {
     val presetsMinutes = listOf(10L, 15L, 25L, 45L, 60L)
     var customMinutesInput by rememberSaveable {
         mutableStateOf(
@@ -1182,100 +1197,81 @@ private fun DurationSelectorSheet(
 
     val customMinutes = customMinutesInput.toLongOrNull()
     val customDurationSeconds = customMinutes?.times(60L)
-    val exceedsFreeLimit =
-        freeCustomDurationSeconds != null &&
-            customDurationSeconds != null &&
-            customDurationSeconds > freeCustomDurationSeconds
     val customInputError =
         when {
             customMinutesInput.isBlank() -> null
             customMinutes == null -> "Enter a whole number of minutes."
             customMinutes <= 0L -> "Duration must be at least 1 minute."
-            exceedsFreeLimit ->
-                "Free custom duration is currently limited to ${freeCustomDurationSeconds / 60L} minutes."
             else -> null
         }
     val canApplyCustom = customDurationSeconds != null && customInputError == null
 
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = sheetState,
-        containerColor = PhoneDownDesign.colors.background,
+    Column(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(PhoneDownSpacing.screen)
+                .padding(bottom = PhoneDownSpacing.xl),
+        verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.md),
     ) {
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(PhoneDownSpacing.screen)
-                    .padding(bottom = PhoneDownSpacing.xl),
-            verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.md),
-        ) {
-            Text(
-                text = "Select Duration",
-                style = MaterialTheme.typography.titleMedium,
-                color = PhoneDownDesign.colors.textPrimary,
-            )
+        Text(
+            text = "Select Duration",
+            style = MaterialTheme.typography.titleMedium,
+            color = PhoneDownDesign.colors.textPrimary,
+        )
 
-            presetsMinutes.forEach { minutes ->
-                val seconds = minutes * 60L
-                val isSelected = seconds == currentDurationSeconds
-                PhoneDownCard(
-                    modifier = Modifier.clickable { onSelect(seconds) },
+        presetsMinutes.forEach { minutes ->
+            val seconds = minutes * 60L
+            val isSelected = seconds == currentDurationSeconds
+            PhoneDownCard(
+                modifier = Modifier.clickable { onSelect(seconds) },
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
+                    Text(
+                        text = "$minutes minutes",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = PhoneDownDesign.colors.textPrimary,
+                    )
+                    if (isSelected) {
                         Text(
-                            text = "$minutes minutes",
-                            style = MaterialTheme.typography.bodyLarge,
+                            text = "✓",
                             color = PhoneDownDesign.colors.textPrimary,
                         )
-                        if (isSelected) {
-                            Text(
-                                text = "✓",
-                                color = PhoneDownDesign.colors.textPrimary,
-                            )
-                        }
                     }
                 }
             }
-
-            Text(
-                text = "Custom",
-                style = MaterialTheme.typography.titleSmall,
-                color = PhoneDownDesign.colors.textPrimary,
-            )
-            OutlinedTextField(
-                value = customMinutesInput,
-                onValueChange = { value ->
-                    customMinutesInput = value.filter { it.isDigit() }.take(3)
-                },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                label = { Text("Minutes") },
-                supportingText = {
-                    val helperText =
-                        when {
-                            customInputError != null -> customInputError
-                            freeCustomDurationSeconds != null ->
-                                "Free custom duration up to ${freeCustomDurationSeconds / 60L} minutes."
-                            else -> "Choose any whole-minute duration."
-                        }
-                    Text(helperText)
-                },
-                isError = customInputError != null,
-            )
-            PhoneDownButton(
-                text = "Apply Custom Duration",
-                onClick = {
-                    customDurationSeconds?.let { onSelect(it) }
-                },
-                enabled = canApplyCustom,
-                modifier = Modifier.fillMaxWidth(),
-            )
         }
+
+        Text(
+            text = "Custom",
+            style = MaterialTheme.typography.titleSmall,
+            color = PhoneDownDesign.colors.textPrimary,
+        )
+        OutlinedTextField(
+            value = customMinutesInput,
+            onValueChange = { value ->
+                customMinutesInput = value.filter { it.isDigit() }.take(3)
+            },
+            modifier = Modifier.fillMaxWidth().testTag(FocusTestTags.CUSTOM_DURATION_INPUT),
+            singleLine = true,
+            label = { Text("Minutes") },
+            supportingText = {
+                Text(customInputError ?: "Choose any whole-minute duration.")
+            },
+            isError = customInputError != null,
+        )
+        PhoneDownButton(
+            text = "Apply Custom Duration",
+            onClick = {
+                customDurationSeconds?.let { onSelect(it) }
+            },
+            enabled = canApplyCustom,
+            modifier = Modifier.fillMaxWidth(),
+        )
     }
 }
 

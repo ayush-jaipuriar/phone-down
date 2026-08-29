@@ -79,7 +79,6 @@ fun SettingsScreen(
     ) {
         FocusSection(
             uiState = uiState,
-            onProClick = onProClick,
             onSoundToggled = onSoundToggled,
             onHapticsToggled = onHapticsToggled,
             onThemeModeSelected = onThemeModeSelected,
@@ -146,7 +145,6 @@ fun SettingsScreen(
 @Composable
 private fun FocusSection(
     uiState: SettingsUiState,
-    onProClick: () -> Unit,
     onSoundToggled: (Boolean) -> Unit,
     onHapticsToggled: (Boolean) -> Unit,
     onThemeModeSelected: (ThemeMode) -> Unit,
@@ -167,10 +165,7 @@ private fun FocusSection(
         )
         PhoneDownSettingRow(
             title = "Custom Duration",
-            supportingText = "Free tier limited to one custom slot",
-            trailing = "Pro",
-            showChevron = true,
-            onClick = onProClick,
+            supportingText = "Choose any whole-minute duration when you start a focus session.",
         )
         PhoneDownSwitchRow(
             title = "Sounds",
@@ -273,50 +268,38 @@ private fun AccountSection(
             PhoneDownProBadge()
         }
 
-        when {
-            !uiState.isProUser -> {
-                PhoneDownSettingRow(
-                    title = "Backup & Restore",
-                    supportingText = "Cloud backup for your sessions and settings",
-                    trailing = "Pro",
-                    showChevron = true,
-                    onClick = onProClick,
+        if (!uiState.isSignedIn) {
+            PhoneDownSettingRow(
+                title = "Backup & Restore",
+                supportingText = "Sign in to Google to enable backup",
+                trailing = "Sign In",
+                showChevron = true,
+                onClick = onAccountClick,
+            )
+        } else {
+            PhoneDownSettingRow(
+                title = "Backup & Restore",
+                supportingText =
+                    if (uiState.backupError != null) {
+                        uiState.backupError
+                    } else if (uiState.isBackingUp) {
+                        "Backing up..."
+                    } else if (uiState.lastBackupEpochMillis != null) {
+                        "Last backup: ${formatBackupTime(uiState.lastBackupEpochMillis)}"
+                    } else {
+                        "No backup yet. Tap to back up now."
+                    },
+                trailing = if (uiState.isBackingUp) "..." else "Back Up",
+                showChevron = true,
+                onClick = onBackupClick,
+            )
+            if (uiState.backupOptIn) {
+                PhoneDownSwitchRow(
+                    title = "Auto Backup",
+                    supportingText = "Back up once daily when network is available.",
+                    checked = uiState.autoBackupEnabled,
+                    onCheckedChange = onAutoBackupToggled,
                 )
-            }
-            !uiState.isSignedIn -> {
-                PhoneDownSettingRow(
-                    title = "Backup & Restore",
-                    supportingText = "Sign in to Google to enable backup",
-                    trailing = "Sign In",
-                    showChevron = true,
-                    onClick = onAccountClick,
-                )
-            }
-            else -> {
-                PhoneDownSettingRow(
-                    title = "Backup & Restore",
-                    supportingText =
-                        if (uiState.backupError != null) {
-                            uiState.backupError
-                        } else if (uiState.isBackingUp) {
-                            "Backing up..."
-                        } else if (uiState.lastBackupEpochMillis != null) {
-                            "Last backup: ${formatBackupTime(uiState.lastBackupEpochMillis)}"
-                        } else {
-                            "No backup yet. Tap to back up now."
-                        },
-                    trailing = if (uiState.isBackingUp) "..." else "Back Up",
-                    showChevron = true,
-                    onClick = onBackupClick,
-                )
-                if (uiState.backupOptIn) {
-                    PhoneDownSwitchRow(
-                        title = "Auto Backup",
-                        supportingText = "Back up once daily when network is available.",
-                        checked = uiState.autoBackupEnabled,
-                        onCheckedChange = onAutoBackupToggled,
-                    )
-                }
             }
         }
     }

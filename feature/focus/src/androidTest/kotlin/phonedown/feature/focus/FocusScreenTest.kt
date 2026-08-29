@@ -1,6 +1,7 @@
 package phonedown.feature.focus
 
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -8,6 +9,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
 import org.junit.Rule
 import org.junit.Test
 import phonedown.core.designsystem.PhoneDownTheme
@@ -253,5 +255,28 @@ class FocusScreenTest {
         composeRule.onNodeWithTag(FocusTestTags.TODAY_METRICS).assertIsDisplayed()
         composeRule.onNodeWithText("1h 0m").assertIsDisplayed()
         composeRule.onNodeWithText("2").assertIsDisplayed()
+    }
+
+    @Test
+    fun customDurationAboveLegacyLimitIsApplied() {
+        var selectedEvent: FocusEvent? = null
+        composeRule.setContent {
+            PhoneDownTheme(themeMode = ThemeMode.Light) {
+                FocusScreen(
+                    uiState =
+                        FocusUiState(
+                            presentationState = FocusPresentationState.Idle,
+                            showDurationSelector = true,
+                        ),
+                    onEvent = { selectedEvent = it },
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag(FocusTestTags.CUSTOM_DURATION_INPUT).performTextInput("90")
+        composeRule.onAllNodesWithText("Free custom duration is currently limited to 60 minutes.").assertCountEquals(0)
+        composeRule.onNodeWithText("Apply Custom Duration").performClick()
+
+        assert(selectedEvent == FocusEvent.DurationSelected(90 * 60L))
     }
 }

@@ -100,7 +100,6 @@ class FocusViewModel
                     todayTotalFocusSeconds = todaySummary.totalFocusSeconds,
                     todaySessionsCount = todaySummary.sessionCount,
                     todayCleanCount = todaySummary.cleanSessionCount,
-                    freeCustomDurationSeconds = settings.freeCustomDurationSeconds,
                     showDurationSelector = localView.showDurationSelector,
                     showEndConfirmation = localView.showEndConfirmation,
                     showAddTime = localView.showAddTime,

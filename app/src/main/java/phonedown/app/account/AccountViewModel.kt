@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import phonedown.app.backup.AutoBackupScheduling
@@ -16,9 +16,7 @@ import phonedown.app.backup.DriveAuthorizationCoordinator
 import phonedown.app.backup.DriveAuthorizationUiStep
 import phonedown.core.model.AccountState
 import phonedown.core.model.GoogleAccount
-import phonedown.core.model.ProEntitlement
 import phonedown.core.model.repository.AuthRepository
-import phonedown.core.model.repository.BillingRepository
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,7 +24,6 @@ class AccountViewModel
     @Inject
     constructor(
         private val authRepository: AuthRepository,
-        billingRepository: BillingRepository,
         private val restoreBackupUseCase: BackupRestorer,
         private val driveAuthorizationManager: DriveAuthorizationCoordinator,
         private val autoBackupScheduler: AutoBackupScheduling,
@@ -37,15 +34,7 @@ class AccountViewModel
         val signInState: StateFlow<SignInState> = _signInState.asStateFlow()
 
         val uiState: StateFlow<AccountUiState> =
-            combine(
-                authRepository.accountState,
-                billingRepository.entitlement,
-            ) { accountState, entitlement ->
-                AccountUiState(
-                    accountState = accountState,
-                    isProUser = entitlement is ProEntitlement.Pro,
-                )
-            }.stateIn(
+            authRepository.accountState.map(::AccountUiState).stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),
                 initialValue = AccountUiState(),
@@ -120,7 +109,6 @@ class AccountViewModel
 
 data class AccountUiState(
     val accountState: AccountState = AccountState.SignedOut,
-    val isProUser: Boolean = false,
 )
 
 sealed class SignInState {

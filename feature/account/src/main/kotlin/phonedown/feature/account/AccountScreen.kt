@@ -41,7 +41,6 @@ import phonedown.core.model.ThemeMode
 @Suppress("FunctionName")
 fun AccountScreen(
     accountState: AccountState,
-    isProUser: Boolean,
     isSigningIn: Boolean,
     signInError: String?,
     isRestoring: Boolean,
@@ -84,7 +83,6 @@ fun AccountScreen(
             is AccountState.SignedIn -> {
                 SignedInContent(
                     accountState = accountState,
-                    isProUser = isProUser,
                     isRestoring = isRestoring,
                     onRestoreClick = { showRestoreDialog = true },
                     onSignOut = onSignOut,
@@ -216,7 +214,6 @@ private fun SignedOutContent(
 @Suppress("FunctionName")
 private fun SignedInContent(
     accountState: AccountState.SignedIn,
-    isProUser: Boolean,
     isRestoring: Boolean,
     onRestoreClick: () -> Unit,
     onSignOut: () -> Unit,
@@ -268,54 +265,47 @@ private fun SignedInContent(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(
-                    text = if (isProUser) "Pro active" else "Free plan",
+                    text = "Included features",
                     style = MaterialTheme.typography.titleSmall,
                     color = PhoneDownDesign.colors.textPrimary,
                     fontWeight = FontWeight.SemiBold,
                 )
                 Text(
-                    text =
-                        if (isProUser) {
-                            "Your Pro access comes from purchases on this device's Google Play account."
-                        } else {
-                            "Google Sign-In enables backup. Pro access is purchased or restored separately through Google Play."
-                        },
+                    text = "Focus insights, history, and backup are included with Phone Down.",
                     style = MaterialTheme.typography.bodyMedium,
                     color = PhoneDownDesign.colors.textSecondary,
                 )
             }
         }
 
-        if (isProUser) {
-            PhoneDownCard {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.sm),
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Text(
-                        text = "Backup & Restore",
-                        style = MaterialTheme.typography.titleSmall,
-                        color = PhoneDownDesign.colors.textPrimary,
-                        fontWeight = FontWeight.SemiBold,
+        PhoneDownCard {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.sm),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(
+                    text = "Backup & Restore",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = PhoneDownDesign.colors.textPrimary,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Text(
+                    text = "Restore your focus data from a previous backup.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = PhoneDownDesign.colors.textSecondary,
+                )
+                if (isRestoring) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = PhoneDownDesign.colors.progress,
+                        strokeWidth = 2.dp,
                     )
-                    Text(
-                        text = "Restore your focus data from a previous backup.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = PhoneDownDesign.colors.textSecondary,
+                } else {
+                    PhoneDownButton(
+                        text = "Restore from Backup",
+                        onClick = onRestoreClick,
+                        quiet = true,
                     )
-                    if (isRestoring) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(24.dp),
-                            color = PhoneDownDesign.colors.progress,
-                            strokeWidth = 2.dp,
-                        )
-                    } else {
-                        PhoneDownButton(
-                            text = "Restore from Backup",
-                            onClick = onRestoreClick,
-                            quiet = true,
-                        )
-                    }
                 }
             }
         }
@@ -338,7 +328,6 @@ private fun AccountScreenSignedOutPreview() {
     PhoneDownTheme(themeMode = ThemeMode.Light) {
         AccountScreen(
             accountState = AccountState.SignedOut,
-            isProUser = false,
             isSigningIn = false,
             signInError = null,
             isRestoring = false,
@@ -367,7 +356,6 @@ private fun AccountScreenSignedInPreview() {
                     email = "test@example.com",
                     photoUrl = null,
                 ),
-            isProUser = true,
             isSigningIn = false,
             signInError = null,
             isRestoring = false,

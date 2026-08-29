@@ -4,6 +4,7 @@ import androidx.activity.ComponentActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.hasAnyAncestor
@@ -11,6 +12,7 @@ import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -224,5 +226,35 @@ class SettingsScreenTest {
         composeRule.onNodeWithText("45 minutes").performClick()
 
         assertEquals(45 * 60L, selectedDurationSeconds)
+    }
+
+    @Test
+    fun customDurationAndBackupRemainAvailableWithoutPurchaseState() {
+        composeRule.setContent {
+            PhoneDownTheme(themeMode = ThemeMode.Light) {
+                SettingsScreen(
+                    uiState = SettingsUiState(isProUser = false, isSignedIn = true),
+                    onAccountClick = {},
+                    onProClick = {},
+                    onBackupClick = {},
+                    onAutoBackupToggled = {},
+                    onPrivacyPolicyClick = {},
+                    onDeleteRequested = {},
+                    onDeleteConfirmed = {},
+                    onDeleteDismissed = {},
+                    onDeleteConfirmationTextChanged = {},
+                    onDeleteIncludeBackupChanged = {},
+                    onSoundToggled = {},
+                    onHapticsToggled = {},
+                    onThemeModeSelected = {},
+                    onDefaultDurationSelected = {},
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("Custom Duration").assertIsDisplayed()
+        composeRule.onAllNodesWithText("Free tier limited to one custom slot").assertCountEquals(0)
+        composeRule.onNodeWithText("Backup & Restore").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Back Up").assertIsDisplayed()
     }
 }

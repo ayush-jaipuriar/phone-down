@@ -16,7 +16,6 @@ data class FocusUiState(
     val todayTotalFocusSeconds: Long = 0,
     val todaySessionsCount: Int = 0,
     val todayCleanCount: Int = 0,
-    val freeCustomDurationSeconds: Long? = null,
     val showDurationSelector: Boolean = false,
     val showEndConfirmation: Boolean = false,
     val showAddTime: Boolean = false,

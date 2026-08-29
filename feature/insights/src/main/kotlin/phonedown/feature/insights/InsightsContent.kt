@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -155,10 +154,6 @@ fun InsightsContent(
                 item { HourlyChartSection(hourlyFocus = uiState.hourlyFocus) }
             }
 
-            if (!uiState.isProUser && uiState.today.sessionCount >= 3) {
-                item { UpsellBanner() }
-            }
-
             uiState.weekly?.let { weekly ->
                 item { WeeklyChartSection(weekly = weekly) }
             }
@@ -176,38 +171,34 @@ fun InsightsContent(
             }
 
             item { Spacer(modifier = Modifier.height(PhoneDownSpacing.md)) }
-            item { ProHeader() }
+            item { AdvancedInsightsHeader() }
 
-            if (uiState.isProUser) {
-                if (uiState.heatmap.isNotEmpty()) {
-                    item { HeatmapSection(days = uiState.heatmap) }
-                }
-
-                uiState.bestHour?.let { hour ->
-                    item { BestTimeSection(bestHour = hour, bestDay = uiState.bestDay) }
-                }
-
-                if (uiState.completionRateTrend.isNotEmpty()) {
-                    item { TrendSection(label = "Completion Rate %", points = uiState.completionRateTrend) }
-                }
-                if (uiState.cleanRatioTrend.isNotEmpty()) {
-                    item { TrendSection(label = "Clean Ratio %", points = uiState.cleanRatioTrend) }
-                }
-                if (uiState.interruptionTrend.isNotEmpty()) {
-                    item { TrendSection(label = "Interruptions", points = uiState.interruptionTrend) }
-                }
-                if (uiState.focusQualityTrend.isNotEmpty()) {
-                    item { TrendSection(label = "Focus Quality", points = uiState.focusQualityTrend) }
-                }
-
-                uiState.advanced?.let { advanced ->
-                    item { AdvancedSection(advanced = advanced) }
-                }
-
-                item { ExportSection() }
-            } else {
-                item { ProTeaserCard() }
+            if (uiState.heatmap.isNotEmpty()) {
+                item { HeatmapSection(days = uiState.heatmap) }
             }
+
+            uiState.bestHour?.let { hour ->
+                item { BestTimeSection(bestHour = hour, bestDay = uiState.bestDay) }
+            }
+
+            if (uiState.completionRateTrend.isNotEmpty()) {
+                item { TrendSection(label = "Completion Rate %", points = uiState.completionRateTrend) }
+            }
+            if (uiState.cleanRatioTrend.isNotEmpty()) {
+                item { TrendSection(label = "Clean Ratio %", points = uiState.cleanRatioTrend) }
+            }
+            if (uiState.interruptionTrend.isNotEmpty()) {
+                item { TrendSection(label = "Interruptions", points = uiState.interruptionTrend) }
+            }
+            if (uiState.focusQualityTrend.isNotEmpty()) {
+                item { TrendSection(label = "Focus Quality", points = uiState.focusQualityTrend) }
+            }
+
+            uiState.advanced?.let { advanced ->
+                item { AdvancedSection(advanced = advanced) }
+            }
+
+            item { ExportSection() }
         }
     }
 }
@@ -530,7 +521,7 @@ private fun HistoryRow(item: SessionHistoryItem) {
 }
 
 @Composable
-private fun ProHeader() {
+private fun AdvancedInsightsHeader() {
     Row(
         modifier =
             Modifier
@@ -540,13 +531,6 @@ private fun ProHeader() {
     ) {
         InsightsCardTitle(
             text = "Advanced Insights",
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = "Pro",
-            color = PhoneDownDesign.colors.progress,
-            style = MaterialTheme.typography.labelSmall,
-            fontWeight = FontWeight.Bold,
         )
     }
 }
@@ -654,93 +638,10 @@ private fun AdvancedRow(
 @Composable
 private fun ExportSection() {
     PhoneDownCard {
-        Row(
+        InsightsPrimaryBody(
+            text = "Export Data",
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            InsightsPrimaryBody(
-                text = "Export Data",
-                modifier = Modifier.weight(1f),
-            )
-            Text(
-                text = "Pro",
-                color = PhoneDownDesign.colors.progress,
-                style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight.Bold,
-            )
-        }
-    }
-}
-
-@Composable
-private fun ProTeaserCard() {
-    PhoneDownCard {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.sm),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text(
-                text = "Upgrade to Pro",
-                style =
-                    MaterialTheme.typography.titleSmall.copy(
-                        fontSize = 16.sp,
-                        lineHeight = 22.sp,
-                    ),
-                color = PhoneDownDesign.colors.textPrimary,
-                fontWeight = FontWeight.SemiBold,
-            )
-            Text(
-                text = "Unlock advanced insights including focus heatmaps, best focus times, trend analysis, and data export.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = PhoneDownDesign.colors.textSecondary,
-                textAlign = TextAlign.Center,
-            )
-            Text(
-                text = "Pro",
-                style = MaterialTheme.typography.labelSmall,
-                color = PhoneDownDesign.colors.progress,
-                fontWeight = FontWeight.Bold,
-            )
-        }
-    }
-}
-
-@Composable
-private fun UpsellBanner() {
-    PhoneDownCard {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(PhoneDownSpacing.md),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.xxs),
-            ) {
-                Text(
-                    text = "See your focus patterns over time",
-                    style =
-                        MaterialTheme.typography.bodyMedium.copy(
-                            fontSize = 14.sp,
-                            lineHeight = 20.sp,
-                        ),
-                    color = PhoneDownDesign.colors.textPrimary,
-                    fontWeight = FontWeight.SemiBold,
-                )
-                Text(
-                    text = "Upgrade to Pro for advanced insights, heatmaps, and trend analysis.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = PhoneDownDesign.colors.textSecondary,
-                )
-            }
-            Text(
-                text = "Pro",
-                style = MaterialTheme.typography.labelSmall,
-                color = PhoneDownDesign.colors.progress,
-                fontWeight = FontWeight.Bold,
-            )
-        }
+        )
     }
 }
 

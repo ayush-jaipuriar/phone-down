@@ -3,7 +3,6 @@ package phonedown.app.account
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -20,9 +19,7 @@ import phonedown.app.backup.DriveAuthorizationCoordinator
 import phonedown.app.backup.DriveAuthorizationUiStep
 import phonedown.core.model.AccountState
 import phonedown.core.model.GoogleAccount
-import phonedown.core.model.ProEntitlement
 import phonedown.core.model.repository.AuthRepository
-import phonedown.core.model.repository.BillingRepository
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AccountViewModelTest {
@@ -45,7 +42,6 @@ class AccountViewModelTest {
             testScheduler.advanceUntilIdle()
 
             assertEquals(AccountState.SignedOut, viewModel.uiState.value.accountState)
-            assertFalse(viewModel.uiState.value.isProUser)
         }
 
     @Test
@@ -60,20 +56,6 @@ class AccountViewModelTest {
 
             assertTrue(viewModel.uiState.value.accountState is AccountState.SignedIn)
             assertEquals("Test User", (viewModel.uiState.value.accountState as AccountState.SignedIn).displayName)
-            job.cancel()
-        }
-
-    @Test
-    fun `pro entitlement reflected in uiState`() =
-        runTest(testDispatcher) {
-            val billingRepo = FakeBillingRepository(ProEntitlement.Pro())
-            val viewModel = createViewModel(billingRepo = billingRepo)
-
-            // Collect the state to activate the flow
-            val job = launch { viewModel.uiState.collect {} }
-            testScheduler.advanceUntilIdle()
-
-            assertTrue(viewModel.uiState.value.isProUser)
             job.cancel()
         }
 
@@ -182,14 +164,12 @@ class AccountViewModelTest {
 
     private fun createViewModel(
         authRepo: AuthRepository = FakeAuthRepository(),
-        billingRepo: BillingRepository = FakeBillingRepository(ProEntitlement.Free),
         backupRestorer: BackupRestorer = FakeBackupRestorer(RestoreBackupOutcome.NoBackupFound),
         driveAuthorizationCoordinator: DriveAuthorizationCoordinator = FakeDriveAuthorizationCoordinator(),
         autoBackupScheduling: AutoBackupScheduling = FakeAutoBackupScheduling(),
     ): AccountViewModel =
         AccountViewModel(
             authRepository = authRepo,
-            billingRepository = billingRepo,
             restoreBackupUseCase = backupRestorer,
             driveAuthorizationManager = driveAuthorizationCoordinator,
             autoBackupScheduler = autoBackupScheduling,
@@ -220,25 +200,6 @@ private class FakeAuthRepository(
         signOutCalled = true
         stateFlow.value = AccountState.SignedOut
     }
-}
-
-private class FakeBillingRepository(
-    private val initialEntitlement: ProEntitlement = ProEntitlement.Free,
-) : BillingRepository {
-    override val products = kotlinx.coroutines.flow.flowOf(emptyList<phonedown.core.model.ProProduct>())
-    override val purchases = kotlinx.coroutines.flow.flowOf(emptyList<phonedown.core.model.ProPurchase>())
-    override val entitlement = kotlinx.coroutines.flow.flowOf(initialEntitlement)
-    override val events = kotlinx.coroutines.flow.flowOf<phonedown.core.model.BillingEvent>()
-
-    override suspend fun loadProducts() {}
-
-    override suspend fun launchPurchaseFlow(product: phonedown.core.model.ProProduct) {}
-
-    override suspend fun restorePurchases() {}
-
-    override suspend fun syncPurchases() {}
-
-    override suspend fun acknowledgePurchase(purchaseToken: String) {}
 }
 
 private class FakeBackupRestorer(

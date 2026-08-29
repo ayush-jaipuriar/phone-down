@@ -54,7 +54,6 @@ fun AccountRoute(
 
     AccountScreen(
         accountState = uiState.accountState,
-        isProUser = uiState.isProUser,
         isSigningIn = signInState is SignInState.InProgress,
         signInError = signInError,
         isRestoring = isRestoring,
