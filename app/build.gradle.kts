@@ -105,7 +105,6 @@ tasks
 dependencies {
     implementation(project(":core:auth"))
     implementation(project(":core:backup"))
-    implementation(project(":core:billing"))
     implementation(project(":core:common"))
     implementation(project(":core:database"))
     implementation(project(":core:datastore"))

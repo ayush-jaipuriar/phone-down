@@ -20,8 +20,6 @@ import phonedown.app.backup.GoogleDriveAuthorizationManager
 import phonedown.core.auth.DataStoreAuthRepository
 import phonedown.core.backup.DriveAppDataClient
 import phonedown.core.backup.DriveBackupRepository
-import phonedown.core.billing.BillingActivityProvider
-import phonedown.core.billing.RealBillingRepository
 import phonedown.core.common.Clock
 import phonedown.core.common.IdGenerator
 import phonedown.core.model.repository.AuthRepository
@@ -210,24 +208,7 @@ object AppRuntimeModule {
 
     @Provides
     @Singleton
-    fun providesEntitlementCache(
-        dataStore: androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences>,
-    ): phonedown.core.model.repository.EntitlementCache =
-        phonedown.core.datastore.cache
-            .ProEntitlementCache(dataStore)
-
-    @Provides
-    @Singleton
-    fun providesBillingActivityProvider(foregroundActivityProvider: ForegroundActivityProvider): BillingActivityProvider =
-        foregroundActivityProvider
-
-    @Provides
-    @Singleton
-    fun providesBillingRepository(
-        @ApplicationContext context: Context,
-        cache: phonedown.core.model.repository.EntitlementCache,
-        billingActivityProvider: BillingActivityProvider,
-    ): BillingRepository = RealBillingRepository(context, cache, billingActivityProvider)
+    fun providesBillingRepository(): BillingRepository = FreeAccessBillingRepository()
 
     @Provides
     @Singleton
