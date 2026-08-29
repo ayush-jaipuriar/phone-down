@@ -1751,3 +1751,45 @@ Use these to test your understanding while you work.
 
 - Why do product IDs live in Play Console instead of only in code?
 - Why do we still need Play-installed builds after local debug testing?
+
+## 25. Public-Free Release Path And Deferred Merchant Work
+
+This section supersedes the billing-preparation steps above while Phone Down is
+being released as a fully free public app. It does not delete the later billing
+design; it prevents merchant and purchase work from being mistaken for a
+free-launch prerequisite.
+
+### Current Console Boundary
+
+As of 2026-08-29, the app is in Draft / internal testing. No active in-app
+product or subscription was observed. Merchant onboarding is paused.
+
+Merchant onboarding is intentionally paused. Do not retry Video KYC until actual residence, declared current address, supporting document, and device location are consistent.
+
+Do not enter, copy, screenshot, or commit personal contact details, addresses,
+identity documents, financial information, merchant references, or application
+identifiers while recording this status.
+
+### What Still Blocks A Free Launch
+
+Free distribution removes the need for a merchant profile. It does not waive
+the account and testing requirements that Play Console marks as mandatory:
+
+1. Resolve any outstanding developer identity, contact, device, package, or account-verification task.
+2. Complete closed-testing setup and the required opted-in test period when the account is subject to that requirement.
+3. Apply for production access only after the required testing evidence is available.
+4. Submit a release only after the Console shows no unresolved mandatory account or app-content task.
+
+The 2026-08-29 audit confirmed email and phone verification, but did not
+observe physical-device verification or an explicit identity-complete state.
+Treat either as a blocker if Play Console presents it.
+
+### What Is Deferred
+
+- Merchant onboarding and Video KYC.
+- Product or subscription creation, activation, and billing testing.
+- Any purchase, restore-purchase, or subscription-management release check.
+
+When monetization restarts after the pause boundary is satisfied, re-audit the
+live Console before changing merchant or product state. Do not delete prior
+merchant or product history as part of the free launch.

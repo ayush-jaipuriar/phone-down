@@ -212,6 +212,37 @@ Why this matters:
 - The listing is now saved. Play quick checks finished, but review submission is still blocked by required dashboard setup for the closed testing release.
 - The next Play Console work is not a store-listing fix; it is closed-test release setup and tester recruitment.
 
+### Public-Free Launch Console Audit - 2026-08-29
+
+This is a status-only release record. It intentionally excludes identity,
+contact, financial, merchant, application, and KYC-reference values.
+
+| Area | Status | Required for free launch | Evidence date | Action |
+|---|---|---|---|---|
+| App release state | Draft / internal testing | Yes | 2026-08-29 | Finish testing and production-access prerequisites before submission. |
+| Developer identity | Registered under Android developer verification; completion state not observed | Yes | 2026-08-29 | Recheck the account task before a production submission; resolve or escalate any outstanding verification prompt. |
+| Contact verification | Email and phone verified | Yes | 2026-08-29 | Recheck only if Play Console prompts for new verification. |
+| Device verification | Not observed in this audit | Yes | 2026-08-29 | Treat as a blocker if Play Console presents a physical-device verification task. |
+| Merchant onboarding | Paused | No | 2026-08-29 | Keep paused while the public release is free. |
+| Monetization products | No active product or subscription observed | No | 2026-08-29 | Do not create or activate products for the free release. |
+| Closed testing | Setup is 1 of 5 complete; 0 testers opted in | Yes if the account is affected | 2026-08-29 | Complete setup, recruit eligible testers, and run the required test period. |
+| Production access | Not eligible while closed-testing prerequisites remain incomplete | Yes | 2026-08-29 | Apply only after eligibility evidence is complete. |
+
+#### Merchant Pause Boundary
+
+Merchant onboarding is intentionally paused. Do not retry Video KYC until actual residence, declared current address, supporting document, and device location are consistent.
+
+This pause applies only to work required to receive money. It does not defer a
+Play Console task marked as developer identity, contact, device, package, or
+account verification.
+
+#### Release Decision
+
+The current release path is public distribution with all features available at
+no charge. Merchant completion and product activation are not prerequisites for
+this release path. The App release state, mandatory verification tasks, closed
+testing, and production access remain release gates.
+
 ### Sprint 16.5 Store Icon Correction - 2026-06-13
 
 | Field | Value | Why It Matters |
@@ -615,17 +646,14 @@ These product entries also matter for testing because:
 
 ### 2026-07-11 Merchant Verification Status
 
-- Account-level diagnosis confirmed PA-CB merchant verification was the billing blocker.
-- Play Console stated that an India payments-profile developer cannot sell until BillDesk verification completes.
-- Verification was initiated from `Settings > Payments profile`.
-- Current status is `In progress`.
-- Next action is user completion of the BillDesk KYC instructions sent from `onboarding@billdesk.com`; check Inbox and Spam if delivery is delayed.
-- Google Payments may also send a separate identity-verification notice requesting organization details and a readable government photo ID; PAN is listed as an accepted example.
-- The Play Console payments view does not expose an upload form yet and continues to direct the user to the BillDesk email.
-- Live BillDesk onboarding includes Personal Info, Bank Account Details, Business Info, and Video KYC.
-- Current application values: website `https://ayush-jaipuriar.github.io/phone-down/`; app name `Phone Down`; internal-test install link `https://play.google.com/apps/internaltest/4701515761564685039`.
-- Do not claim the public Play Store listing is live: it remains draft/internal-only and currently returns 404 publicly.
-- Do not retry product creation until verification is approved. Then retry `pro_monthly` first and create `pro_yearly` / `pro_lifetime` only after monthly saves.
+- Historical status only: merchant verification previously blocked billing setup.
+- Current status is superseded by the 2026-08-29 public-free launch audit:
+  merchant onboarding is intentionally paused and no monetization product is
+  active.
+- Do not retry merchant onboarding or product creation during the free release.
+- Keep developer identity, contact, device, package, and account verification
+  separate from this merchant pause; any outstanding required task remains a
+  release blocker.
 
 ### What Makes A Good Product ID
 
