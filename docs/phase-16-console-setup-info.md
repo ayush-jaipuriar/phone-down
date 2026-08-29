@@ -236,12 +236,15 @@ This pause applies only to work required to receive money. It does not defer a
 Play Console task marked as developer identity, contact, device, package, or
 account verification.
 
-#### Release Decision
+#### Target Release Decision
 
-The current release path is public distribution with all features available at
-no charge. Merchant completion and product activation are not prerequisites for
-this release path. The App release state, mandatory verification tasks, closed
-testing, and production access remain release gates.
+The target release path is public distribution with all features available at
+no charge, but only after the public artifact passes the local release-candidate
+and Play-installed QA gates in `docs/public-free-release-qa.md`. Until then,
+the current billing-enabled artifact must not be described as a fully free
+public release. Merchant completion and product activation are not prerequisites
+for the target release path. The App release state, mandatory verification
+tasks, closed testing, and production access remain release gates.
 
 ### Sprint 16.5 Store Icon Correction - 2026-06-13
 
@@ -650,7 +653,8 @@ These product entries also matter for testing because:
 - Current status is superseded by the 2026-08-29 public-free launch audit:
   merchant onboarding is intentionally paused and no monetization product is
   active.
-- Do not retry merchant onboarding or product creation during the free release.
+- Do not retry merchant onboarding or product creation for the target free
+  release.
 - Keep developer identity, contact, device, package, and account verification
   separate from this merchant pause; any outstanding required task remains a
   release blocker.

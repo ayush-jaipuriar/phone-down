@@ -2,8 +2,10 @@
 
 ## Purpose
 
-Use this checklist to capture only release evidence for Phone Down's public-free
-launch. Do not record personal, financial, merchant, account, contact,
+Use this checklist to capture only release evidence for Phone Down's target
+public-free launch. Do not describe the current artifact as fully free until
+every applicable local release-candidate and Play-installed QA gate below
+passes. Do not record personal, financial, merchant, account, contact,
 application, or KYC-reference values in this file.
 
 ## Console Gate - 2026-08-29

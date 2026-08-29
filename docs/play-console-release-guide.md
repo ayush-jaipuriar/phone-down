@@ -1754,15 +1754,20 @@ Use these to test your understanding while you work.
 
 ## 25. Public-Free Release Path And Deferred Merchant Work
 
-This section supersedes the billing-preparation steps above while Phone Down is
-being released as a fully free public app. It does not delete the later billing
-design; it prevents merchant and purchase work from being mistaken for a
-free-launch prerequisite.
+This section defines the target public-free release path. It takes effect only
+after the release artifact passes the local release-candidate and Play-installed
+QA gates in `docs/public-free-release-qa.md`; until then, the current artifact
+must not be described as a fully free public app. It does not delete the later
+billing design; it prevents merchant and purchase work from being mistaken for
+a target-release prerequisite.
 
 ### Current Console Boundary
 
 As of 2026-08-29, the app is in Draft / internal testing. No active in-app
 product or subscription was observed. Merchant onboarding is paused.
+
+This Console state does not prove the installed artifact is ready for the
+target public-free release. That requires the unchecked code and QA gates below.
 
 Merchant onboarding is intentionally paused. Do not retry Video KYC until actual residence, declared current address, supporting document, and device location are consistent.
 
@@ -1792,4 +1797,4 @@ Treat either as a blocker if Play Console presents it.
 
 When monetization restarts after the pause boundary is satisfied, re-audit the
 live Console before changing merchant or product state. Do not delete prior
-merchant or product history as part of the free launch.
+merchant or product history as part of the target free release.
