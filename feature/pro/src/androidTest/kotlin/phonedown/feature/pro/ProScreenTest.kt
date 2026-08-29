@@ -4,6 +4,8 @@ import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import phonedown.core.designsystem.PhoneDownTheme
@@ -33,5 +35,20 @@ class ProScreenTest {
             .forEach { paymentControl ->
                 composeRule.onNodeWithText(paymentControl).assertDoesNotExist()
             }
+    }
+
+    @Test
+    fun proScreenCloseInvokesBackCallback() {
+        var backClicks = 0
+
+        composeRule.setContent {
+            PhoneDownTheme(themeMode = ThemeMode.Light) {
+                ProScreen(onBack = { backClicks += 1 })
+            }
+        }
+
+        composeRule.onNodeWithText("Close").performClick()
+
+        assertEquals(1, backClicks)
     }
 }
