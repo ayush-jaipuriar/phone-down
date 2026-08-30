@@ -231,13 +231,54 @@ class SettingsViewModelTest {
         runTest(testDispatcher) {
             val authRepo = FakeAuthRepository(AccountState.SignedIn("Test", "test@test.com", null))
             val backupRepo = FakeBackupRepository()
-            val viewModel = createViewModel(authRepo = authRepo, backupRepo = backupRepo)
+            val driveAuthorizationCoordinator = FakeDriveAuthorizationCoordinator()
+            val viewModel =
+                createViewModel(
+                    authRepo = authRepo,
+                    backupRepo = backupRepo,
+                    driveAuthorizationCoordinator = driveAuthorizationCoordinator,
+                )
             testScheduler.advanceUntilIdle()
 
             viewModel.deleteAllData()
             testScheduler.advanceUntilIdle()
 
             assertTrue(viewModel.uiState.value.deleteSuccess)
+            assertEquals(1, backupRepo.deleteBackupCalls)
+            assertTrue(driveAuthorizationCoordinator.clearCachedAccessTokenCalled)
+            assertTrue(authRepo.signOutCalled)
+        }
+
+    @Test
+    fun `deleteAllData signed in with cloud deletion unchecked clears local account and token only`() =
+        runTest(testDispatcher) {
+            val authRepo = FakeAuthRepository(AccountState.SignedIn("Test", "test@test.com", null))
+            val backupRepo = FakeBackupRepository()
+            val sessionRepo = FakeSessionRepository()
+            val settingsRepo = FakeSettingsRepository()
+            val driveAuthorizationCoordinator = FakeDriveAuthorizationCoordinator()
+            val viewModel =
+                createViewModel(
+                    authRepo = authRepo,
+                    backupRepo = backupRepo,
+                    sessionRepo = sessionRepo,
+                    settingsRepo = settingsRepo,
+                    driveAuthorizationCoordinator = driveAuthorizationCoordinator,
+                )
+            testScheduler.advanceUntilIdle()
+
+            viewModel.setDeleteIncludeBackup(false)
+            viewModel.deleteAllData()
+            testScheduler.advanceUntilIdle()
+
+            assertTrue(viewModel.uiState.value.deleteSuccess)
+            assertTrue(sessionRepo.clearAllSessionsCalled)
+            assertTrue(sessionRepo.clearAllPenaltyEventsCalled)
+            assertTrue(settingsRepo.resetToDefaultsCalled)
+            assertEquals(0, backupRepo.deleteBackupCalls)
+            assertTrue(driveAuthorizationCoordinator.clearCachedAccessTokenCalled)
+            assertTrue(authRepo.signOutCalled)
+            assertFalse(viewModel.uiState.value.isSignedIn)
         }
 
     @Test
@@ -310,11 +351,16 @@ private class FakeBillingRepository(
 private class FakeAuthRepository(
     private val initialState: AccountState = AccountState.SignedOut,
 ) : AuthRepository {
-    override val accountState: Flow<AccountState> = MutableStateFlow(initialState)
+    private val accountStateFlow = MutableStateFlow(initialState)
+    override val accountState: Flow<AccountState> = accountStateFlow
+    var signOutCalled = false
 
     override suspend fun applyGoogleAccount(account: GoogleAccount) {}
 
-    override suspend fun signOut() {}
+    override suspend fun signOut() {
+        signOutCalled = true
+        accountStateFlow.value = AccountState.SignedOut
+    }
 }
 
 private class FakeBackupRepository : BackupRepository {
@@ -325,6 +371,7 @@ private class FakeBackupRepository : BackupRepository {
     }
 
     var deleteResult: DeleteBackupResult = DeleteBackupResult.Deleted
+    var deleteBackupCalls = 0
 
     override suspend fun createBackup(
         sessions: List<FocusSession>,
@@ -336,10 +383,15 @@ private class FakeBackupRepository : BackupRepository {
 
     override suspend fun getLastBackupTime(): Long? = null
 
-    override suspend fun deleteBackup(): DeleteBackupResult = deleteResult
+    override suspend fun deleteBackup(): DeleteBackupResult {
+        deleteBackupCalls += 1
+        return deleteResult
+    }
 }
 
 private class FakeDriveAuthorizationCoordinator : DriveAuthorizationCoordinator {
+    var clearCachedAccessTokenCalled = false
+
     override suspend fun beginAuthorization(): DriveAuthorizationUiStep = DriveAuthorizationUiStep.Cancelled
 
     override fun completeAuthorization(
@@ -347,7 +399,9 @@ private class FakeDriveAuthorizationCoordinator : DriveAuthorizationCoordinator 
         data: android.content.Intent?,
     ): DriveAuthorizationUiStep = DriveAuthorizationUiStep.Cancelled
 
-    override fun clearCachedAccessToken() {}
+    override fun clearCachedAccessToken() {
+        clearCachedAccessTokenCalled = true
+    }
 }
 
 private class FakeAutoBackupScheduling : AutoBackupScheduling {

@@ -7,7 +7,9 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import phonedown.core.designsystem.PhoneDownTheme
@@ -134,5 +136,24 @@ class InsightsScreenTest {
         composeRule.onNodeWithText("Season Highlights").performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText("Export Data").performScrollTo().assertIsDisplayed()
         composeRule.onAllNodesWithText("Upgrade to Pro").assertCountEquals(0)
+    }
+
+    @Test
+    fun exportDataClickInvokesCallbackOnce() {
+        var exportClicks = 0
+
+        composeRule.setContent {
+            PhoneDownTheme(themeMode = ThemeMode.Light) {
+                InsightsContent(
+                    uiState = sampleState,
+                    onRefresh = {},
+                    onExport = { exportClicks += 1 },
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag(InsightsTestTags.EXPORT_DATA).performScrollTo().performClick()
+
+        assertEquals(1, exportClicks)
     }
 }

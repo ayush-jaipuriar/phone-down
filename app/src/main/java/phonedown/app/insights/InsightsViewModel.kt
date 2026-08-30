@@ -24,6 +24,7 @@ import phonedown.domain.insights.GetStreakUseCase
 import phonedown.domain.insights.GetTodayInsightsUseCase
 import phonedown.domain.insights.GetTrendsUseCase
 import phonedown.domain.insights.GetWeeklyInsightsUseCase
+import phonedown.domain.insights.SessionHistoryItem
 import phonedown.feature.insights.InsightsUiState
 import javax.inject.Inject
 
@@ -145,6 +146,12 @@ class InsightsViewModel
                         selectedDaySummary = selectedSummary,
                     )
                 }
+            }
+        }
+
+        fun prepareFocusHistoryExport(onReady: (List<SessionHistoryItem>) -> Unit) {
+            viewModelScope.launch {
+                onReady(getHistory(pageSize = Int.MAX_VALUE))
             }
         }
     }

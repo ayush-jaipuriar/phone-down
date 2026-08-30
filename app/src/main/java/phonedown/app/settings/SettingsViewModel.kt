@@ -115,7 +115,9 @@ class SettingsViewModel
             viewModelScope.launch {
                 _uiState.update { it.copy(isDeleting = true, deleteError = null, backupError = null) }
                 try {
-                    if (_uiState.value.deleteIncludeBackup && _uiState.value.isSignedIn) {
+                    val isSignedIn = _uiState.value.isSignedIn
+                    val deleteCloudBackup = _uiState.value.deleteIncludeBackup && isSignedIn
+                    if (deleteCloudBackup) {
                         when (val deleteResult = backupRepository.deleteBackup()) {
                             DeleteBackupResult.Deleted,
                             DeleteBackupResult.NoBackupFound,
@@ -134,7 +136,7 @@ class SettingsViewModel
                     sessionRepository.clearAllSessions()
                     sessionRepository.clearAllPenaltyEvents()
                     settingsRepository.resetToDefaults()
-                    if (_uiState.value.deleteIncludeBackup && _uiState.value.isSignedIn) {
+                    if (isSignedIn) {
                         driveAuthorizationManager.clearCachedAccessToken()
                         authRepository.signOut()
                     }
