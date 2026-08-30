@@ -60,4 +60,13 @@ class SettingsScreenScreenshotTest {
             }
         }
     }
+
+    @Test
+    fun privacyPolicyLight() {
+        paparazzi.snapshot {
+            PhoneDownTheme(themeMode = ThemeMode.Light) {
+                PrivacyPolicyScreen(onBack = {})
+            }
+        }
+    }
 }

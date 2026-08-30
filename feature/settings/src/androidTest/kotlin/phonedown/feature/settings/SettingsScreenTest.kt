@@ -258,4 +258,24 @@ class SettingsScreenTest {
         composeRule.onNodeWithText("Backup & Restore").performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText("Back Up").assertIsDisplayed()
     }
+
+    @Test
+    fun privacyPolicyMatchesFreeRuntimeAndBackAction() {
+        var backClicks = 0
+        composeRule.setContent {
+            PhoneDownTheme(themeMode = ThemeMode.Light) {
+                PrivacyPolicyScreen(onBack = { backClicks += 1 })
+            }
+        }
+
+        composeRule.onAllNodesWithText("Google Play Billing", substring = true).assertCountEquals(0)
+        composeRule.onAllNodesWithText("Pro user", substring = true).assertCountEquals(0)
+        composeRule.onAllNodesWithText("encrypted preferences", substring = true).assertCountEquals(0)
+        composeRule.onNodeWithText("Firebase Crashlytics", substring = true).performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Google Drive app data folder", substring = true).performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("phone-state permission", substring = true).performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Back").performClick()
+
+        assertEquals(1, backClicks)
+    }
 }

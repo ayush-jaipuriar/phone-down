@@ -65,7 +65,8 @@ fun PrivacyPolicyScreen(onBack: () -> Unit) {
                 content =
                     "We collect focus session data (duration, start/end times, interruptions) and app settings. " +
                         "If you sign in with Google, we access your display name and email. " +
-                        "We do not collect location, contacts, or advertising identifiers.",
+                        "Release builds may send crash logs and basic diagnostics to Firebase Crashlytics. " +
+                        "We do not collect location, contacts, call content, phone numbers, or advertising identifiers.",
             )
 
             PolicySection(
@@ -73,7 +74,8 @@ fun PrivacyPolicyScreen(onBack: () -> Unit) {
                 content =
                     "Session data is used to display your focus history and insights. " +
                         "Settings are used to personalize your experience. If you enable backup, " +
-                        "data is stored in your personal Google Drive. We do not sell or share your data with third parties.",
+                        "data is stored in your personal Google Drive app data folder. Crash diagnostics are used only " +
+                        "to find and fix stability problems. We do not sell your data or use it for advertising.",
             )
 
             PolicySection(
@@ -81,15 +83,24 @@ fun PrivacyPolicyScreen(onBack: () -> Unit) {
                 content =
                     "Phone Down operates primarily offline. All data is stored locally on your device. " +
                         "Optional cloud backup uses your personal Google Drive app data folder. " +
-                        "Auth tokens are stored in encrypted preferences.",
+                        "Google account profile details are stored in app preferences. Google Drive access tokens " +
+                        "are kept in memory and cleared when you sign out. Network traffic uses HTTPS.",
+            )
+
+            PolicySection(
+                title = "Optional Permissions",
+                content =
+                    "Notification permission lets Phone Down show an active focus-session notification. " +
+                        "Optional phone-state permission lets the app pause focus automatically during a phone call. " +
+                        "Phone Down does not read or store the caller's number, call content, or call history.",
             )
 
             PolicySection(
                 title = "Your Rights",
                 content =
                     "You can delete all local data at any time through Settings > Privacy. " +
-                        "You can export your data if you are a Pro user. " +
-                        "You can sign out and revoke access through your Google Account settings.",
+                        "You can export your focus history. When deleting local data, you can also choose to delete " +
+                        "your cloud backup. You can sign out and revoke access through your Google Account settings.",
             )
 
             PolicySection(
@@ -100,8 +111,9 @@ fun PrivacyPolicyScreen(onBack: () -> Unit) {
             PolicySection(
                 title = "Third-Party Services",
                 content =
-                    "We use Google Play Billing for purchases and Google Sign-In for optional backup. " +
-                        "These services are governed by Google's Privacy Policy.",
+                    "We use Google Sign-In for optional account access, Google Drive for optional backup and restore, " +
+                        "and Firebase Crashlytics for release crash diagnostics. These services are governed by " +
+                        "Google's Privacy Policy.",
             )
 
             PolicySection(
@@ -119,7 +131,7 @@ fun PrivacyPolicyScreen(onBack: () -> Unit) {
             )
 
             Text(
-                text = "Last Updated: May 3, 2026",
+                text = "Last Updated: August 30, 2026",
                 style = MaterialTheme.typography.labelSmall,
                 color = PhoneDownDesign.colors.textTertiary,
             )
