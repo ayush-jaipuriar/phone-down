@@ -1,53 +1,35 @@
 package phonedown.app.backup
 
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class AutoBackupEligibilityTest {
     @Test
-    fun `eligible when backup is opted in enabled and account is signed in`() {
-        assertTrue(
-            isAutoBackupEligible(
-                backupOptIn = true,
-                autoBackupEnabled = true,
-                isSignedIn = true,
-            ),
-        )
-    }
+    fun `eligibility requires every prerequisite across full boolean matrix`() {
+        val cases =
+            listOf(
+                Triple(false, false, false) to false,
+                Triple(false, false, true) to false,
+                Triple(false, true, false) to false,
+                Triple(false, true, true) to false,
+                Triple(true, false, false) to false,
+                Triple(true, false, true) to false,
+                Triple(true, true, false) to false,
+                Triple(true, true, true) to true,
+            )
 
-    @Test
-    fun `ineligible when backup is not opted in`() {
-        assertFalse(
-            isAutoBackupEligible(
-                backupOptIn = false,
-                autoBackupEnabled = true,
-                isSignedIn = true,
-            ),
-        )
-    }
-
-    @Test
-    fun `ineligible when automatic backup is disabled`() {
-        assertFalse(
-            isAutoBackupEligible(
-                backupOptIn = true,
-                autoBackupEnabled = false,
-                isSignedIn = true,
-            ),
-        )
-    }
-
-    @Test
-    fun `ineligible when account is signed out`() {
-        assertFalse(
-            isAutoBackupEligible(
-                backupOptIn = true,
-                autoBackupEnabled = true,
-                isSignedIn = false,
-            ),
-        )
+        cases.forEach { (inputs, expected) ->
+            val (backupOptIn, autoBackupEnabled, isSignedIn) = inputs
+            assertEquals(
+                "backupOptIn=$backupOptIn, autoBackupEnabled=$autoBackupEnabled, isSignedIn=$isSignedIn",
+                expected,
+                isAutoBackupEligible(
+                    backupOptIn = backupOptIn,
+                    autoBackupEnabled = autoBackupEnabled,
+                    isSignedIn = isSignedIn,
+                ),
+            )
+        }
     }
 }
 
