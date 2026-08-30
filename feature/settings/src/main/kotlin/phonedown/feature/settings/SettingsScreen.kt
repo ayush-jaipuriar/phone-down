@@ -4,7 +4,6 @@ package phonedown.feature.settings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,14 +19,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import phonedown.core.designsystem.PhoneDownCard
 import phonedown.core.designsystem.PhoneDownDesign
-import phonedown.core.designsystem.PhoneDownProBadge
 import phonedown.core.designsystem.PhoneDownScreen
 import phonedown.core.designsystem.PhoneDownSectionHeaderTextStyle
 import phonedown.core.designsystem.PhoneDownSettingRow
@@ -251,22 +248,13 @@ private fun AccountSection(
             modifier = Modifier.testTag(SettingsTestTags.ACCOUNT_ROW),
             onClick = onAccountClick,
         )
-        Row(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .testTag(SettingsTestTags.PRO_ROW),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            PhoneDownSettingRow(
-                title = "Phone Down Pro",
-                supportingText = "Advanced insights, backup, and unlimited history",
-                modifier = Modifier.weight(1f),
-                showChevron = true,
-                onClick = onProClick,
-            )
-            PhoneDownProBadge()
-        }
+        PhoneDownSettingRow(
+            title = "Phone Down Pro",
+            supportingText = "Advanced insights, backup, and unlimited history",
+            modifier = Modifier.testTag(SettingsTestTags.PRO_ROW),
+            showChevron = true,
+            onClick = onProClick,
+        )
 
         if (!uiState.isSignedIn) {
             PhoneDownSettingRow(

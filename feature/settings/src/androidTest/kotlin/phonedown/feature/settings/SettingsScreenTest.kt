@@ -254,6 +254,7 @@ class SettingsScreenTest {
 
         composeRule.onNodeWithText("Custom Duration").assertIsDisplayed()
         composeRule.onAllNodesWithText("Free tier limited to one custom slot").assertCountEquals(0)
+        composeRule.onAllNodesWithText("Pro").assertCountEquals(0)
         composeRule.onNodeWithText("Backup & Restore").performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText("Back Up").assertIsDisplayed()
     }

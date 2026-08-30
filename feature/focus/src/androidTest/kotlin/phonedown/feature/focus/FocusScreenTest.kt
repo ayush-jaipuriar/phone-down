@@ -10,6 +10,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import phonedown.core.designsystem.PhoneDownTheme
@@ -277,6 +278,6 @@ class FocusScreenTest {
         composeRule.onAllNodesWithText("Free custom duration is currently limited to 60 minutes.").assertCountEquals(0)
         composeRule.onNodeWithText("Apply Custom Duration").performClick()
 
-        assert(selectedEvent == FocusEvent.DurationSelected(90 * 60L))
+        assertEquals(FocusEvent.DurationSelected(90 * 60L), selectedEvent)
     }
 }
