@@ -9,10 +9,8 @@ import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.flow.first
 import phonedown.core.model.AccountState
-import phonedown.core.model.ProEntitlement
 import phonedown.core.model.repository.AuthRepository
 import phonedown.core.model.repository.BackupRepository
-import phonedown.core.model.repository.BillingRepository
 import phonedown.core.model.repository.DriveAccessTokenProvider
 import phonedown.core.model.repository.DriveAccessTokenResult
 import phonedown.core.model.repository.SessionRepository
@@ -31,15 +29,19 @@ class AutoBackupWorker(
 
         val settingsRepository = entryPoint.settingsRepository()
         val authRepository = entryPoint.authRepository()
-        val billingRepository = entryPoint.billingRepository()
         val driveAccessTokenProvider = entryPoint.driveAccessTokenProvider()
         val backupRepository = entryPoint.backupRepository()
         val sessionRepository = entryPoint.sessionRepository()
 
         val settings = settingsRepository.settings.first()
         val isSignedIn = authRepository.accountState.first() is AccountState.SignedIn
-        val isPro = billingRepository.entitlement.first() is ProEntitlement.Pro
-        if (!settings.backupOptIn || !settings.autoBackupEnabled || !isSignedIn || !isPro) {
+        if (
+            !isAutoBackupEligible(
+                backupOptIn = settings.backupOptIn,
+                autoBackupEnabled = settings.autoBackupEnabled,
+                isSignedIn = isSignedIn,
+            )
+        ) {
             return Result.success()
         }
 
@@ -70,8 +72,6 @@ interface AutoBackupWorkerEntryPoint {
     fun authRepository(): AuthRepository
 
     fun backupRepository(): BackupRepository
-
-    fun billingRepository(): BillingRepository
 
     fun driveAccessTokenProvider(): DriveAccessTokenProvider
 
