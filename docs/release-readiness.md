@@ -44,8 +44,8 @@ Release evidence captured on 2026-08-31:
 - Release APK signature verification: pass, one signer
 - Release runtime dependency query: no matching BillingClient dependency
 - Release manifest: no `com.android.vending.BILLING` permission
-- AAB SHA-256: `13bfe635d567236a8b8ce27bc2b4b55dadbb2aed049227fb45c2fc27e7ad0d9b`
-- APK SHA-256: `97cb15d3c0f75b170c0c58b6826ed9583f6cd326358e795ae0f10cb619a4c9f6`
+- AAB SHA-256: `c5f5bdf4216aa42d466cc1ee7a32ff5db3f7ada410de548ee602b9b00d6c76c5`
+- APK SHA-256: `ac289c6b09e96237fb86d85950018305f78f5c8f76975e4ae1bc9949527f0cec`
 
 ## Physical-device and Play-installed gates
 

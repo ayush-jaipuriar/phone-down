@@ -119,9 +119,12 @@ class InsightsViewModel
                     }
 
                 val isEmpty =
-                    today.sessionCount == 0 &&
-                        weekly.totalFocusSeconds == 0L &&
-                        focusQuality == null
+                    isInsightsEmpty(
+                        today = today,
+                        weeklyFocusSeconds = weekly.totalFocusSeconds,
+                        hasFocusQuality = focusQuality != null,
+                        history = history,
+                    )
 
                 _uiState.update { current ->
                     current.copy(
@@ -149,9 +152,28 @@ class InsightsViewModel
             }
         }
 
-        fun prepareFocusHistoryExport(onReady: (List<SessionHistoryItem>) -> Unit) {
+        fun exportFocusHistory(
+            openOutput: () -> java.io.OutputStream?,
+            onComplete: (Boolean) -> Unit,
+        ) {
             viewModelScope.launch {
-                onReady(getHistory(pageSize = Int.MAX_VALUE))
+                onComplete(
+                    exportFocusHistoryCsv(
+                        loadHistory = { getHistory(pageSize = Int.MAX_VALUE) },
+                        openOutput = openOutput,
+                    ),
+                )
             }
         }
     }
+
+internal fun isInsightsEmpty(
+    today: phonedown.domain.insights.InsightSummary,
+    weeklyFocusSeconds: Long,
+    hasFocusQuality: Boolean,
+    history: List<SessionHistoryItem>,
+): Boolean =
+    today.sessionCount == 0 &&
+        weeklyFocusSeconds == 0L &&
+        !hasFocusQuality &&
+        history.isEmpty()

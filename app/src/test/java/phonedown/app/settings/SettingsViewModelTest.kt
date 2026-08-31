@@ -288,12 +288,16 @@ class SettingsViewModelTest {
             val backupRepo = FakeBackupRepository(deleteResult = DeleteBackupResult.Failure("Cloud backup delete failed"))
             val sessionRepo = FakeSessionRepository()
             val settingsRepo = FakeSettingsRepository()
+            val driveAuthorizationCoordinator = FakeDriveAuthorizationCoordinator()
+            val autoBackupScheduling = FakeAutoBackupScheduling()
             val viewModel =
                 createViewModel(
                     authRepo = authRepo,
                     backupRepo = backupRepo,
                     sessionRepo = sessionRepo,
                     settingsRepo = settingsRepo,
+                    driveAuthorizationCoordinator = driveAuthorizationCoordinator,
+                    autoBackupScheduling = autoBackupScheduling,
                 )
             testScheduler.advanceUntilIdle()
 
@@ -305,6 +309,10 @@ class SettingsViewModelTest {
             assertFalse(sessionRepo.clearAllSessionsCalled)
             assertFalse(sessionRepo.clearAllPenaltyEventsCalled)
             assertFalse(settingsRepo.resetToDefaultsCalled)
+            assertFalse(driveAuthorizationCoordinator.clearCachedAccessTokenCalled)
+            assertFalse(authRepo.signOutCalled)
+            assertTrue(viewModel.uiState.value.isSignedIn)
+            assertEquals(0, autoBackupScheduling.refreshScheduleCalls)
         }
 
     @Test
@@ -405,7 +413,11 @@ private class FakeDriveAuthorizationCoordinator : DriveAuthorizationCoordinator 
 }
 
 private class FakeAutoBackupScheduling : AutoBackupScheduling {
-    override suspend fun refreshSchedule() {}
+    var refreshScheduleCalls = 0
+
+    override suspend fun refreshSchedule() {
+        refreshScheduleCalls += 1
+    }
 }
 
 private class FakeSessionRepository : SessionRepository {

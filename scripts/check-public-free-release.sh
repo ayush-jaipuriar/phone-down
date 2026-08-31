@@ -53,6 +53,11 @@ assert_contains app/build.gradle.kts 'versionCode = 5'
 assert_contains app/build.gradle.kts 'versionName = "1.0.4"'
 assert_contains fastlane/metadata/android/en-US/full_description.txt "<b>Everything included</b>"
 assert_contains fastlane/metadata/android/en-US/changelogs/5.txt "Removed purchase, upgrade, restore, and subscription flows"
+assert_absent "pendingCsv" app/src/main/java/phonedown/app/insights/InsightsRoute.kt
+assert_contains app/src/main/java/phonedown/app/insights/InsightsRoute.kt \
+  "openOutputStream(uri, FOCUS_HISTORY_OUTPUT_MODE)"
+assert_contains app/src/main/java/phonedown/app/insights/FocusHistoryCsvFormatter.kt \
+  'FOCUS_HISTORY_OUTPUT_MODE = "wt"'
 
 if grep -R -Fq "libs.play.billing" app feature/pro --include='*.kts'; then
   fail "billing dependency is present in the public app or Pro feature"

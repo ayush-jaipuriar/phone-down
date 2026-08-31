@@ -40,6 +40,13 @@ Automated evidence, 2026-08-31:
 - Bundletool validation and APK signature verification: pass.
 - Package/version: `phonedown.app` / `5 (1.0.4)`.
 - Release graph and manifest: no BillingClient or billing permission.
+- CSV export regression coverage proves recreation-safe document selection,
+  truncating writes, complete older-history visibility, background I/O, and
+  provider/write failure handling.
+- Account-deletion cloud-failure coverage proves sessions, penalties, settings,
+  token, sign-in state, and backup schedule remain unchanged.
+- Final AAB SHA-256: `c5f5bdf4216aa42d466cc1ee7a32ff5db3f7ada410de548ee602b9b00d6c76c5`.
+- Final APK SHA-256: `ac289c6b09e96237fb86d85950018305f78f5c8f76975e4ae1bc9949527f0cec`.
 - Physical device: not connected; connected and manual QA remain open.
 
 ## Play-Installed QA
