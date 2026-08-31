@@ -1,9 +1,15 @@
 # Sprint 16.4 - Real Play Billing, Entitlements, And Paywall Readiness Plan
 
+> **Deferred status - 2026-08-31:** Public billing rollout is deferred until
+> post-move merchant verification in Q1 2027. Real billing source remains in
+> `:core:billing`, but version 1.0.4 excludes that module and BillingClient from
+> the public app artifact. This document is retained as historical design input;
+> `docs/monetization-restart-runbook.md` is the current restart gate.
+
 ## Status
 
 - Planning status: Drafted
-- Implementation status: In progress
+- Implementation status: Dormant / deferred for the public-free release
 - Approval required before implementation: Yes
 - Phase: Phase 16 - Android Production Readiness
 - Primary goal: Replace fake billing with real Google Play Billing across monthly, yearly, and lifetime Pro, then verify the full purchase, restore, cancellation, and paywall experience on real devices and Play test tracks

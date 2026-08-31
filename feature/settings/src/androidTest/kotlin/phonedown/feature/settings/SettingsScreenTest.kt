@@ -11,8 +11,8 @@ import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -271,9 +271,18 @@ class SettingsScreenTest {
         composeRule.onAllNodesWithText("Google Play Billing", substring = true).assertCountEquals(0)
         composeRule.onAllNodesWithText("Pro user", substring = true).assertCountEquals(0)
         composeRule.onAllNodesWithText("encrypted preferences", substring = true).assertCountEquals(0)
+        composeRule.onAllNodesWithText("All data is stored locally", substring = true).assertCountEquals(0)
+        composeRule.onAllNodesWithText("support@phonedown.app", substring = true).assertCountEquals(0)
+        composeRule.onNodeWithText("profile-picture URL", substring = true).performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Google account identifier", substring = true).performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("automatically send crash reports", substring = true).performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Crashlytics installation identifier", substring = true).performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText("Firebase Crashlytics", substring = true).performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText("Google Drive app data folder", substring = true).performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText("phone-state permission", substring = true).performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("You can export your focus history", substring = true).performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("jaipuriar.ayush@gmail.com", substring = true).performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Settings > About > Send Feedback", substring = true).performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText("Back").performClick()
 
         assertEquals(1, backClicks)

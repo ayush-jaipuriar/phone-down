@@ -1,5 +1,12 @@
 # Phone Down V1 Implementation Plan
 
+> **Current release decision - 2026-08-31:** The original paid-tier decisions
+> below are preserved as historical product context. For version 1.0.4, all
+> existing Pro capabilities are included without payment, backup is available
+> to signed-in users who opt in, and the public artifact excludes Play Billing.
+> Monetization may restart only through the separate Q1 2027 runbook and a new
+> approved implementation plan.
+
 This plan translates `architecture.md`, the clarified product decisions, and the light/dark UI mockups into an implementation roadmap for the first full V1 build.
 
 The goal of V1 is a commercially credible native Android app where the core ritual feels reliable: start a focus session, place the phone face down, and accumulate honest focus time only while the device remains surrendered.

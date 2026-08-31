@@ -23,12 +23,24 @@ application, or KYC-reference values in this file.
 
 ## Local Release Candidate
 
-- [ ] Release build completes.
-- [ ] Public artifact has no billing runtime dependency.
-- [ ] All app features work without a purchase, restore, upgrade, price, or subscription surface.
-- [ ] Sign-in and opt-in backup behavior work independently of entitlement.
-- [ ] Privacy policy and data-safety declarations describe the free runtime.
+- [x] Release build completes.
+- [x] Public artifact has no billing runtime dependency.
+- [x] Automated and screenshot tests cover app features without a purchase, restore, upgrade, price, or subscription surface.
+- [x] Unit tests prove sign-in and opt-in backup behavior is independent of entitlement.
+- [x] Privacy policy and data-safety declarations describe the free runtime.
 - [ ] No crash, ANR, or material usability regression is found in device QA.
+
+Automated evidence, 2026-08-31:
+
+- `./scripts/check.sh`: pass.
+- Full debug/release JVM unit and Paparazzi suites: pass.
+- Compose Android-test APK assembly: pass.
+- `lintDebug`, release lint-vital, ktlint, and detekt: pass.
+- Signed APK and AAB builds: pass.
+- Bundletool validation and APK signature verification: pass.
+- Package/version: `phonedown.app` / `5 (1.0.4)`.
+- Release graph and manifest: no BillingClient or billing permission.
+- Physical device: not connected; connected and manual QA remain open.
 
 ## Play-Installed QA
 

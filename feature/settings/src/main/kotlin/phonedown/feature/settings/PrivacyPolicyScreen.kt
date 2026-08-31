@@ -64,8 +64,10 @@ fun PrivacyPolicyScreen(onBack: () -> Unit) {
                 title = "Data We Collect",
                 content =
                     "We collect focus session data (duration, start/end times, interruptions) and app settings. " +
-                        "If you sign in with Google, we access your display name and email. " +
-                        "Release builds may send crash logs and basic diagnostics to Firebase Crashlytics. " +
+                        "If you sign in with Google, we access your display name, email address, profile-picture URL, " +
+                        "and Google account identifier. Release builds automatically send crash reports and basic " +
+                        "diagnostic metadata to Firebase Crashlytics, which may include stack traces, app state, " +
+                        "device and operating-system information, and a Crashlytics installation identifier. " +
                         "We do not collect location, contacts, call content, phone numbers, or advertising identifiers.",
             )
 
@@ -81,10 +83,11 @@ fun PrivacyPolicyScreen(onBack: () -> Unit) {
             PolicySection(
                 title = "Data Storage and Security",
                 content =
-                    "Phone Down operates primarily offline. All data is stored locally on your device. " +
-                        "Optional cloud backup uses your personal Google Drive app data folder. " +
-                        "Google account profile details are stored in app preferences. Google Drive access tokens " +
-                        "are kept in memory and cleared when you sign out. Network traffic uses HTTPS.",
+                    "Phone Down operates primarily offline. Focus sessions and app settings are stored locally on " +
+                        "your device. Optional cloud backup sends backup data to your personal Google Drive app data " +
+                        "folder, and release crash diagnostics are sent to Firebase Crashlytics. Google account " +
+                        "profile details are stored in app preferences. Google Drive access tokens are kept in " +
+                        "memory and cleared when you sign out or delete local data. Network traffic uses HTTPS.",
             )
 
             PolicySection(
@@ -127,7 +130,7 @@ fun PrivacyPolicyScreen(onBack: () -> Unit) {
                 title = "Contact Us",
                 content =
                     "If you have questions about this Privacy Policy or your data, " +
-                        "contact us at support@phonedown.app or through Settings > About > Support.",
+                        "contact us at jaipuriar.ayush@gmail.com or through Settings > About > Send Feedback.",
             )
 
             Text(

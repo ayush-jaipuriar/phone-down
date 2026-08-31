@@ -6,25 +6,25 @@ Phone Down is a focus and productivity app built around one simple rule: place y
 - The timer only counts when your phone stays down and stable
 - Picking up your phone pauses the session
 
-<b>Core features (free)</b>
+<b>Everything included</b>
 - Unlimited focus sessions
 - Timer with preset durations (10, 15, 25, 45, 60 minutes)
+- Editable default duration and one-time custom durations
 - Daily focus summary
 - Last 7 days insights
 - Streak tracking
 - Clean session tracking
-
-<b>Pro features</b>
 - Unlimited history and advanced analytics
 - Focus quality score and trends
 - Heatmap visualization
 - Best focus hour and day insights
-- Cloud backup to Google Drive
-- Data export
+- Optional cloud backup to Google Drive
+- Focus-history CSV export
 
 <b>Privacy-first</b>
-- All session data stays on your device
+- Focus sessions and settings stay on your device unless you enable backup
 - Optional cloud backup is opt-in and stored in your personal Google Drive
-- No ads, no tracking, no third-party analytics
+- No ads, subscriptions, or in-app purchases
+- Release crash diagnostics are used only to improve stability
 
 Phone Down helps you build an honest focus habit by making the ritual physical. No gamification, no shame—just a simple tool to help you stay present.

@@ -1,7 +1,7 @@
-Initial release of Phone Down.
+Phone Down is now completely free.
 
 - Start focus sessions and track time only while phone is face down
-- Daily and weekly insights
-- Streak tracking
-- Clean session tracking
-- Pro upgrade with advanced analytics and cloud backup
+- Review a detailed summary after every completed session
+- Use advanced insights, history, custom durations, Google Drive backup, and CSV export
+- Delete local data and disconnect Google from one privacy flow
+- No ads, subscriptions, or in-app purchases

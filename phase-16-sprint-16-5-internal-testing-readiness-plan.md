@@ -1,5 +1,12 @@
 # Sprint 16.5 - Internal Testing Readiness Completion Plan
 
+> **Superseded release boundary - 2026-08-31:** Version 1.0.4 is a completely
+> free release candidate. All existing features are included, and its app
+> runtime contains no Play Billing dependency or billing permission. Product,
+> purchase, restore, and subscription testing below is historical scope for a
+> future monetized release, not a prerequisite for the current closed test.
+> Current gates are tracked in `docs/public-free-release-qa.md`.
+
 ## Status
 
 - Planning status: Approved by user on 2026-06-12
@@ -8,7 +15,7 @@
 - Phase: Phase 16 - Android Production Readiness
 - Scope target: Internal testing readiness only
 - Production scope: Deferred until after internal-test QA evidence exists
-- Current live Play Console baseline: Internal testing release `3 (1.0.2)` is active, but billing products, closed-test release, and production access are not ready
+- Current live Play Console baseline: closed-testing setup is incomplete and production access is unavailable; version 1.0.4 is the next public-free candidate
 
 ## 1. Purpose
 

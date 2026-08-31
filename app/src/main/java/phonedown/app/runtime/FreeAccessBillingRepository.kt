@@ -22,8 +22,7 @@ class FreeAccessBillingRepository
 
         override suspend fun loadProducts() = Unit
 
-        override suspend fun launchPurchaseFlow(product: ProProduct): Nothing =
-            error("Unsupported operation in public free mode")
+        override suspend fun launchPurchaseFlow(product: ProProduct): Nothing = error("Unsupported operation in public free mode")
 
         override suspend fun restorePurchases() = Unit
 

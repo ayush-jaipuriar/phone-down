@@ -1,159 +1,77 @@
-# Release Readiness Report — Phone Down V1
+# Release Readiness - Phone Down 1.0.4
 
-## Status: Ready for Internal Testing
+Date: August 31, 2026
+Version code: 5
+Target: public, completely free Google Play release
 
-Date: May 3, 2026
-Version: 1.0.2
-Version Code: 3
+## Product status
 
-## What's Complete
+- [x] Focus timer counts only while the phone is face down and stable.
+- [x] Completion summary, clean/broken results, recovery, and explicit end flows are implemented.
+- [x] Default duration is editable; one-time custom durations do not overwrite it.
+- [x] History, advanced insights, custom durations, Drive backup, and CSV export are included without purchase.
+- [x] Google sign-in and Drive backup are optional.
+- [x] No ads, subscriptions, in-app purchases, upgrade actions, or purchase restoration are present in the release runtime.
+- [x] Release Crashlytics is enabled; debug collection is disabled.
 
-### Core Features
-- [x] Focus session timer that only counts when phone is face-down
-- [x] Sensor-based face-down detection with arming window
-- [x] Interruption handling (minor, penalty, broken)
-- [x] Call pause support
-- [x] Session classification (clean, interrupted, broken, partial, invalidated)
-- [x] Foreground service with notification
-- [x] Session recovery after app kill/restart
+## Privacy and store status
 
-### UI/UX
-- [x] Focus screen with all states (waiting, arming, active, paused, completed)
-- [x] Insights screen with today, weekly, focus quality, streak, history
-- [x] Settings screen with theme, sound, haptics
-- [x] Onboarding flow (3 cards)
-- [x] Light and dark themes
-- [x] Pro paywall with monthly/yearly/lifetime options
-- [x] Privacy Policy screen
+- [x] In-app and hosted privacy policies describe Google profile data, Drive backup, Crashlytics, export, and deletion.
+- [x] Data Safety answer sheet matches the free runtime.
+- [x] Support email and public deletion instructions use real values.
+- [x] Store listing describes all features as included.
+- [x] Play listing icon and launcher icon use the intended Phone Down mark.
+- [ ] Replace every active billing-enabled Play artifact with version code 5 before submitting Data Safety answers that declare no financial data.
 
-### Data & Persistence
-- [x] Room database for sessions and penalty events
-- [x] DataStore for settings
-- [x] Backup/restore with JSON schema (v1)
-- [x] Enhanced data deletion with confirmation
+## Automated verification gates
 
-### Monetization
-- [x] Pro entitlement system
-- [x] Fake billing implementation (ready for real Play Billing)
-- [x] Pro gates on advanced insights, backup, export
-- [x] Passive upsell banner
+- [x] `./scripts/check.sh`
+- [x] Full JVM/unit regression suite
+- [x] Compose Android-test APK assembly
+- [x] All Paparazzi screenshot verification
+- [x] Debug build
+- [x] Signed release AAB build and bundle validation
+- [x] Release dependency proof shows no BillingClient
+- [x] Debug/release merged-manifest proof matches Crashlytics policy
 
-### Security & Privacy
-- [x] Privacy policy (GDPR/CCPA/COPPA compliant)
-- [x] Permissions documentation
-- [x] Play Store data safety form
-- [x] Security hardening (root detection, certificate pinning, secure logging)
-- [x] ProGuard/R8 obfuscation enabled
-- [x] No secrets in code
+Release evidence captured on 2026-08-31:
 
-### Testing
-- [x] Session engine unit tests
-- [x] Sensor evaluator tests
-- [x] Insights use case tests (31 tests)
-- [x] Database mapper and DAO tests
-- [x] Settings ViewModel tests
-- [x] Account ViewModel tests
-- [x] Pro ViewModel tests
-- [x] Paparazzi screenshot tests for all screens
-- [x] Compose UI tests for Settings
-- [x] Release build verification (AAB builds successfully)
-- [x] Lint passes
+- Bundle: `app/build/outputs/bundle/release/app-release.aab`
+- APK: `app/build/outputs/apk/release/app-release.apk`
+- Bundletool 1.18.3 validation: pass
+- Package/version: `phonedown.app`, version code 5, version name 1.0.4
+- SDK boundary: minimum 26, target 36
+- Release APK signature verification: pass, one signer
+- Release runtime dependency query: no matching BillingClient dependency
+- Release manifest: no `com.android.vending.BILLING` permission
+- AAB SHA-256: `13bfe635d567236a8b8ce27bc2b4b55dadbb2aed049227fb45c2fc27e7ad0d9b`
+- APK SHA-256: `97cb15d3c0f75b170c0c58b6826ed9583f6cd326358e795ae0f10cb619a4c9f6`
 
-### Assets
-- [x] App icon (all densities)
-- [x] Play Store feature graphic (1024x500)
-- [x] Play Store icon (512x512)
-- [x] Play Store listing metadata
+## Physical-device and Play-installed gates
 
-## What's Deferred to Post-V1
+- [ ] Focus start, face-down arming, pause, resume, completion, summary, and Done.
+- [ ] Clean, broken, abandoned, call-pause, and recovery paths.
+- [ ] Default/custom duration behavior.
+- [ ] Insights and CSV document export.
+- [ ] Google sign-in, backup, restore, auto-backup, sign-out, and deletion.
+- [ ] Privacy policy scrolling and links.
+- [ ] Release Crashlytics test event appears without sensitive custom data.
+- [ ] Play-installed sanity test passes from the closed-test track.
 
-### Real Service Integration
-- [ ] Google Play Billing Client (fake implementation used)
-- [ ] Google Sign-In (fake implementation used)
-- [ ] Google Drive API for backup (fake implementation used)
-- [ ] Auto-backup scheduling
+## External Play gates
 
-### Security Enhancements
-- [ ] Real encrypted DataStore (using `androidx.security:security-crypto`)
-- [ ] Full database encryption (SQLCipher)
-- [ ] Real certificate pinning (placeholders currently used)
-- [ ] Anti-debugging measures
-- [ ] Screenshot prevention for sensitive screens
+- [ ] Closed-test countries/regions, tester list, feedback path, and version-code 5 release are configured.
+- [ ] Required testers opt in and remain enrolled for Google's required duration.
+- [ ] Production access becomes available and is approved.
+- [ ] App content, Data Safety, content rating, target audience, ads, access, and privacy URL are complete.
+- [ ] Production submission is reviewed immediately before the final consequential click.
 
-### Missing Features
-- [ ] Compose UI tests for Focus, Insights, Onboarding, Account, Pro
-- [ ] Manual device testing matrix execution
-- [ ] Post-session completion upsell teaser
-- [ ] Subscription expiry handling
-- [ ] Crash reporting integration
-- [ ] Data export functionality (UI prepared, implementation deferred)
+## Current release boundary
 
-## Known Issues / Risks
+Local engineering can produce and validate the release candidate. Public production access remains externally gated by Play's closed-testing requirements and cannot be claimed complete until the Console shows eligibility.
 
-1. **Fake repositories**: All external services use fake implementations. Swapping to real ones is the highest priority post-V1 task.
-2. **Certificate pinning**: Placeholder pins must be replaced before production release.
-3. **No manual device testing**: Physical device validation (sensor reliability, battery, etc.) has not been performed.
-4. **Build-logic Gradle cache**: Intermittent hash mismatch issues require occasional cache cleaning.
-5. **ProGuard**: Release build compiles but hasn't been tested on a device with obfuscation.
+No authorized physical Android device was connected during the 2026-08-31
+verification run. Connected instrumentation and the manual device matrix remain
+open; Android-test APK compilation is green but does not replace device execution.
 
-## Build Instructions
-
-### Debug Build
-```bash
-export ANDROID_HOME=/Users/$USER/Library/Android/sdk
-./gradlew :app:assembleDebug
-```
-
-### Release AAB
-```bash
-export ANDROID_HOME=/Users/$USER/Library/Android/sdk
-./gradlew :app:bundleRelease
-```
-
-### Run Tests
-```bash
-./gradlew :app:testDebugUnitTest
-./gradlew :domain:insights:test
-./gradlew :feature:settings:testDebugUnitTest
-```
-
-### Lint
-```bash
-./gradlew :app:lintDebug
-```
-
-## Next Steps for Production Release
-
-1. **Configure release signing**:
-   - Generate/upload keystore
-   - Create `keystore.properties` in project root
-   - Update `app/build.gradle.kts` signing config
-   - Never commit keystore or passwords
-
-2. **Replace certificate pinning placeholders**:
-   - Generate real SHA-256 pins for Google APIs
-   - Update `CertificatePinningConfig.kt`
-   - Update `network_security_config.xml`
-
-3. **Integrate real services**:
-   - Google Play Billing
-   - Google Sign-In
-   - Google Drive API
-
-4. **Manual device testing**:
-   - Test on 2+ physical devices
-   - Document bugs in `docs/phase-14-bugs.md`
-   - Fix critical bugs in follow-up sprint
-
-5. **Play Store submission**:
-   - Upload signed AAB to Play Console
-   - Complete data safety form
-   - Upload screenshots
-   - Set content rating
-   - Configure pricing and distribution
-
-## Bug List
-
-See `docs/phase-14-bugs.md` for documented bugs discovered during testing.
-
-**Note**: No bugs have been documented yet because manual testing has not been performed.
+Use `docs/public-free-release-qa.md` for evidence capture and `docs/phase-16-console-setup-info.md` for Console configuration history.

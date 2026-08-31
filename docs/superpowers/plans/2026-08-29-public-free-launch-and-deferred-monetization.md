@@ -25,9 +25,9 @@
 
 ## 1. Status And Approval Gate
 
-- Planning status: Drafted from user clarifications on 2026-08-29.
-- Implementation status: Not started.
-- Approval required: Yes.
+- Planning status: Approved by user; execution began on 2026-08-29.
+- Implementation status: Tasks 1-5 and 8 implemented; Task 6 automated gates pass, while physical-device QA remains open; Task 7 is externally gated.
+- Approval required: Complete for implementation; consequential Play submission still requires action-time review.
 - Recommended execution mode: Inline execution with review checkpoints because code, Play Console, device QA, and release evidence share state.
 - Current branch at planning time: `main`, clean and aligned with `origin/main`.
 
@@ -130,7 +130,7 @@ class FreeAccessBillingRepository @Inject constructor() : BillingRepository {
     override suspend fun acknowledgePurchase(purchaseToken: String) = Unit
 
     override suspend fun launchPurchaseFlow(product: ProProduct): Nothing =
-        error("Purchases are unavailable in the public free release")
+        error("Unsupported operation in public free mode")
 }
 ```
 
@@ -184,15 +184,24 @@ Expected: no `com.android.billingclient` entry and no `project :core:billing` en
 - `app/src/main/java/phonedown/app/runtime/AppRuntimeModule.kt` - bind `FreeAccessBillingRepository`.
 - `app/src/main/java/phonedown/app/runtime/ForegroundActivityProvider.kt` - delete after billing binding removal because no other runtime consumes it.
 - `app/src/main/java/phonedown/app/pro/ProRoute.kt` - remove purchase, restore, retry, and subscription callbacks.
+- `app/src/main/java/phonedown/app/pro/ProViewModel.kt` - delete billing/paywall orchestration from the public app layer.
+- `app/src/test/java/phonedown/app/pro/ProViewModelTest.kt` - delete obsolete paywall tests; free overview is covered in `:feature:pro`.
 - `feature/pro/src/main/kotlin/phonedown/feature/pro/ProScreen.kt` - replace paywall with feature overview.
 - `app/src/main/java/phonedown/app/insights/InsightsViewModel.kt` - preserve permanent feature access through repository entitlement.
 - `feature/insights/src/main/kotlin/phonedown/feature/insights/InsightsContent.kt` - remove caps, locked states, and upgrade prompts.
 - `feature/settings/src/main/kotlin/phonedown/feature/settings/SettingsScreen.kt` - remove tier-limit and payment-oriented copy; keep Pro overview navigation.
 - `feature/account/src/main/kotlin/phonedown/feature/account/AccountScreen.kt` - remove plan/purchase language and expose backup to signed-in users.
+- `feature/focus/src/main/kotlin/phonedown/feature/focus/FocusScreen.kt` - remove free-tier custom-duration rejection and paid-tier error copy.
+- `core/model/src/main/kotlin/phonedown/core/model/UserSettings.kt` - remove obsolete free-tier duration-limit state if no remaining consumer needs it.
+- `app/src/main/java/phonedown/app/backup/AutoBackupScheduler.kt` - schedule from sign-in/opt-in state without commercial entitlement.
 - `app/src/main/java/phonedown/app/backup/AutoBackupWorker.kt` - remove payment entitlement as a worker precondition.
 - `feature/settings/src/main/kotlin/phonedown/feature/settings/PrivacyPolicyScreen.kt` - remove current-use claim for Google Play Billing.
 - Relevant unit and screenshot tests under `app/src/test`, `app/src/androidTest`, and feature test directories.
 - `docs/play-store-data-safety.md` - ensure answers describe free runtime behavior.
+- `docs/privacy-policy.md` - align hosted privacy copy with billing-free runtime.
+- `docs/release-readiness.md` - replace stale version/fake-runtime claims with current verified release evidence.
+- `fastlane/metadata/android/en-US/changelogs/default.txt` - remove upgrade language from public release notes.
+- `scripts/check.sh` - include onboarding and Pro visual/test verification so the standard sanity gate covers every shipped screen.
 - `docs/play-console-release-guide.md` - add free-public release path and merchant-KYC deferral boundary.
 - `docs/phase-16-console-setup-info.md` - record current free-launch decision and distinguish developer verification from merchant onboarding.
 - `phase-16-sprint-16-4-real-play-billing-plan.md` - mark monetization implementation dormant/deferred, not deleted.
@@ -432,6 +441,8 @@ git commit -m "feat: grant pro access in public free runtime"
 
 **Files:**
 - Modify: `app/src/main/java/phonedown/app/pro/ProRoute.kt`
+- Delete: `app/src/main/java/phonedown/app/pro/ProViewModel.kt`
+- Delete: `app/src/test/java/phonedown/app/pro/ProViewModelTest.kt`
 - Modify: `feature/pro/src/main/kotlin/phonedown/feature/pro/ProScreen.kt`
 - Modify: `feature/pro/build.gradle.kts`
 - Create: `feature/pro/src/androidTest/kotlin/phonedown/feature/pro/ProScreenTest.kt`
@@ -493,7 +504,7 @@ The default list must cover advanced insights, unlimited history, flexible focus
 
 - [ ] **Step 4: Remove billing orchestration from active route**
 
-Make `ProRoute` render the overview directly and remove its `hiltViewModel<ProViewModel>()`, product refresh, purchase, restore-purchase, and Play subscription URL wiring. Keep `ProViewModel` and its unit tests unchanged as dormant monetization code; no active navigation path may instantiate it.
+Make `ProRoute` render the overview directly and remove its `hiltViewModel<ProViewModel>()`, product refresh, purchase, restore-purchase, and Play subscription URL wiring. Delete app-layer `ProViewModel` and its obsolete paywall tests so no billing event observer or product loader remains packaged in the public app. The transport implementation remains preserved in dormant `:core:billing`.
 
 - [ ] **Step 5: Replace product cards with capability rows**
 
@@ -533,8 +544,12 @@ git commit -m "feat: present pro as included feature set"
 - Modify: `feature/insights/src/androidTest/kotlin/phonedown/feature/insights/InsightsScreenTest.kt`
 - Modify: `feature/settings/src/main/kotlin/phonedown/feature/settings/SettingsScreen.kt`
 - Modify: `feature/account/src/main/kotlin/phonedown/feature/account/AccountScreen.kt`
+- Modify: `feature/focus/src/main/kotlin/phonedown/feature/focus/FocusScreen.kt`
+- Modify: `feature/focus/src/androidTest/kotlin/phonedown/feature/focus/FocusScreenTest.kt`
+- Modify: `core/model/src/main/kotlin/phonedown/core/model/UserSettings.kt`
 - Create: `app/src/main/java/phonedown/app/backup/AutoBackupEligibility.kt`
 - Create: `app/src/test/java/phonedown/app/backup/AutoBackupEligibilityTest.kt`
+- Modify: `app/src/main/java/phonedown/app/backup/AutoBackupScheduler.kt`
 - Modify: `app/src/main/java/phonedown/app/backup/AutoBackupWorker.kt`
 - Modify: `feature/settings/src/main/kotlin/phonedown/feature/settings/PrivacyPolicyScreen.kt`
 - Modify: relevant unit, Compose, and screenshot tests.
@@ -611,6 +626,10 @@ Required outcomes:
 
 Replace `Free plan` and purchase-source explanations with neutral capability copy. Signed-in users can access backup/restore; signed-out users see sign-in guidance.
 
+- [ ] **Step 5a: Remove custom-duration commercial enforcement**
+
+Add a Compose regression test that enters a duration above the former `freeCustomDurationSeconds` value and confirms it is accepted without upgrade text. Remove the rejection branch and paid-tier error copy from `FocusScreen`; remove `freeCustomDurationSeconds` from `UserSettings` only after repository-wide search confirms no non-test consumer remains.
+
 - [ ] **Step 6: Remove commercial check from auto backup**
 
 Worker precondition becomes:
@@ -623,6 +642,8 @@ if (!settings.backupOptIn || !settings.autoBackupEnabled || !isSignedIn) {
 
 Remove `BillingRepository` from `AutoBackupWorkerEntryPoint` if no longer used there.
 Implement the condition through `isAutoBackupEligible` so the commercial-free rule is testable without WorkManager instrumentation.
+
+Apply the same helper in `AutoBackupScheduler` so periodic work scheduling and worker execution share one eligibility rule. Add scheduler regression coverage proving a signed-in, opted-in user is scheduled without purchase state.
 
 - [ ] **Step 7: Correct privacy copy**
 
@@ -669,11 +690,14 @@ git commit -m "feat: unlock all features for free launch"
 **Files:**
 - Modify: Fastlane/store metadata files identified during execution.
 - Modify: `docs/play-store-data-safety.md`
+- Modify: `docs/privacy-policy.md`
+- Modify: `docs/release-readiness.md`
 - Modify: `docs/play-console-release-guide.md`
 - Modify: `docs/phase-16-console-setup-info.md`
 - Modify: `phase-16-sprint-16-4-real-play-billing-plan.md`
 - Modify: `phase-16-sprint-16-5-internal-testing-readiness-plan.md`
 - Modify: `v1-implementation-plan.md`
+- Modify: `fastlane/metadata/android/en-US/changelogs/default.txt`
 
 **Interfaces:**
 - Consumes: verified free-runtime behavior.
@@ -694,7 +718,7 @@ Describe shipped capabilities without paid-tier language. Keep app title and cor
 
 - [ ] **Step 3: Revalidate Data safety**
 
-Confirm Google Sign-In, Drive backup, Crashlytics, and account deletion statements. Do not claim purchase-data collection in the free artifact if billing is absent.
+Confirm Google Sign-In, Drive backup, Crashlytics, and account deletion statements. Do not claim purchase-data collection in the free artifact if billing is absent. Apply the same correction to both in-app privacy copy and hosted `docs/privacy-policy.md`.
 
 - [ ] **Step 4: Mark billing plan deferred**
 
@@ -707,6 +731,10 @@ Public billing rollout deferred until post-move merchant verification in Q1 2027
 - [ ] **Step 5: Replace billing prerequisites in testing plan**
 
 Sprint 16.5 must require proof of no billing runtime and full free access instead of requiring active Play products.
+
+- [ ] **Step 5a: Correct release-facing copy and stale readiness evidence**
+
+Remove `Pro upgrade` or equivalent monetization language from the default Fastlane changelog. Refresh `docs/release-readiness.md` from current Gradle version/runtime evidence rather than retaining stale `1.0.2` or fake-service claims.
 
 - [ ] **Step 6: Run docs/privacy scan**
 
@@ -736,6 +764,7 @@ git commit -m "docs: align play release with free access"
 
 **Files:**
 - Modify: `docs/public-free-release-qa.md`
+- Modify: `scripts/check.sh`
 - Modify: plan checkboxes and `v1-implementation-plan.md` after evidence exists.
 
 **Interfaces:**
@@ -744,7 +773,10 @@ git commit -m "docs: align play release with free access"
 
 - [ ] **Step 1: Run formatting and static checks**
 
+First update `scripts/check.sh` so its Paparazzi and Android-test compilation sections include `:feature:onboarding` and the new `:feature:pro` coverage. Then run the standard gate and explicit static tasks:
+
 ```bash
+./scripts/check.sh
 ./gradlew ktlintCheck detekt lintDebug
 ```
 
@@ -1031,15 +1063,15 @@ Free-mode rollback boundaries:
 
 ## 12. Implementation Completion Checklist
 
-- [ ] User approved this plan.
-- [ ] Task 1 Console audit complete.
-- [ ] Task 2 free runtime complete.
-- [ ] Task 3 Pro overview complete.
-- [ ] Task 4 gates/copy cleanup complete.
-- [ ] Task 5 metadata/docs alignment complete.
+- [x] User approved this plan.
+- [x] Task 1 Console audit complete.
+- [x] Task 2 free runtime complete.
+- [x] Task 3 Pro overview complete.
+- [x] Task 4 gates/copy cleanup complete.
+- [x] Task 5 metadata/docs alignment complete.
 - [ ] Task 6 local verification complete.
 - [ ] Task 7 closed test and production release complete.
-- [ ] Task 8 restart runbook complete.
+- [x] Task 8 restart runbook complete.
 - [ ] All staged changes reviewed with `git status` and `git diff --cached` before every commit.
 - [ ] Sensitive filename/content scan passed before every push.
 - [ ] Final implementation summary records files, tests, release state, residual risks, and next backlog item.

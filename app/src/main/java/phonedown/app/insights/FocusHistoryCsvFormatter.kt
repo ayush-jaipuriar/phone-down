@@ -1,7 +1,7 @@
 package phonedown.app.insights
 
-import java.time.Instant
 import phonedown.domain.insights.SessionHistoryItem
+import java.time.Instant
 
 private const val CSV_HEADER = "session_id,started_at,planned_seconds,focused_seconds,result,clean,broken"
 

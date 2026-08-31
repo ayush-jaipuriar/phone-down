@@ -1,0 +1,7 @@
+Phone Down is now completely free.
+
+- All focus, history, insight, custom-duration, backup, and export features are included
+- Added focus-history CSV export
+- Improved local-data deletion and Google account disconnection
+- Updated privacy disclosures for Google Drive and release crash diagnostics
+- Removed purchase, upgrade, restore, and subscription flows

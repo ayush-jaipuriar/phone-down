@@ -102,9 +102,9 @@ These values define the technical Android identity of Phone Down.
 | App name | Phone Down | User-facing app name in Play and consent screens |
 | Android package / application ID | `phonedown.app` | Permanent Android identity used by Play, Firebase, and Google APIs |
 | Android namespace | `phonedown.app` | Build/config namespace in the app module |
-| Version name | `1.0.3` | Human-readable release version |
-| Version code | `4` | Internal monotonically increasing Android release number |
-| App type | Free app with in-app purchases | Tells Play we monetize via Billing, not paid install |
+| Version name | `1.0.4` | Human-readable public-free release version |
+| Version code | `5` | Internal monotonically increasing Android release number |
+| App type | Free app with no in-app purchases | Must match the public artifact and store declarations |
 | Ads | No ads | Must match Play Console declaration and app behavior |
 | Support email | `jaipuriar.ayush@gmail.com` | Public support contact used in console and policy flows |
 
@@ -241,9 +241,9 @@ account verification.
 The target release path is public distribution with all features available at
 no charge, but only after the public artifact passes the local release-candidate
 and Play-installed QA gates in `docs/public-free-release-qa.md`. Until then,
-the current billing-enabled artifact must not be described as a fully free
-public release. Merchant completion and product activation are not prerequisites
-for the target release path. The App release state, mandatory verification
+every active billing-enabled artifact must be replaced or deactivated before
+the package is declared billing-free in Data Safety. Merchant completion and
+product activation are not prerequisites for the target release path. The App release state, mandatory verification
 tasks, closed testing, and production access remain release gates.
 
 ### Sprint 16.5 Store Icon Correction - 2026-06-13
@@ -587,9 +587,16 @@ Do not request broad Drive scopes unless the product truly needs file-browser-st
 
 Scope choice is both a security decision and a product-trust decision. Asking for less access usually makes review and user trust easier.
 
-## 11. Play Billing Products
+## 11. Deferred Monetization - Q1 2027 Review
 
-Recommended product setup:
+**Status:** Not part of version 1.0.4 or the public-free launch. Do not create,
+activate, test, or reference billing products in current release work. Revisit
+only in Q1 2027 after the user's move, address evidence, merchant verification,
+and a separately approved monetization plan.
+
+The material below is historical planning context, not an active setup guide.
+
+Historical candidate product setup:
 
 | Plan | Product ID | India Price | Default International Price | Status |
 |---|---|---:|---:|---|

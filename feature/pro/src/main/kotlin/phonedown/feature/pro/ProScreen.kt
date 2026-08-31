@@ -1,3 +1,5 @@
+@file:Suppress("FunctionName")
+
 package phonedown.feature.pro
 
 import androidx.compose.foundation.background

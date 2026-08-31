@@ -15,8 +15,8 @@ import org.junit.Test
 import phonedown.core.designsystem.PhoneDownTheme
 import phonedown.core.model.SessionResult
 import phonedown.core.model.ThemeMode
-import phonedown.domain.insights.DayInsight
 import phonedown.domain.insights.AdvancedInsights
+import phonedown.domain.insights.DayInsight
 import phonedown.domain.insights.FocusQualityLabel
 import phonedown.domain.insights.FocusQualityResult
 import phonedown.domain.insights.HeatmapDay

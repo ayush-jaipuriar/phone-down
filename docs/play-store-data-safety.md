@@ -1,210 +1,98 @@
-# Play Store Data Safety Form
+# Google Play Data Safety Declaration
 
-This document provides the information needed to complete the Google Play Data Safety form for Phone Down.
+This is the implementation-backed answer sheet for Phone Down's public free release. Re-check it against every active artifact before submitting the Play Console form because Google Play requires one global declaration covering all versions currently distributed.
 
-## App Information
+Official references:
 
-- **App Name**: Phone Down
-- **Developer**: Phone Down Team
-- **Contact**: support@phonedown.app
-- **Privacy Policy**: See `docs/privacy-policy.md`
+- [Google Play Data safety form guidance](https://support.google.com/googleplay/android-developer/answer/10787469)
+- [Firebase Android data-disclosure guidance](https://firebase.google.com/docs/android/play-data-disclosure)
 
-## Data Collection and Sharing
+## App information
 
-### Does your app collect or share any of the required user data types?
+- **App name:** Phone Down
+- **Support email:** `jaipuriar.ayush@gmail.com`
+- **Privacy policy:** `https://ayush-jaipuriar.github.io/phone-down/privacy-policy/`
+- **Release model:** public and completely free; no ads, paid app price, subscriptions, or in-app purchases
 
-**Answer**: Yes
+## Top-level answers
 
-### Is all of the user data collected by your app encrypted in transit?
+| Play Console question | Answer | Basis |
+|---|---|---|
+| Does the app collect or share required user-data types? | Yes | Optional Google account/Drive data and automatic release Crashlytics data leave the device. |
+| Is collected data encrypted in transit? | Yes | Google Sign-In, Drive, and Firebase use HTTPS/TLS. |
+| Does the app share user data with third parties? | No | Google services process data to provide app functionality or crash reporting; no data is sold or transferred for independent advertising/marketing use. Confirm this classification against the final Console wording. |
+| Can users request data deletion? | Yes | In-app local/cloud deletion plus the public account-deletion page. |
+| Does the app create a developer account? | No | Google sign-in connects an existing Google account; Phone Down creates no standalone account. |
 
-**Answer**: Yes
+## Data types to declare
 
-### Do you provide a way for users to request that their data is deleted?
+Only off-device transmission counts as collection in this form. Local-only focus/session/settings data is not collection until the user enables Drive backup.
 
-**Answer**: Yes
+| Category | Data type | Collected | Required or optional | Purpose | Runtime source |
+|---|---|---:|---|---|---|
+| Personal info | Name | Yes | Optional | App functionality | Optional Google sign-in profile |
+| Personal info | Email address | Yes | Optional | App functionality | Optional Google sign-in profile |
+| Personal info | User IDs | Yes | Optional | App functionality | Google account identifier for optional account connection |
+| Personal info | Other personal info | Yes | Optional | App functionality | Google profile-picture URL |
+| App activity | App interactions | Yes | Optional | App functionality | Focus-session history included only when Drive backup is enabled |
+| App activity | Other user-generated content | Yes | Optional | App functionality | App preferences included only when Drive backup is enabled |
+| App info and performance | Crash logs | Yes | Required in release builds | Analytics | Firebase Crashlytics automatic crash reporting |
+| App info and performance | Diagnostics | Yes | Required in release builds | Analytics | Crashlytics app/device/OS diagnostic metadata |
+| Device or other IDs | Device or other IDs | Yes | Required in release builds | Analytics | Crashlytics installation UUID and Firebase installation ID |
 
-## Data Types
+For Play's form, **Analytics** includes monitoring app health and diagnosing crashes. Crashlytics collection is required for users of release artifacts because the release manifest enables it automatically; debug builds are irrelevant to the public declaration.
 
-### Location
+## Data types not collected
 
-| Data Type | Collected? | Shared? | Purpose | Required? |
-|---|---|---|---|---|
-| Approximate location | No | N/A | N/A | N/A |
-| Precise location | No | N/A | N/A | N/A |
+- Approximate or precise location
+- Address or phone number
+- Contacts
+- Messages
+- Photos or videos as user files
+- Audio files
+- Calendar data
+- Health or fitness data
+- Financial or payment data
+- Purchase history
+- Web-browsing history
+- Installed-app inventory
+- Advertising identifiers
 
-### Personal Info
+## Handling details
 
-| Data Type | Collected? | Shared? | Purpose | Required? |
-|---|---|---|---|---|
-| Name | No | N/A | N/A | N/A |
-| Email address | Yes (optional) | No | App functionality, Account management | Optional |
-| User IDs | Yes | No | App functionality, Account management | Required |
-| Address | No | N/A | N/A | N/A |
-| Phone number | No | N/A | N/A | N/A |
-| Race and ethnicity | No | N/A | N/A | N/A |
-| Political or religious beliefs | No | N/A | N/A | N/A |
-| Sexual orientation | No | N/A | N/A | N/A |
-| Other personal info | No | N/A | N/A | N/A |
+### Google account and Drive
 
-**Notes**: Email address is only collected if user opts into Google Sign-In for backup. User ID is the app's internal session identifier.
+- Sign-in and Drive backup are optional.
+- Backup uses the user's personal Google Drive app data folder.
+- Phone Down requests the Drive app-data scope, not general access to the user's Drive files.
+- Focus history and settings are transmitted only when the user invokes or enables backup.
+- Drive access tokens are held in memory and cleared on sign-out or local-data deletion.
 
-### Financial Info
+### Firebase Crashlytics
 
-| Data Type | Collected? | Shared? | Purpose | Required? |
-|---|---|---|---|---|
-| User payment info | No | N/A | N/A | N/A |
-| Purchase history | Yes | No | App functionality | Required |
-| Credit score | No | N/A | N/A | N/A |
-| Other financial info | No | N/A | N/A | N/A |
+- Enabled automatically in release builds and disabled in debug builds.
+- Automatically collects crash stack traces, relevant app state, relevant device metadata, a Crashlytics installation UUID, and data from transitive Firebase Installations/Sessions dependencies.
+- Used only for app stability and crash diagnosis.
+- Phone Down does not deliberately attach Google profile details, access tokens, raw backup payloads, or full database contents as custom Crashlytics data.
 
-**Notes**: Purchase history is handled entirely by Google Play Billing. The app only knows whether a purchase was successful.
+### Deletion
 
-### Health and Fitness
+- `Settings > Privacy > Delete All Local Data` removes local focus/session data, resets settings, clears Drive authorization, and disconnects Google.
+- The same flow can optionally delete the Drive backup.
+- A cloud-deletion failure stops the operation before local data is cleared.
+- Public instructions: `https://ayush-jaipuriar.github.io/phone-down/account-deletion/`
+- Crash diagnostics follow Firebase's retention and deletion practices; they are not stored in the user's Drive backup.
 
-| Data Type | Collected? | Shared? | Purpose | Required? |
-|---|---|---|---|---|
-| Health info | No | N/A | N/A | N/A |
-| Fitness info | No | N/A | N/A | N/A |
+## Submission verification
 
-### Messages
+- [ ] No active Play artifact contains Google Play Billing or paid features.
+- [ ] Release dependency graph contains no BillingClient.
+- [ ] Release manifest enables Crashlytics; debug manifest disables it.
+- [ ] Google Sign-In fields and Drive backup payload still match this declaration.
+- [ ] In-app and hosted privacy policies match this declaration.
+- [ ] Support email and deletion URL open successfully.
+- [ ] Console preview is reviewed before submission.
 
-| Data Type | Collected? | Shared? | Purpose | Required? |
-|---|---|---|---|---|
-| Emails | No | N/A | N/A | N/A |
-| SMS or MMS | No | N/A | N/A | N/A |
-| Other in-app messages | No | N/A | N/A | N/A |
+## Explicit non-claims
 
-### Photos and Videos
-
-| Data Type | Collected? | Shared? | Purpose | Required? |
-|---|---|---|---|---|
-| Photos | No | N/A | N/A | N/A |
-| Videos | No | N/A | N/A | N/A |
-
-### Audio Files
-
-| Data Type | Collected? | Shared? | Purpose | Required? |
-|---|---|---|---|---|
-| Voice or sound recordings | No | N/A | N/A | N/A |
-| Music files | No | N/A | N/A | N/A |
-| Other audio files | No | N/A | N/A | N/A |
-
-### Files and Docs
-
-| Data Type | Collected? | Shared? | Purpose | Required? |
-|---|---|---|---|---|
-| Files and docs | No | N/A | N/A | N/A |
-
-### Calendar
-
-| Data Type | Collected? | Shared? | Purpose | Required? |
-|---|---|---|---|---|
-| Calendar events | No | N/A | N/A | N/A |
-
-### Contacts
-
-| Data Type | Collected? | Shared? | Purpose | Required? |
-|---|---|---|---|---|
-| Contacts | No | N/A | N/A | N/A |
-
-### App Activity
-
-| Data Type | Collected? | Shared? | Purpose | Required? |
-|---|---|---|---|---|
-| App interactions | Yes | No | Analytics, App functionality | Required |
-| In-app search history | No | N/A | N/A | N/A |
-| Installed apps | No | N/A | N/A | N/A |
-| Other user-generated content | Yes | No | App functionality | Required |
-| Other actions | No | N/A | N/A | N/A |
-
-**Notes**: App interactions include focus session data (duration, completion status, interruptions). Other user-generated content refers to user settings and preferences.
-
-### Web Browsing
-
-| Data Type | Collected? | Shared? | Purpose | Required? |
-|---|---|---|---|---|
-| Web browsing history | No | N/A | N/A | N/A |
-
-### App Info and Performance
-
-| Data Type | Collected? | Shared? | Purpose | Required? |
-|---|---|---|---|---|
-| Crash logs | Optional | No | Analytics | Optional |
-| Diagnostics | Optional | No | Analytics | Optional |
-| Other app performance data | No | N/A | N/A | N/A |
-
-**Notes**: Release builds use Firebase Crashlytics for crash logs and basic diagnostics. Debug builds disable Crashlytics collection. Crash diagnostics are used only for app stability and must not include direct personal contact details, Google access tokens, purchase tokens, raw backup payloads, or full session database contents.
-
-### Device or Other IDs
-
-| Data Type | Collected? | Shared? | Purpose | Required? |
-|---|---|---|---|---|
-| Device or other IDs | No | N/A | N/A | N/A |
-
-## Data Handling
-
-### Data Encryption in Transit
-
-**Answer**: Yes
-
-**Details**: All network communications use HTTPS with TLS 1.2+. This includes:
-- Google Play Billing API
-- Google Sign-In OAuth
-- Google Drive API (for backup)
-- Firebase Crashlytics (for release crash diagnostics)
-
-### Data Deletion Request Mechanism
-
-**Answer**: Yes
-
-**Details**: Users can delete their data through the app:
-- **Settings > Privacy > Delete All Local Data**: Removes all sessions, settings, and preferences
-- **Account > Sign Out**: Disconnects Google account
-- **Delete All Local Data** includes option to delete cloud backup if present
-
-### Review Data Safety Practices
-
-**Answer**: Yes
-
-**Details**: 
-- All data collection is documented in this form
-- Privacy policy is available in the app and online
-- Users are informed about data usage through onboarding
-- Backup is opt-in, not opt-out
-
-## Security Practices
-
-### Account Security
-- Google Sign-In uses OAuth 2.0 with PKCE
-- Auth tokens stored in encrypted preferences
-- Tokens are scoped to Drive app data folder only
-
-### Payment Security
-- All purchases handled by Google Play Billing
-- No payment information stored by the app
-- Purchase verification through Google Play server
-
-### Backup Security
-- Backups stored in user's personal Google Drive app data folder
-- Only accessible by Phone Down app
-- Encrypted in transit using TLS
-- Android OS automatic backup is disabled; Phone Down uses explicit in-app Google Drive backup and restore.
-
-## Compliance
-
-### GDPR Compliance
-- Data minimization: only necessary data collected
-- Purpose limitation: data used only for stated purposes
-- Storage limitation: data deleted upon user request
-- Transparency: privacy policy clearly explains data usage
-- User rights: access, deletion, and portability supported
-
-### CCPA Compliance
-- Users can request deletion of their data
-- Users can opt out of data collection (by not using optional features)
-- Privacy policy explains what data is collected and why
-
-### COPPA Compliance
-- App is not directed at children under 13
-- No personal information collected from children
-- If inadvertent collection discovered, data will be deleted promptly
+Do not claim encrypted preferences, certificate pinning, payment security, purchase verification, advertising-ID collection, or a standalone Phone Down account. Those claims do not describe this release.
