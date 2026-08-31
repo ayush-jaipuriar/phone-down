@@ -84,6 +84,7 @@ class FocusHistoryCsvExporterTest {
             val dispatcher = executor.asCoroutineDispatcher()
             var loadThread = ""
             var openThread = ""
+            val output = ThreadTrackingOutputStream()
             try {
                 val result =
                     exportFocusHistoryCsv(
@@ -93,7 +94,7 @@ class FocusHistoryCsvExporterTest {
                         },
                         openOutput = {
                             openThread = Thread.currentThread().name
-                            ByteArrayOutputStream()
+                            output
                         },
                         dispatcher = dispatcher,
                     )
@@ -101,11 +102,21 @@ class FocusHistoryCsvExporterTest {
                 assertTrue(result)
                 assertTrue(loadThread.contains("csv-export-test"))
                 assertTrue(openThread.contains("csv-export-test"))
+                assertTrue(output.writeThread.contains("csv-export-test"))
             } finally {
                 dispatcher.close()
                 executor.shutdownNow()
             }
         }
+}
+
+private class ThreadTrackingOutputStream : ByteArrayOutputStream() {
+    var writeThread = ""
+
+    override fun write(bytes: ByteArray) {
+        writeThread = Thread.currentThread().name
+        super.write(bytes)
+    }
 }
 
 private class TrackingOutputStream : ByteArrayOutputStream() {

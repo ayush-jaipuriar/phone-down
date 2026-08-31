@@ -56,6 +56,8 @@ assert_contains fastlane/metadata/android/en-US/changelogs/5.txt "Removed purcha
 assert_absent "pendingCsv" app/src/main/java/phonedown/app/insights/InsightsRoute.kt
 assert_contains app/src/main/java/phonedown/app/insights/InsightsRoute.kt \
   "openOutputStream(uri, FOCUS_HISTORY_OUTPUT_MODE)"
+assert_contains app/src/main/java/phonedown/app/insights/InsightsRoute.kt \
+  "exportCoordinator.onDocumentResult(uri)"
 assert_contains app/src/main/java/phonedown/app/insights/FocusHistoryCsvFormatter.kt \
   'FOCUS_HISTORY_OUTPUT_MODE = "wt"'
 
