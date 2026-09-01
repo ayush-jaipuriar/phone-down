@@ -228,6 +228,23 @@ contact, financial, merchant, application, and KYC-reference values.
 | Closed testing | Setup is 1 of 5 complete; 0 testers opted in | Yes if the account is affected | 2026-08-29 | Complete setup, recruit eligible testers, and run the required test period. |
 | Production access | Not eligible while closed-testing prerequisites remain incomplete | Yes | 2026-08-29 | Apply only after eligibility evidence is complete. |
 
+### Closed-Test Draft Update - 2026-09-01
+
+| Field | Current value | Evidence |
+|---|---|---|
+| Release draft | `5 (1.0.4) - Public Free` | Final public-free AAB accepted by Play Console |
+| Artifact cleanup | Earlier `1 (1.0.0)` bundle removed from this release draft | Draft now contains only version code 5 |
+| Country targeting | 177 countries / regions | All currently available countries and regions selected and saved |
+| Tester access | `internal_release_testers`, 4 users | Existing email list selected and saved |
+| Feedback path | Configured | Contact value intentionally omitted from this status record |
+| Track setup | 3 of 4 tasks complete | Release, countries, and testers complete |
+| Submission state | Draft only | Preview, confirmation, review submission, and rollout were intentionally not performed |
+
+The remaining track task is `Preview and confirm the release`. Treat that as a
+separate approval gate because it leads directly into sending the release to
+Google for review. Tester opt-in and any account-specific testing-duration
+requirement remain external gates after the draft is submitted.
+
 #### Merchant Pause Boundary
 
 Merchant onboarding is intentionally paused. Do not retry Video KYC until actual residence, declared current address, supporting document, and device location are consistent.

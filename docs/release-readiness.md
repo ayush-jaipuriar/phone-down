@@ -21,7 +21,7 @@ Target: public, completely free Google Play release
 - [x] Support email and public deletion instructions use real values.
 - [x] Store listing describes all features as included.
 - [x] Play listing icon and launcher icon use the intended Phone Down mark.
-- [ ] Replace every active billing-enabled Play artifact with version code 5 before submitting Data Safety answers that declare no financial data.
+- [x] Closed-test draft contains only the public-free version-code 5 artifact; the earlier version-code 1 bundle was removed.
 
 ## Automated verification gates
 
@@ -34,7 +34,7 @@ Target: public, completely free Google Play release
 - [x] Release dependency proof shows no BillingClient
 - [x] Debug/release merged-manifest proof matches Crashlytics policy
 
-Release evidence captured on 2026-08-31:
+Release evidence finalized on 2026-09-01:
 
 - Bundle: `app/build/outputs/bundle/release/app-release.aab`
 - APK: `app/build/outputs/apk/release/app-release.apk`
@@ -44,8 +44,8 @@ Release evidence captured on 2026-08-31:
 - Release APK signature verification: pass, one signer
 - Release runtime dependency query: no matching BillingClient dependency
 - Release manifest: no `com.android.vending.BILLING` permission
-- AAB SHA-256: `57386468f03d3d9271e52502cb7894f6b93dbf1b42cc45793fb202b0a444d4e6`
-- APK SHA-256: `ec56626c29e57e1b20f1e7c8a69cfb77accba8bb3878d26dd40a7ca682d2e4a9`
+- AAB SHA-256: `57817394603dff45f9dac0b2e0ea12b059aac20a6e68383b91cd5c602e878be8`
+- APK SHA-256: `f68c9ff529829f6257a4e5bb7fb2bfabef86b4f67dc8a4b1f8944c9afa4dd7ff`
 
 ## Physical-device and Play-installed gates
 
@@ -60,7 +60,8 @@ Release evidence captured on 2026-08-31:
 
 ## External Play gates
 
-- [ ] Closed-test countries/regions, tester list, feedback path, and version-code 5 release are configured.
+- [x] Closed-test countries/regions, tester list, feedback path, and version-code 5 release are configured.
+- [ ] Preview and confirm the closed-test release, then send it to Google for review.
 - [ ] Required testers opt in and remain enrolled for Google's required duration.
 - [ ] Production access becomes available and is approved.
 - [ ] App content, Data Safety, content rating, target audience, ads, access, and privacy URL are complete.
