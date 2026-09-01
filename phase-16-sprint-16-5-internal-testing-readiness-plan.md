@@ -164,7 +164,8 @@ Implementation progress - 2026-07-04:
   - app/domain/core JVM test suites passed
   - Focus and Settings screenshot verification passed
   - signed release bundle passed
-  - Android instrumentation execution remains pending because no device was connected
+  - Android instrumentation passed on an RMX3853 running Android 16 on 2026-09-01
+  - live onboarding, Focus, Insights, Settings, and public-free Pro smoke checks passed; timed session, sign-in/backup, reboot, and offline manual checks remain open
   - Insights screenshot verification exposed an unrelated date-dependent baseline: expected May calendar dates versus current July dates; no Insights source changed
 
 | Phase | Status | Primary Owner | Blocks | Outcome |

@@ -21,3 +21,7 @@ extensions.configure<ApplicationExtension> {
 extensions.configure<KotlinAndroidProjectExtension> {
     jvmToolchain(17)
 }
+
+dependencies {
+    add("androidTestImplementation", "androidx.test:runner:1.7.0")
+}

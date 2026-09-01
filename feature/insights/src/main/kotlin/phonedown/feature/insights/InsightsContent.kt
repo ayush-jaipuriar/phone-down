@@ -124,7 +124,10 @@ fun InsightsContent(
         }
 
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .testTag(InsightsTestTags.LIST),
             contentPadding = PaddingValues(vertical = PhoneDownSpacing.md),
             verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.sm),
         ) {
@@ -610,7 +613,7 @@ private fun TrendSection(
 
 @Composable
 private fun AdvancedSection(advanced: AdvancedInsights) {
-    PhoneDownCard {
+    PhoneDownCard(modifier = Modifier.testTag(InsightsTestTags.ADVANCED_CARD)) {
         Column(verticalArrangement = Arrangement.spacedBy(PhoneDownSpacing.md)) {
             InsightsCardTitle(text = "Season Highlights")
             AdvancedRow(label = "Longest Clean", value = formatDuration(advanced.longestCleanFocusSeconds))

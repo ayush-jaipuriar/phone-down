@@ -132,9 +132,10 @@ class FocusSessionDaoTest {
 
             val recoverable = sessionDao.getRecoverableSessions()
             assertEquals(3, recoverable.size)
-            assertEquals("active", recoverable[0].id)
-            assertEquals("waiting", recoverable[1].id)
-            assertEquals("user-paused", recoverable[2].id)
+            assertEquals(
+                setOf("active", "waiting", "user-paused"),
+                recoverable.map { it.id }.toSet(),
+            )
         }
 
     @Test

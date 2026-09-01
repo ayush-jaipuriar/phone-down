@@ -30,14 +30,14 @@ application, or KYC-reference values in this file.
 - [x] Privacy policy and data-safety declarations describe the free runtime.
 - [ ] No crash, ANR, or material usability regression is found in device QA.
 
-Automated evidence, 2026-08-31:
+Automated and device evidence, 2026-09-01:
 
 - `./scripts/check.sh`: pass.
 - Full debug/release JVM unit and Paparazzi suites: pass.
 - Compose Android-test APK assembly: pass.
 - `lintDebug`, release lint-vital, ktlint, and detekt: pass.
 - Signed APK and AAB builds: pass.
-- Bundletool validation and APK signature verification: pass.
+- AAB ZIP integrity, JAR signature, and APK signature verification: pass.
 - Package/version: `phonedown.app` / `5 (1.0.4)`.
 - Release graph and manifest: no BillingClient or billing permission.
 - CSV export regression coverage proves recreation-safe document-result
@@ -46,9 +46,18 @@ Automated evidence, 2026-08-31:
   provider/write failure handling.
 - Account-deletion cloud-failure coverage proves sessions, penalties, settings,
   token, sign-in state, and backup schedule remain unchanged.
-- Final AAB SHA-256: `57386468f03d3d9271e52502cb7894f6b93dbf1b42cc45793fb202b0a444d4e6`.
-- Final APK SHA-256: `ec56626c29e57e1b20f1e7c8a69cfb77accba8bb3878d26dd40a7ca682d2e4a9`.
-- Physical device: not connected; connected and manual QA remain open.
+- Final AAB SHA-256: `57817394603dff45f9dac0b2e0ea12b059aac20a6e68383b91cd5c602e878be8`.
+- Final APK SHA-256: `f68c9ff529829f6257a4e5bb7fb2bfabef86b4f67dc8a4b1f8944c9afa4dd7ff`.
+- Physical device: RMX3853 on Android 16, authorized over wireless ADB.
+- Full `connectedDebugAndroidTest`: pass across 860 Gradle tasks. Named suites
+  covered database (6), account (2), focus (13), insights (5), Pro (2), and
+  settings (8) tests; modules without instrumentation tests also installed and
+  launched their generated test APKs successfully.
+- Live debug smoke: onboarding, Focus, empty Insights, Settings, and Pro overview
+  rendered without a crash. No purchase, upgrade, subscription, price, billing,
+  restore-purchase, or manage-subscription text was present in the UI hierarchy.
+- Manual timed-session, sensor, sign-in/backup, permission, process-death,
+  reboot, and offline/network-restoration checks remain open.
 
 ## Play-Installed QA
 

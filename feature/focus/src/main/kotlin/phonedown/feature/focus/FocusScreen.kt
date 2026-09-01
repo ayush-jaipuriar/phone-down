@@ -1270,7 +1270,10 @@ internal fun DurationSelectorSheetContent(
                 customDurationSeconds?.let { onSelect(it) }
             },
             enabled = canApplyCustom,
-            modifier = Modifier.fillMaxWidth(),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .testTag(FocusTestTags.APPLY_CUSTOM_DURATION),
         )
     }
 }

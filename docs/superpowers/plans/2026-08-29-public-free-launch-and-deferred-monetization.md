@@ -771,7 +771,7 @@ git commit -m "docs: align play release with free access"
 - Consumes: Tasks 2-5 implementation.
 - Produces: signed release candidate plus automated and physical-device evidence.
 
-- [ ] **Step 1: Run formatting and static checks**
+- [x] **Step 1: Run formatting and static checks**
 
 First update `scripts/check.sh` so its Paparazzi and Android-test compilation sections include `:feature:onboarding` and the new `:feature:pro` coverage. Then run the standard gate and explicit static tasks:
 
@@ -782,7 +782,7 @@ First update `scripts/check.sh` so its Paparazzi and Android-test compilation se
 
 Expected: no newly introduced findings. Existing repository-wide ktlint/detekt baseline failures must be recorded separately and proven unrelated with targeted module checks; do not add suppressions to hide new findings.
 
-- [ ] **Step 2: Run JVM regression suite**
+- [x] **Step 2: Run JVM regression suite**
 
 ```bash
 ./gradlew testDebugUnitTest
@@ -790,7 +790,7 @@ Expected: no newly introduced findings. Existing repository-wide ktlint/detekt b
 
 Expected: PASS.
 
-- [ ] **Step 3: Run dormant billing module tests**
+- [x] **Step 3: Run dormant billing module tests**
 
 ```bash
 ./gradlew :core:billing:testDebugUnitTest
@@ -798,7 +798,7 @@ Expected: PASS.
 
 Expected: PASS, proving deferred code has not rotted during extraction.
 
-- [ ] **Step 4: Run instrumentation and screenshot tests on physical Android device**
+- [x] **Step 4: Run instrumentation and screenshot tests on physical Android device**
 
 ```bash
 adb devices
@@ -807,7 +807,12 @@ adb devices
 
 Expected: one authorized physical device and PASS. Update screenshot baselines only after visual review.
 
-- [ ] **Step 5: Build signed release bundle locally**
+Evidence, 2026-09-01: RMX3853 on Android 16 authorized over wireless ADB;
+`connectedDebugAndroidTest` passed, including database, account, Focus,
+Insights, Pro, and Settings suites. Paparazzi verification also passed through
+`./scripts/check.sh`.
+
+- [x] **Step 5: Build signed release bundle locally**
 
 Increment to the next unused `versionCode` and appropriate patch `versionName`, then run:
 
@@ -817,7 +822,7 @@ Increment to the next unused `versionCode` and appropriate patch `versionName`, 
 
 Expected: signed `.aab` generated locally; no cloud build needed.
 
-- [ ] **Step 6: Inspect merged manifest and dependency graph**
+- [x] **Step 6: Inspect merged manifest and dependency graph**
 
 ```bash
 rg -n 'com.android.vending.BILLING|billingclient' app/build/intermediates/merged_manifests app/build/reports
@@ -841,7 +846,7 @@ Verify:
 - process death, reboot recovery, offline launch, and network restoration
 - no billing UI, billing network call, or product-setup error
 
-- [ ] **Step 8: Record evidence and blockers**
+- [x] **Step 8: Record evidence and blockers**
 
 For each check, record build version, device model/Android version, pass/fail, date, and sanitized notes. Never paste account email, tokens, Drive IDs, or personal data.
 

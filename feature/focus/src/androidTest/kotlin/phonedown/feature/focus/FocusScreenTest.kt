@@ -3,13 +3,14 @@ package phonedown.feature.focus
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextReplacement
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -263,21 +264,22 @@ class FocusScreenTest {
         var selectedEvent: FocusEvent? = null
         composeRule.setContent {
             PhoneDownTheme(themeMode = ThemeMode.Light) {
-                FocusScreen(
-                    uiState =
-                        FocusUiState(
-                            presentationState = FocusPresentationState.Idle,
-                            showDurationSelector = true,
-                        ),
-                    onEvent = { selectedEvent = it },
+                DurationSelectorSheetContent(
+                    currentDurationSeconds = 25 * 60L,
+                    onSelect = { selectedEvent = FocusEvent.DurationSelected(it) },
                 )
             }
         }
 
-        composeRule.onNodeWithTag(FocusTestTags.CUSTOM_DURATION_INPUT).performTextInput("90")
+        composeRule.onNodeWithTag(FocusTestTags.CUSTOM_DURATION_INPUT).performTextReplacement("90")
         composeRule.onAllNodesWithText("Free custom duration is currently limited to 60 minutes.").assertCountEquals(0)
-        composeRule.onNodeWithText("Apply Custom Duration").performClick()
+        composeRule
+            .onNodeWithTag(FocusTestTags.APPLY_CUSTOM_DURATION)
+            .assertIsEnabled()
+            .performClick()
 
-        assertEquals(FocusEvent.DurationSelected(90 * 60L), selectedEvent)
+        composeRule.runOnIdle {
+            assertEquals(FocusEvent.DurationSelected(90 * 60L), selectedEvent)
+        }
     }
 }

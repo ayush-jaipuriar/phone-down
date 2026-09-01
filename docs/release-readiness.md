@@ -70,8 +70,11 @@ Release evidence captured on 2026-08-31:
 
 Local engineering can produce and validate the release candidate. Public production access remains externally gated by Play's closed-testing requirements and cannot be claimed complete until the Console shows eligibility.
 
-No authorized physical Android device was connected during the 2026-08-31
-verification run. Connected instrumentation and the manual device matrix remain
-open; Android-test APK compilation is green but does not replace device execution.
+Physical-device instrumentation passed on 2026-09-01 using an RMX3853 running
+Android 16. The full connected suite covered database, account, Focus, Insights,
+Pro, and Settings behavior. A live smoke pass also covered onboarding and the
+main public-free screens without exposing monetization actions. The broader
+manual device matrix remains open, including timed sensor behavior, Google
+sign-in and backup, process death, reboot recovery, and offline restoration.
 
 Use `docs/public-free-release-qa.md` for evidence capture and `docs/phase-16-console-setup-info.md` for Console configuration history.

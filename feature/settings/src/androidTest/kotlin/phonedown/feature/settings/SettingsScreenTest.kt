@@ -277,8 +277,14 @@ class SettingsScreenTest {
         composeRule.onNodeWithText("Google account identifier", substring = true).performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText("automatically send crash reports", substring = true).performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText("Crashlytics installation identifier", substring = true).performScrollTo().assertIsDisplayed()
-        composeRule.onNodeWithText("Firebase Crashlytics", substring = true).performScrollTo().assertIsDisplayed()
-        composeRule.onNodeWithText("Google Drive app data folder", substring = true).performScrollTo().assertIsDisplayed()
+        composeRule
+            .onNodeWithText("release crash diagnostics are sent to Firebase Crashlytics", substring = true)
+            .performScrollTo()
+            .assertIsDisplayed()
+        composeRule
+            .onNodeWithText("Optional cloud backup sends backup data to your personal Google Drive app data folder", substring = true)
+            .performScrollTo()
+            .assertIsDisplayed()
         composeRule.onNodeWithText("phone-state permission", substring = true).performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText("You can export your focus history", substring = true).performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText("jaipuriar.ayush@gmail.com", substring = true).performScrollTo().assertIsDisplayed()
