@@ -102,8 +102,8 @@ These values define the technical Android identity of Phone Down.
 | App name | Phone Down | User-facing app name in Play and consent screens |
 | Android package / application ID | `phonedown.app` | Permanent Android identity used by Play, Firebase, and Google APIs |
 | Android namespace | `phonedown.app` | Build/config namespace in the app module |
-| Version name | `1.0.4` | Human-readable public-free release version |
-| Version code | `5` | Internal monotonically increasing Android release number |
+| Version name | `1.0.5` | Human-readable public-free release version |
+| Version code | `6` | Internal monotonically increasing Android release number |
 | App type | Free app with no in-app purchases | Must match the public artifact and store declarations |
 | Ads | No ads | Must match Play Console declaration and app behavior |
 | Support email | `jaipuriar.ayush@gmail.com` | Public support contact used in console and policy flows |
@@ -228,12 +228,14 @@ contact, financial, merchant, application, and KYC-reference values.
 | Closed testing | Setup is 1 of 5 complete; 0 testers opted in | Yes if the account is affected | 2026-08-29 | Complete setup, recruit eligible testers, and run the required test period. |
 | Production access | Not eligible while closed-testing prerequisites remain incomplete | Yes | 2026-08-29 | Apply only after eligibility evidence is complete. |
 
-### Closed-Test Draft Update - 2026-09-01
+### Closed-Test Draft Update - 2026-09-04
 
 | Field | Current value | Evidence |
 |---|---|---|
-| Release draft | `5 (1.0.4) - Public Free` | Final public-free AAB accepted by Play Console |
-| Artifact cleanup | Earlier `1 (1.0.0)` bundle removed from this release draft | Draft now contains only version code 5 |
+| Release draft | `6 (1.0.5) - Public Free` | Corrected public-free AAB accepted and saved by Play Console |
+| Artifact cleanup | Version `5 (1.0.4)` removed after replacement | Draft now contains only version code 6 |
+| Foreground-service declaration | `specialUse` with subtype explanation | Replaces the rejected `dataSync` classification for the user-started focus timer |
+| Native debug symbols | Play warning remains | Non-blocking draft warning; investigate before production if native crash symbolication is needed |
 | Country targeting | 177 countries / regions | All currently available countries and regions selected and saved |
 | Tester access | `internal_release_testers`, 4 users | Existing email list selected and saved |
 | Feedback path | Configured | Contact value intentionally omitted from this status record |
@@ -606,7 +608,7 @@ Scope choice is both a security decision and a product-trust decision. Asking fo
 
 ## 11. Deferred Monetization - Q1 2027 Review
 
-**Status:** Not part of version 1.0.4 or the public-free launch. Do not create,
+**Status:** Not part of version 1.0.5 or the public-free launch. Do not create,
 activate, test, or reference billing products in current release work. Revisit
 only in Q1 2027 after the user's move, address evidence, merchant verification,
 and a separately approved monetization plan.

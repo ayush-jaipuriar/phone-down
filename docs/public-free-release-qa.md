@@ -8,17 +8,17 @@ every applicable local release-candidate and Play-installed QA gate below
 passes. Do not record personal, financial, merchant, account, contact,
 application, or KYC-reference values in this file.
 
-## Console Gate - 2026-09-01
+## Console Gate - 2026-09-04
 
 | Area | Observed status | Required before production | Evidence to retain outside git |
 |---|---|---|---|
-| App state | Closed-test draft `5 (1.0.4) - Public Free` | Yes | Console task state without personal details |
+| App state | Closed-test draft `6 (1.0.5) - Public Free` | Yes | Console task state without personal details |
 | Developer identity | Registered; completion state not observed | Yes | Completion state or unresolved task wording |
 | Contact verification | Email and phone verified | Yes | Completion state only |
 | Device verification | Not observed | Yes if prompted | Completion state or unresolved task wording |
 | Merchant onboarding | Paused | No | None for free launch |
 | Monetization products | No active product or subscription observed | No | Product-state summary only |
-| Closed testing | 3 of 4 track tasks complete; version code 5, 177 countries/regions, 4-user tester list, and feedback path saved | Yes if account is affected | Tester opt-in count and testing-duration evidence |
+| Closed testing | 3 of 4 track tasks complete; version code 6, 177 countries/regions, 4-user tester list, and feedback path saved | Yes if account is affected | Tester opt-in count and testing-duration evidence |
 | Production access | Not eligible until testing prerequisites finish | Yes | Eligibility or approval state |
 
 ## Local Release Candidate
@@ -38,7 +38,9 @@ Automated and device evidence, 2026-09-01:
 - `lintDebug`, release lint-vital, ktlint, and detekt: pass.
 - Signed APK and AAB builds: pass.
 - AAB ZIP integrity, JAR signature, and APK signature verification: pass.
-- Package/version: `phonedown.app` / `5 (1.0.4)`.
+- Package/version: `phonedown.app` / `6 (1.0.5)`.
+- Foreground-service declaration uses `specialUse` for the user-started active
+  focus session, with the required subtype explanation; `dataSync` is absent.
 - Release graph and manifest: no BillingClient or billing permission.
 - CSV export regression coverage proves recreation-safe document-result
   coordination, cancellation, success/failure feedback, truncating writes,
@@ -46,10 +48,11 @@ Automated and device evidence, 2026-09-01:
   provider/write failure handling.
 - Account-deletion cloud-failure coverage proves sessions, penalties, settings,
   token, sign-in state, and backup schedule remain unchanged.
-- Final AAB SHA-256: `57817394603dff45f9dac0b2e0ea12b059aac20a6e68383b91cd5c602e878be8`.
-- Final APK SHA-256: `f68c9ff529829f6257a4e5bb7fb2bfabef86b4f67dc8a4b1f8944c9afa4dd7ff`.
-- Play Console accepted the final AAB in closed-test draft `5 (1.0.4) - Public Free`.
-- The earlier version-code 1 bundle was removed from that draft.
+- Final AAB SHA-256: `7a72957ef8be4eb0c288e5017b3a343031c00996bddac3ff81d3696e97d2a8c5`.
+- Final APK SHA-256: `872f44893bc6e9064a56fa789f87ef0a211c877d40af92cd8a3582c4a2dbee1d`.
+- Play Console accepted the final AAB in closed-test draft `6 (1.0.5) - Public Free`.
+- Version code 5 was removed after version code 6 replaced it in the draft.
+- Play's native-code debug-symbol warning remains non-blocking for this draft.
 - All 177 available countries/regions and the existing 4-user tester list were
   selected; the feedback path was configured without recording its contact
   value in git.

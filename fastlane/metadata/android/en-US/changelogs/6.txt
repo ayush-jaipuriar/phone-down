@@ -1,0 +1,7 @@
+Phone Down is now completely free.
+
+- Added completed-session summaries and clean-focus recovery
+- Made default focus duration editable
+- Included Insights, history, CSV export, and backup and restore for everyone
+- Removed purchase, upgrade, restore, and subscription flows
+- Corrected foreground-service classification for active focus sessions

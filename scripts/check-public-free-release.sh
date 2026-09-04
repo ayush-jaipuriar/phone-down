@@ -30,7 +30,7 @@ CURRENT_RELEASE_DOCS=(
   docs/release-readiness.md
   fastlane/metadata/android/en-US/full_description.txt
   fastlane/metadata/android/en-US/changelogs/default.txt
-  fastlane/metadata/android/en-US/changelogs/5.txt
+  fastlane/metadata/android/en-US/changelogs/6.txt
 )
 
 assert_absent "Phone Down Pro users" "${CURRENT_RELEASE_DOCS[@]}"
@@ -49,10 +49,10 @@ assert_contains docs/play-store-data-safety.md "Purchase history"
 assert_contains docs/account-deletion.md "disconnect the Google account from Phone Down"
 assert_contains feature/settings/src/main/kotlin/phonedown/feature/settings/PrivacyPolicyScreen.kt \
   "Settings > About > Send Feedback"
-assert_contains app/build.gradle.kts 'versionCode = 5'
-assert_contains app/build.gradle.kts 'versionName = "1.0.4"'
+assert_contains app/build.gradle.kts 'versionCode = 6'
+assert_contains app/build.gradle.kts 'versionName = "1.0.5"'
 assert_contains fastlane/metadata/android/en-US/full_description.txt "<b>Everything included</b>"
-assert_contains fastlane/metadata/android/en-US/changelogs/5.txt "Removed purchase, upgrade, restore, and subscription flows"
+assert_contains fastlane/metadata/android/en-US/changelogs/6.txt "Removed purchase, upgrade, restore, and subscription flows"
 assert_absent "pendingCsv" app/src/main/java/phonedown/app/insights/InsightsRoute.kt
 assert_contains app/src/main/java/phonedown/app/insights/InsightsRoute.kt \
   "openOutputStream(uri, FOCUS_HISTORY_OUTPUT_MODE)"

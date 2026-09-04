@@ -9,6 +9,7 @@ import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
+import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -275,15 +276,24 @@ class FocusSessionService : Service() {
         notificationId: Int,
         notification: android.app.Notification,
     ) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            startForeground(
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            startSpecialUseForeground(
                 notificationId,
                 notification,
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC,
+                requireNotNull(focusForegroundServiceType(Build.VERSION.SDK_INT)),
             )
         } else {
             startForeground(notificationId, notification)
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    private fun startSpecialUseForeground(
+        notificationId: Int,
+        notification: android.app.Notification,
+        serviceType: Int,
+    ) {
+        startForeground(notificationId, notification, serviceType)
     }
 
     private fun Intent?.requestedDurationSeconds(): Long? {
@@ -294,3 +304,10 @@ class FocusSessionService : Service() {
         return currentIntent.getLongExtra(FocusSessionServiceContract.EXTRA_PLANNED_DURATION_SECONDS, 0L)
     }
 }
+
+internal fun focusForegroundServiceType(sdkInt: Int): Int? =
+    if (sdkInt >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+        ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+    } else {
+        null
+    }
